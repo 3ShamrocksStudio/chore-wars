@@ -282,7 +282,8 @@ input,select{font-family:inherit}
 /* splash */
 #splash{position:fixed;inset:0;z-index:200;background:linear-gradient(160deg,var(--primary),var(--primary-deep) 60%,#2A47A8);
   display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;transition:opacity .5s ease,visibility .5s}
-#splash.gone{opacity:0;visibility:hidden}
+#splash.gone{opacity:0;visibility:hidden;pointer-events:none}
+#splash.hidden{display:none!important}
 #splash .crestbig{width:108px;height:108px;animation:pop .55s cubic-bezier(.2,1.6,.4,1) both}
 #splash h1{font-size:2.3rem;margin:14px 0 2px;text-shadow:0 4px 16px rgba(0,0,0,.22)}
 #splash .tag{font-weight:800;opacity:.95}
@@ -1354,7 +1355,15 @@ function boot(){
   $('#splashCrest').innerHTML=crestSVG();
   $('#whoChip').addEventListener('click',function(){currentTab='me';render();window.scrollTo(0,0);});
   render();
-  setTimeout(function(){$('#splash').classList.add('gone');},1400);
+  setTimeout(function(){
+    var sp=$('#splash');if(!sp)return;
+    sp.classList.add('gone');
+    // Belt-and-suspenders: never let the splash trap the user if the
+    // fade transition doesn't complete (e.g. throttled background tab).
+    var kill=function(){sp.classList.add('hidden');};
+    sp.addEventListener('transitionend',kill,{once:true});
+    setTimeout(kill,900);
+  },1400);
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
 }
 boot();
