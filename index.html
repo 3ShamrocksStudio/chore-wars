@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Chore Wars — a playful warrior-family gamified chore quest game for The M Clan. Slay quests, build clan momentum, raid Pizza Night. A 3Shamrocks Studio game.">
+<meta name="theme-color" content="#FF6B35">
+<!-- CSP: no eval, no remote script. Inline styles/scripts (single-file app) + Google Fonts + data/blob images (photo proof). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob: data:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Chore Wars™ — Slay the Quest · The M Clan</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --orange:#FF6B35; --orange-deep:#E8551F; --orange-soft:#FFE3D6;
+  --teal:#4ECDC4; --teal-deep:#2FB3AA; --teal-soft:#D9F6F3;
+  --purple:#7B68EE; --purple-deep:#5F4BD6; --purple-soft:#E7E2FF;
+  --jakob:#FF5C8A; --jakob-deep:#E23E70;
+  --dean:#FF9A3C; --dean-deep:#E87D1E;
+  --daddy:#4CAF6E; --daddy-deep:#379457;
+  --cream:#FFF6EC; --cream-deep:#FBEAD7;
+  --card:#FFFFFF;
+  --ink:#2B2118; --ink-soft:#6B5E50; --ink-faint:#9A8C7C;
+  --gold:#FFC53D;
+  --line:#F0E4D4;
+  --shadow:0 8px 24px rgba(120,80,40,.12);
+  --shadow-lg:0 16px 40px rgba(120,80,40,.18);
+  --radius:24px; --radius-sm:16px; --radius-pill:999px;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:'Nunito',system-ui,-apple-system,sans-serif;
+  background:
+    radial-gradient(1200px 500px at 100% -10%, rgba(123,104,238,.10), transparent 60%),
+    radial-gradient(900px 500px at -10% 0%, rgba(78,205,196,.12), transparent 55%),
+    var(--cream);
+  color:var(--ink);
+  font-size:16px; line-height:1.45;
+  overflow-x:hidden;
+}
+h1,h2,h3,.display{font-family:'Baloo 2',system-ui,sans-serif;font-weight:800;letter-spacing:-.01em;margin:0}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+:focus-visible{outline:3px solid var(--purple);outline-offset:2px;border-radius:8px}
+img{max-width:100%}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ===== App shell ===== */
+#app{max-width:560px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;position:relative}
+.screen{flex:1;padding:14px 16px 120px;animation:fadeUp .35s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important}}
+
+/* ===== Top bar ===== */
+.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;
+  padding:12px 16px calc(12px) ;background:linear-gradient(180deg,var(--cream) 70%,rgba(255,246,236,.4));backdrop-filter:blur(6px)}
+.brandmark{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
+.brandmark .crest{width:38px;height:38px;flex:none}
+.brandmark .tt{min-width:0}
+.brandmark .tt b{font-family:'Baloo 2';font-size:1.18rem;line-height:1;display:block;color:var(--ink)}
+.brandmark .tt span{font-size:.7rem;color:var(--ink-soft);font-weight:700;letter-spacing:.02em}
+.profile-chip{display:flex;align-items:center;gap:8px;background:var(--card);border:2px solid var(--line);
+  border-radius:var(--radius-pill);padding:5px 10px 5px 5px;box-shadow:var(--shadow);font-weight:800;font-size:.9rem}
+.profile-chip .av{width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;overflow:hidden}
+.profile-chip svg{width:34px;height:34px}
+.profile-chip .nm{max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profile-chip .cd{font-size:.85rem;color:var(--ink-faint)}
+
+/* ===== Cards ===== */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px;border:1px solid rgba(255,255,255,.6)}
+.card.flat{box-shadow:none;border:2px solid var(--line)}
+.section-title{display:flex;align-items:center;gap:9px;margin:18px 4px 10px}
+.section-title h2{font-size:1.22rem}
+.section-title .em{font-size:1.3rem}
+.section-title .count{margin-left:auto;font-size:.8rem;font-weight:800;color:var(--ink-soft);background:var(--cream-deep);padding:3px 11px;border-radius:var(--radius-pill)}
+
+/* ===== Hero / momentum ===== */
+.hero{background:linear-gradient(135deg,var(--orange),var(--orange-deep));color:#fff;border-radius:var(--radius);
+  padding:18px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;margin-bottom:14px}
+.hero::after{content:"";position:absolute;right:-30px;top:-30px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.10)}
+.hero .htop{display:flex;align-items:center;gap:10px;position:relative;z-index:1}
+.hero h2{font-size:1.35rem}
+.hero .sub{opacity:.92;font-weight:700;font-size:.9rem}
+.hero .greet-av{width:54px;height:54px;background:rgba(255,255,255,.18);border-radius:16px;display:grid;place-items:center}
+.hero .greet-av svg{width:46px;height:46px}
+
+.statrow{display:flex;gap:9px;margin-top:14px;position:relative;z-index:1}
+.stat{flex:1;background:rgba(255,255,255,.16);border-radius:14px;padding:9px 8px;text-align:center}
+.stat b{display:block;font-family:'Baloo 2';font-size:1.25rem;line-height:1.1}
+.stat span{font-size:.66rem;opacity:.9;font-weight:800;letter-spacing:.03em;text-transform:uppercase}
+
+/* level bar */
+.levelbar{margin-top:14px;position:relative;z-index:1}
+.levelbar .lb-top{display:flex;justify-content:space-between;font-size:.78rem;font-weight:800;margin-bottom:5px}
+.track{height:14px;background:rgba(0,0,0,.18);border-radius:99px;overflow:hidden;position:relative}
+.track .fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#FFE7A8,var(--gold));transition:width .9s cubic-bezier(.2,.9,.3,1);position:relative}
+.track .fill::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);transform:translateX(-100%);animation:shine 2.4s ease-in-out infinite}
+@keyframes shine{to{transform:translateX(100%)}}
+
+/* ===== Momentum meter ===== */
+.momentum{background:linear-gradient(135deg,var(--purple),var(--purple-deep));color:#fff;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.momentum .flame{font-size:2.4rem;filter:drop-shadow(0 4px 8px rgba(0,0,0,.25))}
+.momentum h2{font-size:1.3rem}
+.mtiers{display:flex;gap:5px;margin:14px 0 10px}
+.mtier{flex:1;text-align:center;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.02em;opacity:.5}
+.mtier .dot{height:10px;border-radius:99px;background:rgba(255,255,255,.25);margin-bottom:6px;transition:.5s}
+.mtier.on{opacity:1}
+.mtier.on .dot{background:#fff;box-shadow:0 0 12px rgba(255,255,255,.6)}
+.mtier.cur{transform:translateY(-3px) scale(1.04)}
+.mnext{font-weight:800;font-size:.92rem;background:rgba(255,255,255,.16);border-radius:12px;padding:9px 12px;text-align:center}
+
+/* ===== Quest cards ===== */
+.quest{display:flex;align-items:center;gap:13px;background:var(--card);border-radius:var(--radius-sm);
+  box-shadow:var(--shadow);padding:13px;margin-bottom:11px;border:2px solid transparent;transition:.25s}
+.quest.done{opacity:.62;border-color:var(--teal);background:var(--teal-soft)}
+.quest .qicon{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;font-size:1.6rem;flex:none}
+.quest .qbody{flex:1;min-width:0}
+.quest .qbody h3{font-size:1.04rem;line-height:1.15}
+.quest .qmeta{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+.tag{font-size:.7rem;font-weight:800;padding:2px 9px;border-radius:99px;display:inline-flex;align-items:center;gap:3px}
+.tag.xp{background:var(--purple-soft);color:var(--purple-deep)}
+.tag.coin{background:#FFF1C9;color:#B9850C}
+.tag.who{background:var(--cream-deep);color:var(--ink-soft)}
+.tag.pend{background:#FFE3D6;color:var(--orange-deep)}
+.tag.verified{background:var(--teal-soft);color:var(--teal-deep)}
+.qcheck{width:46px;height:46px;border-radius:14px;background:var(--cream-deep);display:grid;place-items:center;flex:none;transition:.2s;border:2px solid var(--line)}
+.qcheck:hover{transform:scale(1.06)}
+.qcheck:active{transform:scale(.92)}
+.qcheck.done{background:var(--teal);border-color:var(--teal-deep)}
+.qcheck svg{width:24px;height:24px}
+.qphoto{width:46px;height:46px;border-radius:14px;background:var(--orange-soft);display:grid;place-items:center;flex:none;font-size:1.2rem;border:2px dashed var(--orange);transition:.2s}
+.qphoto.has{border-style:solid;background:var(--teal-soft);border-color:var(--teal)}
+.qphoto:active{transform:scale(.92)}
+.qthumb{width:46px;height:46px;border-radius:12px;object-fit:cover;flex:none;border:2px solid var(--teal)}
+
+/* ===== Raid / boss ===== */
+.raid{background:linear-gradient(135deg,#3A2A6B,#241a47);color:#fff;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.raid::before{content:"";position:absolute;inset:0;background:radial-gradient(300px 120px at 80% 0,rgba(123,104,238,.4),transparent)}
+.raid>*{position:relative;z-index:1}
+.raid .rtop{display:flex;align-items:center;gap:12px}
+.raid .boss{font-size:2.6rem;filter:drop-shadow(0 4px 10px rgba(0,0,0,.4))}
+.raid h2{font-size:1.3rem}
+.raid .rsub{opacity:.85;font-weight:700;font-size:.85rem}
+.hp{margin-top:14px}
+.hp .hptop{display:flex;justify-content:space-between;font-weight:800;font-size:.82rem;margin-bottom:6px}
+.hp .track{height:20px;background:rgba(0,0,0,.35)}
+.hp .track .fill{background:linear-gradient(90deg,#FF8A5B,#FF4D4D)}
+.contribs{display:flex;gap:7px;margin-top:13px;flex-wrap:wrap}
+.contrib{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.14);border-radius:99px;padding:4px 11px 4px 4px;font-weight:800;font-size:.8rem}
+.contrib .av{width:26px;height:26px;border-radius:50%;overflow:hidden;display:grid;place-items:center}
+.contrib .av svg{width:26px;height:26px}
+
+/* ===== Battle log ===== */
+.logitem{display:flex;gap:11px;padding:11px 4px;border-bottom:1px solid var(--line)}
+.logitem:last-child{border-bottom:none}
+.logitem .lav{width:38px;height:38px;border-radius:50%;flex:none;overflow:hidden;display:grid;place-items:center;background:var(--cream-deep)}
+.logitem .lav svg{width:38px;height:38px}
+.logitem .lbody{flex:1;min-width:0}
+.logitem .lbody p{margin:0;font-weight:700;font-size:.92rem}
+.logitem .lbody .lt{font-size:.72rem;color:var(--ink-faint);font-weight:700}
+.logitem .lbadge{font-size:1.1rem;flex:none}
+
+/* ===== Leaderboard ===== */
+.leader{display:flex;align-items:center;gap:12px;padding:11px;border-radius:var(--radius-sm);margin-bottom:9px;background:var(--cream);border:2px solid var(--line)}
+.leader.me{border-color:var(--orange);background:var(--orange-soft)}
+.leader .rank{font-family:'Baloo 2';font-size:1.2rem;width:26px;text-align:center;color:var(--ink-soft)}
+.leader .lav{width:46px;height:46px;border-radius:50%;overflow:hidden;display:grid;place-items:center;flex:none}
+.leader .lav svg{width:46px;height:46px}
+.leader .linfo{flex:1;min-width:0}
+.leader .linfo b{font-size:1rem;display:block}
+.leader .linfo span{font-size:.78rem;color:var(--ink-soft);font-weight:700}
+.leader .lxp{text-align:right;font-weight:800}
+.leader .lxp b{font-family:'Baloo 2';font-size:1.1rem;color:var(--purple-deep)}
+.leader .lxp span{display:block;font-size:.68rem;color:var(--ink-faint)}
+
+/* ===== Goals / treasury ===== */
+.treasury{background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:#fff;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-lg)}
+.treasury .bal{display:flex;align-items:baseline;gap:8px}
+.treasury .bal b{font-family:'Baloo 2';font-size:2.4rem;line-height:1}
+.treasury .bal .c{font-size:1rem;font-weight:800;opacity:.9}
+.goalcard{background:var(--card);border-radius:var(--radius-sm);box-shadow:var(--shadow);padding:15px;margin-bottom:12px}
+.goalcard .gtop{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+.goalcard .gem{font-size:1.7rem}
+.goalcard h3{font-size:1.05rem;flex:1}
+.goalcard .gpct{font-weight:800;color:var(--teal-deep)}
+.sword-track{height:16px;background:var(--cream-deep);border-radius:99px;overflow:hidden}
+.sword-track .fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--purple));border-radius:99px;transition:width .9s cubic-bezier(.2,.9,.3,1)}
+.goalcard .gfoot{display:flex;justify-content:space-between;margin-top:8px;font-weight:800;font-size:.82rem;color:var(--ink-soft)}
+
+/* ===== Armory ===== */
+.armory-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.armo{background:var(--card);border-radius:var(--radius-sm);box-shadow:var(--shadow);padding:14px;text-align:center;border:2px solid transparent;position:relative}
+.armo.owned{border-color:var(--teal)}
+.armo.equipped{border-color:var(--purple);background:var(--purple-soft)}
+.armo.locked{opacity:.92}
+.armo .preview{height:84px;display:grid;place-items:center;margin-bottom:6px}
+.armo .preview svg{width:74px;height:74px}
+.armo .preview .big-em{font-size:3rem}
+.armo h4{font-family:'Baloo 2';font-size:.98rem;margin-bottom:2px}
+.armo .price{font-weight:800;font-size:.8rem;color:var(--ink-soft);margin-bottom:8px}
+.armo .ribbon{position:absolute;top:8px;right:8px;font-size:.62rem;font-weight:900;padding:2px 8px;border-radius:99px;text-transform:uppercase}
+.armo .ribbon.eq{background:var(--purple);color:#fff}
+.armo .ribbon.ow{background:var(--teal);color:#fff}
+
+/* ===== Buttons ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Baloo 2';font-weight:800;
+  border-radius:var(--radius-pill);padding:13px 20px;font-size:1rem;transition:.18s;box-shadow:0 5px 0 rgba(0,0,0,.12);user-select:none}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.btn.block{width:100%}
+.btn.orange{background:var(--orange);color:#fff;box-shadow:0 5px 0 var(--orange-deep)}
+.btn.orange:active{box-shadow:0 2px 0 var(--orange-deep)}
+.btn.teal{background:var(--teal);color:#fff;box-shadow:0 5px 0 var(--teal-deep)}
+.btn.teal:active{box-shadow:0 2px 0 var(--teal-deep)}
+.btn.purple{background:var(--purple);color:#fff;box-shadow:0 5px 0 var(--purple-deep)}
+.btn.purple:active{box-shadow:0 2px 0 var(--purple-deep)}
+.btn.gold{background:var(--gold);color:#5a3d00;box-shadow:0 5px 0 #D89B00}
+.btn.gold:active{box-shadow:0 2px 0 #D89B00}
+.btn.ghost{background:var(--card);color:var(--ink);box-shadow:0 0 0 2px var(--line) inset;border:none}
+.btn.ghost:active{transform:translateY(1px);box-shadow:0 0 0 2px var(--line) inset}
+.btn.sm{padding:9px 15px;font-size:.85rem;box-shadow:0 4px 0 rgba(0,0,0,.12)}
+.btn[disabled]{opacity:.5;pointer-events:none;filter:grayscale(.3)}
+
+/* ===== Empty states ===== */
+.empty{text-align:center;padding:30px 18px;color:var(--ink-soft)}
+.empty .em{font-size:3.2rem;display:block;margin-bottom:8px;animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.empty h3{font-size:1.2rem;color:var(--ink);margin-bottom:5px}
+.empty p{font-weight:700;font-size:.92rem}
+
+/* ===== Oversight (Daddy) ===== */
+.oversight{background:linear-gradient(135deg,var(--daddy),var(--daddy-deep));color:#fff;border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-lg)}
+.appr{display:flex;align-items:center;gap:11px;background:var(--card);color:var(--ink);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px;box-shadow:var(--shadow)}
+.appr .ainfo{flex:1;min-width:0}
+.appr .ainfo b{display:block;font-size:.96rem}
+.appr .ainfo span{font-size:.78rem;color:var(--ink-soft);font-weight:700}
+.appr .athumb{width:48px;height:48px;border-radius:12px;object-fit:cover;border:2px solid var(--teal);flex:none}
+.appr .actions{display:flex;gap:7px;flex:none}
+.iconbtn{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:1.2rem;box-shadow:0 4px 0 rgba(0,0,0,.12)}
+.iconbtn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.iconbtn.ok{background:var(--teal);color:#fff}
+.iconbtn.no{background:#FFD9D2;color:var(--orange-deep)}
+
+/* ===== Me / profile ===== */
+.profhead{display:flex;flex-direction:column;align-items:center;text-align:center;padding:8px 0 4px}
+.profhead .bigav{width:110px;height:110px;border-radius:50%;display:grid;place-items:center;box-shadow:var(--shadow-lg);margin-bottom:10px;position:relative}
+.profhead .bigav svg{width:96px;height:96px}
+.profhead h2{font-size:1.5rem}
+.profhead .role{font-weight:800;color:var(--ink-soft);font-size:.9rem}
+.switchrow{display:flex;gap:9px;margin:8px 0 4px}
+.switch-card{flex:1;background:var(--card);border:2px solid var(--line);border-radius:var(--radius-sm);padding:11px 6px;text-align:center;transition:.2s;box-shadow:var(--shadow)}
+.switch-card.active{border-color:var(--orange);background:var(--orange-soft)}
+.switch-card .av{width:50px;height:50px;border-radius:50%;margin:0 auto 5px;display:grid;place-items:center;overflow:hidden}
+.switch-card .av svg{width:50px;height:50px}
+.switch-card b{font-size:.86rem;display:block}
+.switch-card span{font-size:.66rem;color:var(--ink-soft);font-weight:800}
+
+.aboutbrand{text-align:center;padding:10px}
+.aboutbrand img{width:160px;margin:6px auto 10px;display:block}
+.aboutbrand .tm{font-weight:800;font-size:.9rem;color:var(--ink-soft)}
+.aboutbrand .cp{font-size:.74rem;color:var(--ink-faint);margin-top:6px;font-weight:700}
+
+/* ===== Bottom nav ===== */
+.tabbar{position:fixed;bottom:0;left:0;right:0;z-index:50;max-width:560px;margin:0 auto;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-top:1px solid var(--line);
+  display:flex;padding:7px 6px calc(7px + var(--safe-bottom));box-shadow:0 -6px 22px rgba(120,80,40,.10)}
+.tabbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:14px;color:var(--ink-faint);transition:.2s}
+.tabbtn .ti{width:26px;height:26px}
+.tabbtn span{font-size:.64rem;font-weight:800;letter-spacing:.01em}
+.tabbtn.active{color:var(--orange)}
+.tabbtn.active .ti{transform:translateY(-1px)}
+.tabbtn .ti svg{width:26px;height:26px;display:block}
+
+/* ===== Toast ===== */
+#toastwrap{position:fixed;left:0;right:0;bottom:96px;z-index:80;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 16px}
+.toast{background:var(--ink);color:#fff;font-weight:800;padding:13px 18px;border-radius:var(--radius-pill);box-shadow:var(--shadow-lg);
+  display:flex;align-items:center;gap:9px;max-width:520px;animation:toastIn .4s cubic-bezier(.2,1.4,.4,1) both;font-size:.95rem}
+.toast .em{font-size:1.3rem}
+.toast.victory{background:linear-gradient(135deg,var(--teal),var(--teal-deep))}
+.toast.xp{background:linear-gradient(135deg,var(--purple),var(--purple-deep))}
+.toast.coin{background:linear-gradient(135deg,var(--gold),#E0A800);color:#5a3d00}
+@keyframes toastIn{from{opacity:0;transform:translateY(20px) scale(.9)}to{opacity:1;transform:none}}
+.toast.out{animation:toastOut .35s ease forwards}
+@keyframes toastOut{to{opacity:0;transform:translateY(12px) scale(.95)}}
+
+/* ===== XP burst ===== */
+#burstwrap{position:fixed;inset:0;z-index:90;pointer-events:none;overflow:hidden}
+.spark{position:absolute;font-size:1.4rem;animation:spark .9s ease-out forwards}
+@keyframes spark{0%{opacity:1;transform:translate(0,0) scale(.6) rotate(0)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.3) rotate(var(--rot))}}
+.xpfloat{position:fixed;z-index:90;font-family:'Baloo 2';font-weight:800;color:var(--purple-deep);font-size:1.4rem;pointer-events:none;animation:xpfloat 1.1s ease-out forwards;text-shadow:0 2px 6px rgba(255,255,255,.9)}
+@keyframes xpfloat{0%{opacity:0;transform:translateY(0) scale(.7)}20%{opacity:1}100%{opacity:0;transform:translateY(-70px) scale(1.2)}}
+
+/* ===== Modal ===== */
+#modalwrap{position:fixed;inset:0;z-index:100;display:none;align-items:flex-end;justify-content:center;background:rgba(43,33,24,.55);backdrop-filter:blur(3px);padding:0}
+#modalwrap.show{display:flex;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--card);width:100%;max-width:560px;border-radius:28px 28px 0 0;padding:22px 20px calc(24px + var(--safe-bottom));box-shadow:var(--shadow-lg);animation:sheetUp .35s cubic-bezier(.2,1.1,.3,1) both;max-height:88vh;overflow-y:auto}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
+.modal .grab{width:42px;height:5px;border-radius:99px;background:var(--line);margin:0 auto 14px}
+.modal h2{font-size:1.4rem;margin-bottom:6px}
+.modal p.lead{color:var(--ink-soft);font-weight:700;margin:0 0 16px}
+.field{margin-bottom:14px}
+.field label{display:block;font-weight:800;font-size:.85rem;margin-bottom:6px;color:var(--ink-soft)}
+.field input,.field select{width:100%;font-family:inherit;font-size:1rem;font-weight:700;padding:13px 14px;border-radius:14px;border:2px solid var(--line);background:var(--cream);color:var(--ink)}
+.field input:focus,.field select:focus{border-color:var(--purple);outline:none}
+.bigcelebrate{text-align:center;padding:6px 0 4px}
+.bigcelebrate .em{font-size:4rem;display:block;animation:pop .5s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+
+.dividerlbl{text-align:center;font-weight:800;font-size:.74rem;color:var(--ink-faint);letter-spacing:.08em;text-transform:uppercase;margin:22px 0 12px;position:relative}
+.tinybrand{position:fixed;bottom:calc(78px + var(--safe-bottom));right:10px;z-index:30;opacity:.5;display:flex;align-items:center;gap:5px;font-size:.6rem;font-weight:800;color:var(--ink-faint);pointer-events:none}
+.tinybrand img{width:54px;opacity:.7}
+
+/* splash */
+#splash{position:fixed;inset:0;z-index:200;background:linear-gradient(160deg,var(--orange),var(--orange-deep) 55%,var(--purple-deep));display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;transition:opacity .5s ease,visibility .5s}
+#splash.gone{opacity:0;visibility:hidden}
+#splash .crestbig{width:120px;height:120px;animation:pop .6s cubic-bezier(.2,1.6,.4,1) both}
+#splash h1{font-size:2.5rem;margin:16px 0 2px;text-shadow:0 4px 16px rgba(0,0,0,.25)}
+#splash .tag{font-weight:800;opacity:.95;letter-spacing:.02em}
+#splash .clan{margin-top:10px;background:rgba(255,255,255,.18);padding:6px 16px;border-radius:99px;font-weight:800;font-size:.85rem}
+#splash .splbrand{position:absolute;bottom:30px;text-align:center}
+#splash .splbrand img{width:130px;margin-bottom:8px;filter:brightness(0) invert(1);opacity:.92}
+#splash .splbrand div{font-size:.72rem;font-weight:700;opacity:.85}
+</style>
+</head>
+<body>
+<a class="sr-only" href="#main">Skip to main content</a>
+
+<!-- Splash -->
+<div id="splash" role="dialog" aria-label="Chore Wars loading">
+  <div class="crestbig" id="splashCrest"></div>
+  <h1>Chore Wars</h1>
+  <div class="tag">⚔️ Slay the Quest · Rise the Clan ⚔️</div>
+  <div class="clan">The M Clan • Jakob · Dean · Daddy</div>
+  <div class="splbrand">
+    <img src="3shamrocks_black.png" alt="3Shamrocks Studio">
+    <div>Chore Wars™ — a 3Shamrocks Studio game</div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="brandmark">
+      <div class="crest" id="topCrest"></div>
+      <div class="tt"><b>Chore Wars</b><span>The M Clan ⚔️</span></div>
+    </div>
+    <button class="profile-chip" id="profileChip" aria-label="Switch warrior">
+      <span class="av" id="chipAv"></span>
+      <span class="nm" id="chipName">Jakob</span>
+      <span class="cd">▾</span>
+    </button>
+  </div>
+
+  <main id="main" class="screen" aria-live="polite"></main>
+
+  <nav class="tabbar" id="tabbar" aria-label="Main navigation"></nav>
+</div>
+
+<div class="tinybrand"><img src="3shamrocks_black.png" alt=""><span>3Shamrocks</span></div>
+
+<div id="toastwrap" aria-live="assertive"></div>
+<div id="burstwrap"></div>
+<div id="modalwrap" role="dialog" aria-modal="true"><div class="modal" id="modal"></div></div>
+<input type="file" id="photoInput" accept="image/*" capture="environment" class="sr-only" aria-hidden="true">
+
+<script>
+"use strict";
+/* ============================================================
+   Chore Wars™ — The M Clan
+   © 2026 3Shamrocks Studio. All rights reserved.
+   Single-file, dependency-free PWA. No eval, no innerHTML of
+   user data (dynamic text via textContent / DOM builders).
+   ============================================================ */
+
+/* ---------- Service worker: own it, evict strays (shared github.io origin) ---------- */
+(function(){
+  if(!('serviceWorker' in navigator)) return;
+  var BASE = location.pathname.replace(/[^/]*$/,''); // dir of this page
+  navigator.serviceWorker.getRegistrations().then(function(regs){
+    regs.forEach(function(r){
+      // Unregister any worker scoped outside this app's folder (foreign sibling project).
+      if(r.scope.indexOf(location.origin+BASE)!==0){ r.unregister(); }
+    });
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  }).catch(function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+})();
+
+/* ---------- DOM helpers (safe builders) ---------- */
+function E(tag, props, kids){
+  var n=document.createElement(tag);
+  if(props) for(var k in props){
+    if(k==='class') n.className=props[k];
+    else if(k==='text') n.textContent=props[k];
+    else if(k==='html') n.innerHTML=props[k];           // ONLY used with trusted static SVG strings
+    else if(k==='on') for(var ev in props[k]) n.addEventListener(ev,props[k][ev]);
+    else if(k==='style') n.setAttribute('style',props[k]);
+    else if(k in n && k!=='list') { try{ n[k]=props[k]; }catch(e){ n.setAttribute(k,props[k]); } }
+    else n.setAttribute(k,props[k]);
+  }
+  if(kids!=null){ (Array.isArray(kids)?kids:[kids]).forEach(function(c){
+    if(c==null||c===false) return;
+    n.appendChild(typeof c==='string'?document.createTextNode(c):c);
+  });}
+  return n;
+}
+function $(s,r){return (r||document).querySelector(s);}
+function clear(n){while(n.firstChild)n.removeChild(n.firstChild);}
+
+/* ============================================================
+   WARRIOR AVATARS — consistent cute cartoon SVG family set.
+   armorMap drives palette; crown flag for Daddy (Clan Leader).
+   Returns a trusted static SVG string (no user data).
+   ============================================================ */
+function warrior(opts){
+  opts=opts||{};
+  var a=opts.armor||'#FF5C8A', ad=opts.armorDark||'#E23E70';
+  var skin=opts.skin||'#FFD9B8', hair=opts.hair||'#5A3A22';
+  var crown=opts.crown? '<g>\
+      <path d="M33 22 L40 30 L50 20 L60 30 L67 22 L65 33 L35 33 Z" fill="#FFC53D" stroke="#E0A800" stroke-width="1.5"/>\
+      <circle cx="33" cy="22" r="3" fill="#FFE082"/><circle cx="50" cy="20" r="3.2" fill="#FFE082"/><circle cx="67" cy="22" r="3" fill="#FFE082"/>\
+      <circle cx="43" cy="33" r="1.8" fill="#E2462f"/><circle cx="57" cy="33" r="1.8" fill="#4ECDC4"/>\
+    </g>':'';
+  var plume = opts.crown ? '' : '<path d="M50 8 q10 -6 8 8 q-4 -2 -8 0 Z" fill="'+ad+'"/>';
+  return '<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="warrior">\
+    <defs><linearGradient id="g'+a.replace("#","")+'" x1="0" y1="0" x2="0" y2="1">\
+      <stop offset="0" stop-color="'+a+'"/><stop offset="1" stop-color="'+ad+'"/></linearGradient></defs>\
+    '+plume+'\
+    <!-- body/armor -->\
+    <path d="M22 74 q0 -18 14 -22 h28 q14 4 14 22 v20 q0 6 -6 6 H28 q-6 0 -6 -6 Z" fill="url(#g'+a.replace("#","")+')"/>\
+    <path d="M50 52 v34" stroke="'+ad+'" stroke-width="3" stroke-linecap="round"/>\
+    <circle cx="50" cy="66" r="5" fill="#FFC53D" stroke="'+ad+'" stroke-width="1.5"/>\
+    <!-- shoulders -->\
+    <circle cx="26" cy="60" r="9" fill="'+ad+'"/><circle cx="74" cy="60" r="9" fill="'+ad+'"/>\
+    <!-- head -->\
+    <rect x="34" y="30" width="32" height="30" rx="14" fill="'+skin+'"/>\
+    <!-- helmet rim -->\
+    <path d="M32 38 q18 -16 36 0" fill="none" stroke="'+a+'" stroke-width="6" stroke-linecap="round"/>\
+    <path d="M30 36 q20 -20 40 0 l0 4 q-20 -14 -40 0 Z" fill="'+a+'"/>\
+    <!-- face -->\
+    <circle cx="43" cy="46" r="3.1" fill="#2B2118"/><circle cx="57" cy="46" r="3.1" fill="#2B2118"/>\
+    <circle cx="44.2" cy="45" r="1" fill="#fff"/><circle cx="58.2" cy="45" r="1" fill="#fff"/>\
+    <circle cx="38" cy="51" r="2.6" fill="#FF9AA0" opacity=".6"/><circle cx="62" cy="51" r="2.6" fill="#FF9AA0" opacity=".6"/>\
+    <path d="M45 53 q5 4 10 0" fill="none" stroke="#2B2118" stroke-width="2" stroke-linecap="round"/>\
+    '+crown+'\
+    <!-- sword -->\
+    <g transform="rotate(18 82 70)">\
+      <rect x="79" y="40" width="6" height="34" rx="2" fill="#D9DCE3"/>\
+      <path d="M79 40 h6 l-3 -8 Z" fill="#EEF1F6"/>\
+      <rect x="73" y="73" width="18" height="5" rx="2" fill="#8A6A3A"/>\
+      <rect x="80" y="77" width="4" height="9" rx="2" fill="#6B4E26"/>\
+    </g>\
+  </svg>';
+}
+/* Per-character avatar variants used across the app (armor + unlockable gear) */
+function avatarFor(pid, gear){
+  var base={
+    jakob:{armor:'#FF5C8A',armorDark:'#E23E70',hair:'#3A2A1C'},
+    dean :{armor:'#FF9A3C',armorDark:'#E87D1E',hair:'#5A3A22'},
+    daddy:{armor:'#4CAF6E',armorDark:'#379457',hair:'#2B2118',crown:true}
+  }[pid]||{};
+  var o=Object.assign({},base);
+  if(gear==='gold'){ o.armor='#FFC53D'; o.armorDark='#E0A800'; }
+  if(gear==='shadow'){ o.armor='#5A5570'; o.armorDark='#36324a'; }
+  if(gear==='frost'){ o.armor='#7FE0FF'; o.armorDark='#3FB3E0'; }
+  if(gear==='crown'){ o.crown=true; }
+  return warrior(o);
+}
+
+/* App crest (shield + sword) for splash/topbar/icon */
+function crestSVG(){
+  return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Chore Wars crest">\
+   <defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF8A5B"/><stop offset="1" stop-color="#FF6B35"/></linearGradient></defs>\
+   <path d="M50 6 L86 18 V50 Q86 80 50 96 Q14 80 14 50 V18 Z" fill="url(#cg)" stroke="#fff" stroke-width="3"/>\
+   <path d="M50 16 L78 26 V50 Q78 73 50 86 Q22 73 22 50 V26 Z" fill="rgba(255,255,255,.16)"/>\
+   <g stroke="#fff" stroke-width="4" stroke-linecap="round"><path d="M37 64 L63 38"/><path d="M63 64 L37 38"/></g>\
+   <circle cx="50" cy="51" r="5.5" fill="#4ECDC4" stroke="#fff" stroke-width="2"/>\
+  </svg>';
+}
+
+/* ---------- SVG tab icons ---------- */
+var ICONS={
+  missions:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
+  extras:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9.5 17 14 18.5 21 12 17.5 5.5 21 7 14 2 9.5 9 9"/></svg>',
+  goals:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg>',
+  squad:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="3.2"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  me:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 16 0v1"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 6"/></svg>'
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+var STORE_KEY='chorewars_v1';
+var TABS=[
+  {id:'missions',label:'Missions',icon:ICONS.missions},
+  {id:'extras',label:'Extras',icon:ICONS.extras},
+  {id:'goals',label:'Goals',icon:ICONS.goals},
+  {id:'squad',label:'Squad',icon:ICONS.squad},
+  {id:'me',label:'Me',icon:ICONS.me}
+];
+var MOMENTUM_TIERS=[
+  {key:'cold',name:'Cold',em:'❄️',min:0},
+  {key:'warming',name:'Warming',em:'🌤️',min:2},
+  {key:'steady',name:'Steady',em:'⚡',min:4},
+  {key:'hot',name:'Hot',em:'🔥',min:6},
+  {key:'fire',name:'On Fire',em:'🔥🔥',min:8}
+];
+var XP_PER_LEVEL=300;
+var COIN_TO_USD=0.10; // 10 coins = $1 allowance
+
+var state=null, currentTab='missions';
+
+function defaultState(){
+  var today=isoDay(0);
+  return {
+    activeProfile:'jakob',
+    profiles:{
+      jakob:{id:'jakob',name:'Jakob',role:'Warrior',color:'#FF5C8A',xp:540,coins:128,gear:null},
+      dean :{id:'dean', name:'Dean', role:'Warrior',color:'#FF9A3C',xp:720,coins:86,gear:null},
+      daddy:{id:'daddy',name:'Daddy',role:'Clan Leader',color:'#4CAF6E',xp:1340,coins:0,gear:'crown'}
+    },
+    momentum:{streak:5,lastDay:today},
+    raid:{name:'Pizza Night',emoji:'🍕',bossMax:24,bossDealt:17,defeated:false,
+          contrib:{jakob:7,dean:8,daddy:2}},
+    quests:[
+      // Daily quests (reset/seed). assignedTo per kid.
+      {id:'q1',title:'Make your bed',em:'🛏️',xp:20,coins:5,who:'jakob',type:'daily',done:true,verified:true,photo:null,day:today},
+      {id:'q2',title:'Brush teeth (AM)',em:'🪥',xp:15,coins:3,who:'jakob',type:'daily',done:true,verified:true,photo:null,day:today},
+      {id:'q3',title:'Feed the dog',em:'🐶',xp:25,coins:8,who:'jakob',type:'daily',done:false,verified:false,photo:null,day:today},
+      {id:'q4',title:'Pack school bag',em:'🎒',xp:20,coins:5,who:'jakob',type:'daily',done:false,verified:false,photo:null,day:today},
+      {id:'q5',title:'Tidy battle station (desk)',em:'🧹',xp:30,coins:10,who:'jakob',type:'daily',done:false,verified:false,photo:null,day:today},
+      {id:'q6',title:'Make your bed',em:'🛏️',xp:20,coins:5,who:'dean',type:'daily',done:true,verified:true,photo:null,day:today},
+      {id:'q7',title:'Brush teeth (AM)',em:'🪥',xp:15,coins:3,who:'dean',type:'daily',done:true,verified:false,photo:'pending',day:today},
+      {id:'q8',title:'Water the plants',em:'🪴',xp:25,coins:8,who:'dean',type:'daily',done:false,verified:false,photo:null,day:today},
+      {id:'q9',title:'Set the dinner table',em:'🍽️',xp:25,coins:8,who:'dean',type:'daily',done:false,verified:false,photo:null,day:today},
+      {id:'q10',title:'Reading quest (20 min)',em:'📚',xp:35,coins:12,who:'dean',type:'daily',done:false,verified:false,photo:null,day:today}
+    ],
+    extras:[
+      {id:'e1',title:'Vacuum the living room',em:'🌀',xp:60,coins:25,claimedBy:null,done:false,verified:false,photo:null},
+      {id:'e2',title:'Wash the car (epic)',em:'🚗',xp:120,coins:60,claimedBy:null,done:false,verified:false,photo:null},
+      {id:'e3',title:'Sort the recycling',em:'♻️',xp:45,coins:18,claimedBy:'jakob',done:false,verified:false,photo:null},
+      {id:'e4',title:'Help fold laundry',em:'🧺',xp:50,coins:20,claimedBy:null,done:false,verified:false,photo:null},
+      {id:'e5',title:'Sweep the porch',em:'🍂',xp:40,coins:15,claimedBy:null,done:false,verified:false,photo:null}
+    ],
+    goals:[
+      {id:'g1',owner:'jakob',title:'Nintendo eShop card',em:'🎮',target:200,saved:128},
+      {id:'g2',owner:'dean',title:'New LEGO set',em:'🧱',target:300,saved:86},
+      {id:'g3',owner:'jakob',title:'Movie night treat',em:'🍿',target:50,saved:50}
+    ],
+    payouts:[ /* allowance cashout requests pending Daddy */
+      {id:'p1',who:'dean',coins:50,usd:5,status:'pending',ts:tsAgo(40)}
+    ],
+    armory:[
+      {id:'a_frost',name:'Frost Plate',gear:'frost',type:'armor',cost:150,costType:'coins'},
+      {id:'a_gold',name:'Golden Aegis',gear:'gold',type:'armor',cost:400,costType:'xp'},
+      {id:'a_shadow',name:'Shadow Mail',gear:'shadow',type:'armor',cost:250,costType:'coins'},
+      {id:'a_crown',name:"Champion's Crown",gear:'crown',type:'crown',cost:600,costType:'xp'}
+    ],
+    owned:{jakob:[],dean:['frost'],daddy:['crown']},
+    log:[
+      {id:'l1',who:'dean',em:'⚔️',text:'Dean slayed “Make your bed” — Victory Logged!',ts:tsAgo(35)},
+      {id:'l2',who:'jakob',em:'⚔️',text:'Jakob slayed “Brush teeth” — +15 XP!',ts:tsAgo(50)},
+      {id:'l3',who:'jakob',em:'🛡️',text:'Jakob made bed — Daddy verified the proof! ✅',ts:tsAgo(80)},
+      {id:'l4',who:'daddy',em:'👑',text:'Daddy launched the raid: Pizza Night 🍕',ts:tsAgo(180)},
+      {id:'l5',who:'dean',em:'🔥',text:'Clan momentum reached STEADY — keep going!',ts:tsAgo(300)}
+    ]
+  };
+}
+
+/* ---------- time helpers ---------- */
+function isoDay(off){var d=new Date();d.setDate(d.getDate()+(off||0));return d.toISOString().slice(0,10);}
+function tsAgo(min){return Date.now()-min*60000;}
+function relTime(ts){
+  var s=(Date.now()-ts)/1000;
+  if(s<60)return'just now';
+  if(s<3600)return Math.floor(s/60)+'m ago';
+  if(s<86400)return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
+
+/* ---------- persistence ---------- */
+function load(){
+  try{var raw=localStorage.getItem(STORE_KEY);if(raw){state=JSON.parse(raw);
+    // light migration / refresh of "today" daily quests so app opens alive
+    return;}}catch(e){}
+  state=defaultState();save();
+}
+function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify(state));}catch(e){}}
+function resetDemo(){state=defaultState();currentTab='missions';save();render();toast('🔄','Demo data reset — fresh battlefield!','victory');}
+
+/* ---------- derived ---------- */
+function P(id){return state.profiles[id||state.activeProfile];}
+function levelOf(xp){return Math.floor(xp/XP_PER_LEVEL)+1;}
+function xpInLevel(xp){return xp%XP_PER_LEVEL;}
+function momentumTier(streak){var t=MOMENTUM_TIERS[0];for(var i=0;i<MOMENTUM_TIERS.length;i++){if(streak>=MOMENTUM_TIERS[i].min)t=MOMENTUM_TIERS[i];}return t;}
+function nextTier(streak){for(var i=0;i<MOMENTUM_TIERS.length;i++){if(streak<MOMENTUM_TIERS[i].min)return MOMENTUM_TIERS[i];}return null;}
+
+/* ============================================================
+   FEEDBACK: toast, xp burst, sparks
+   ============================================================ */
+function toast(em,msg,kind){
+  var wrap=$('#toastwrap');
+  var t=E('div',{class:'toast'+(kind?(' '+kind):'')},[E('span',{class:'em',text:em}),E('span',{text:msg})]);
+  wrap.appendChild(t);
+  setTimeout(function(){t.classList.add('out');setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},400);},2400);
+}
+function burst(x,y){
+  var emojis=['⚔️','✨','🔥','⭐','💥','🛡️'];
+  for(var i=0;i<12;i++){
+    var s=E('span',{class:'spark',text:emojis[i%emojis.length]});
+    var ang=(Math.PI*2)*(i/12)+ (Math.random()*0.5);
+    var dist=60+Math.random()*70;
+    s.style.left=x+'px';s.style.top=y+'px';
+    s.style.setProperty('--dx',(Math.cos(ang)*dist)+'px');
+    s.style.setProperty('--dy',(Math.sin(ang)*dist)+'px');
+    s.style.setProperty('--rot',(Math.random()*360-180)+'deg');
+    $('#burstwrap').appendChild(s);
+    (function(el){setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},950);})(s);
+  }
+}
+function xpFloat(x,y,txt){
+  var f=E('div',{class:'xpfloat',text:txt});
+  f.style.left=(x-20)+'px';f.style.top=(y-20)+'px';
+  document.body.appendChild(f);
+  setTimeout(function(){if(f.parentNode)f.parentNode.removeChild(f);},1150);
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render(){
+  // top chip
+  var p=P();
+  var chipAv=$('#chipAv');clear(chipAv);chipAv.innerHTML=avatarFor(p.id,p.gear);
+  $('#chipName').textContent=p.name;
+  $('#topCrest').innerHTML=crestSVG();
+
+  // tabs
+  var tb=$('#tabbar');clear(tb);
+  TABS.forEach(function(t){
+    var b=E('button',{class:'tabbtn'+(currentTab===t.id?' active':''),'aria-label':t.label,
+      'aria-current':currentTab===t.id?'page':null,
+      on:{click:function(){currentTab=t.id;render();window.scrollTo(0,0);}}},
+      [E('span',{class:'ti',html:t.icon}),E('span',{text:t.id==='squad'?'Clan':t.label})]);
+    tb.appendChild(b);
+  });
+
+  var main=$('#main');clear(main);
+  ({missions:viewMissions,extras:viewExtras,goals:viewGoals,squad:viewSquad,me:viewMe}[currentTab])(main);
+}
+
+/* ---------- shared bits ---------- */
+function avNode(pid,gear,cls){var s=E('span',{class:cls||'av'});s.innerHTML=avatarFor(pid,gear);return s;}
+function heroCard(){
+  var p=P();var lvl=levelOf(p.xp),inLvl=xpInLevel(p.xp),pct=Math.round(inLvl/XP_PER_LEVEL*100);
+  var myDaily=state.quests.filter(function(q){return q.who===p.id;});
+  var doneCount=myDaily.filter(function(q){return q.done;}).length;
+  var greet = p.id==='daddy' ? 'Clan Leader on deck' : (doneCount>0?'On a roll, warrior!':'Ready for battle?');
+  return E('div',{class:'hero'},[
+    E('div',{class:'htop'},[
+      (function(){var a=E('div',{class:'greet-av'});a.innerHTML=avatarFor(p.id,p.gear);return a;})(),
+      E('div',{},[
+        E('h2',{text:'Hey '+p.name+'! 👋'}),
+        E('div',{class:'sub',text:greet})
+      ])
+    ]),
+    E('div',{class:'statrow'},[
+      E('div',{class:'stat'},[E('b',{text:'Lv '+lvl}),E('span',{text:'Level'})]),
+      E('div',{class:'stat'},[E('b',{text:String(p.xp)}),E('span',{text:'Total XP'})]),
+      E('div',{class:'stat'},[E('b',{text:'🪙 '+p.coins}),E('span',{text:'Coins'})])
+    ]),
+    E('div',{class:'levelbar'},[
+      E('div',{class:'lb-top'},[E('span',{text:'Level '+lvl}),E('span',{text:inLvl+' / '+XP_PER_LEVEL+' XP'})]),
+      E('div',{class:'track'},[(function(){var f=E('div',{class:'fill'});f.style.width=pct+'%';return f;})()])
+    ])
+  ]);
+}
+
+function raidCard(compact){
+  var r=state.raid;
+  var remain=r.bossMax-r.bossDealt;
+  var pct=Math.min(100,Math.round(r.bossDealt/r.bossMax*100));
+  var defeated=r.bossDealt>=r.bossMax;
+  var contribs=Object.keys(r.contrib).filter(function(k){return r.contrib[k]>0;});
+  return E('div',{class:'raid'},[
+    E('div',{class:'rtop'},[
+      E('span',{class:'boss',text:defeated?'🎉':r.emoji}),
+      E('div',{style:'flex:1'},[
+        E('h2',{text:'Clan Raid: '+r.name}),
+        E('div',{class:'rsub',text:defeated?'BOSS DEFEATED — Pizza Night unlocked!':'Defeat the boss together to earn '+r.name+'!'})
+      ])
+    ]),
+    E('div',{class:'hp'},[
+      E('div',{class:'hptop'},[
+        E('span',{text:defeated?'💯 Victory!':'Boss Health'}),
+        E('span',{text:defeated?'0 left':remain+' quests to go'})
+      ]),
+      E('div',{class:'track'},[(function(){var f=E('div',{class:'fill'});f.style.width=(100-pct)+'%';return f;})()])
+    ]),
+    E('div',{class:'contribs'}, contribs.map(function(k){
+      return E('div',{class:'contrib'},[avNode(k,P(k).gear),E('span',{text:P(k).name+' ·'+r.contrib[k]})]);
+    }))
+  ]);
+}
+
+function momentumCard(){
+  var m=state.momentum, tier=momentumTier(m.streak), nt=nextTier(m.streak);
+  var msg = nt ? (nt.min-m.streak)+' day'+((nt.min-m.streak)>1?'s':'')+' to '+nt.name+' — clan needs you!' : 'Maximum heat — the clan is unstoppable! 🔥';
+  return E('div',{class:'momentum'},[
+    E('div',{style:'display:flex;align-items:center;gap:12px'},[
+      E('span',{class:'flame',text:tier.em}),
+      E('div',{},[
+        E('h2',{text:'Clan Momentum: '+tier.name}),
+        E('div',{class:'sub',style:'opacity:.9;font-weight:700',text:'🔥 '+m.streak+'-day streak — '+(P('daddy'),'The M Clan rising!')})
+      ])
+    ]),
+    E('div',{class:'mtiers'}, MOMENTUM_TIERS.map(function(t){
+      var on=m.streak>=t.min;var cur=tier.key===t.key;
+      return E('div',{class:'mtier'+(on?' on':'')+(cur?' cur':'')},[E('div',{class:'dot'}),E('span',{text:t.name})]);
+    })),
+    E('div',{class:'mnext',text:msg})
+  ]);
+}
+
+/* ============================================================
+   VIEW: MISSIONS
+   ============================================================ */
+function viewMissions(main){
+  var p=P();
+  main.appendChild(heroCard());
+
+  if(p.id==='daddy'){
+    // Daddy sees clan-wide overview
+    main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'🗺️'}),E('h2',{text:"Clan's Quests Today"})]));
+    ['jakob','dean'].forEach(function(kid){
+      var qs=state.quests.filter(function(q){return q.who===kid;});
+      var done=qs.filter(function(q){return q.done;}).length;
+      main.appendChild(E('div',{class:'leader'},[
+        avNode(kid,P(kid).gear,'lav'),
+        E('div',{class:'linfo'},[E('b',{text:P(kid).name}),E('span',{text:done+' of '+qs.length+' quests slayed'})]),
+        E('div',{class:'lxp'},[E('b',{text:done+'/'+qs.length}),E('span',{text:'today'})])
+      ]));
+    });
+    main.appendChild(raidCard());
+    return;
+  }
+
+  main.appendChild(raidCard());
+
+  var myQ=state.quests.filter(function(q){return q.who===p.id;});
+  var open=myQ.filter(function(q){return !q.done;});
+  var done=myQ.filter(function(q){return q.done;});
+
+  main.appendChild(E('div',{class:'section-title'},[
+    E('span',{class:'em',text:'⚔️'}),E('h2',{text:"Today's Quests"}),
+    E('span',{class:'count',text:done.length+'/'+myQ.length})
+  ]));
+
+  if(myQ.length===0){
+    main.appendChild(emptyState('🛡️','Ready for battle?','No quests yet — your Clan Leader will assign some soon!'));
+  } else {
+    open.forEach(function(q){main.appendChild(questCard(q));});
+    if(done.length){
+      main.appendChild(E('div',{class:'dividerlbl',text:'✅ Victories Logged ('+done.length+')'}));
+      done.forEach(function(q){main.appendChild(questCard(q));});
+    }
+    if(open.length===0){
+      main.appendChild(emptyState('🏆','All quests slayed!','Legendary work, '+p.name+'. The clan salutes you!'));
+    }
+  }
+}
+
+function questCard(q){
+  var c=E('div',{class:'quest'+(q.done?' done':'')});
+  c.appendChild(E('div',{class:'qicon',style:'background:'+(q.done?'var(--teal-soft)':'var(--orange-soft)'),text:q.em}));
+  var meta=E('div',{class:'qmeta'},[
+    E('span',{class:'tag xp',text:'⭐ '+q.xp+' XP'}),
+    E('span',{class:'tag coin',text:'🪙 '+q.coins})
+  ]);
+  if(q.photo==='pending'||(q.photo&&!q.verified&&q.done)) meta.appendChild(E('span',{class:'tag pend',text:'📷 awaiting Daddy'}));
+  if(q.verified&&q.done) meta.appendChild(E('span',{class:'tag verified',text:'✅ verified'}));
+  c.appendChild(E('div',{class:'qbody'},[E('h3',{text:q.title}),meta]));
+
+  // photo proof button / thumb
+  if(q.photo && q.photo!=='pending'){
+    c.appendChild(E('img',{class:'qthumb',src:q.photo,alt:'proof'}));
+  } else if(!q.done){
+    c.appendChild(E('button',{class:'qphoto'+(q.photo?' has':''),'aria-label':'Add photo proof (+15 XP)',title:'Photo proof = +15 XP',
+      on:{click:function(){addPhotoProof(q);}}},'📷'));
+  }
+
+  // check button
+  var chk=E('button',{class:'qcheck'+(q.done?' done':''),'aria-label':q.done?'Completed':'Complete quest',
+    on:{click:function(ev){toggleQuest(q,ev);}}});
+  chk.innerHTML=q.done?ICONS.check.replace('currentColor','#fff'):ICONS.check;
+  if(q.done) chk.style.color='#fff';
+  c.appendChild(chk);
+  return c;
+}
+
+function toggleQuest(q,ev){
+  if(q.done){ // undo
+    q.done=false;q.verified=false;
+    var p=P(q.who);p.xp=Math.max(0,p.xp-q.xp);p.coins=Math.max(0,p.coins-q.coins);
+    dealDamage(q.who,-1);
+    save();render();return;
+  }
+  q.done=true;
+  var p=P(q.who);p.xp+=q.xp;p.coins+=q.coins;
+  // momentum: completing keeps streak warm (demo)
+  addLog(q.who,'⚔️',P(q.who).name+' slayed “'+q.title+'” — Victory Logged! +'+q.xp+' XP');
+  dealDamage(q.who,1);
+  // feedback
+  var r=ev&&ev.currentTarget?ev.currentTarget.getBoundingClientRect():{left:innerWidth/2,top:innerHeight/2,width:0,height:0};
+  burst(r.left+r.width/2,r.top+r.height/2);
+  xpFloat(r.left+r.width/2,r.top, '+'+q.xp+' XP');
+  toast('⚔️','Victory! +'+q.xp+' XP, +'+q.coins+' 🪙','victory');
+  checkRaidDefeat();
+  save();render();
+}
+
+function addPhotoProof(q){
+  pickPhoto(function(dataUrl){
+    q.photo=dataUrl; q.done=true; q.verified=false;
+    var p=P(q.who);p.xp+=q.xp+15;p.coins+=q.coins; // +15 XP bonus for proof
+    addLog(q.who,'📷',P(q.who).name+' submitted photo proof for “'+q.title+'” (+15 XP) — awaiting Daddy ✅');
+    dealDamage(q.who,1);
+    toast('📷','Proof submitted! +'+(q.xp+15)+' XP — Daddy will verify','xp');
+    burst(innerWidth/2,innerHeight/2);
+    checkRaidDefeat();
+    save();render();
+  });
+}
+
+/* photo picker — camera/file; falls back to a generated placeholder if no file chosen */
+function pickPhoto(cb){
+  var inp=$('#photoInput');
+  var handler=function(){
+    var f=inp.files&&inp.files[0];
+    inp.removeEventListener('change',handler); inp.value='';
+    if(!f){ cb(placeholderPhoto()); return; }
+    var fr=new FileReader();
+    fr.onload=function(){ cb(fr.result); };
+    fr.onerror=function(){ cb(placeholderPhoto()); };
+    fr.readAsDataURL(f);
+  };
+  inp.addEventListener('change',handler);
+  // On devices w/o camera the dialog may cancel → still allow a demo proof via fallback timer
+  inp.click();
+}
+function placeholderPhoto(){
+  // tiny inline SVG "proof" image as data URL (demo / no-camera fallback)
+  var svg='<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="#4ECDC4"/><text x="60" y="58" font-size="40" text-anchor="middle">📷</text><text x="60" y="92" font-size="13" text-anchor="middle" fill="#fff" font-family="sans-serif">Proof!</text></svg>';
+  return 'data:image/svg+xml;utf8,'+encodeURIComponent(svg);
+}
+
+/* ============================================================
+   VIEW: EXTRAS (bonus quest marketplace)
+   ============================================================ */
+function viewExtras(main){
+  var p=P();
+  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'🌟'}),E('h2',{text:'Bonus Quests'}),
+    E('span',{class:'count',text:'+coins'})]));
+  main.appendChild(E('p',{style:'color:var(--ink-soft);font-weight:700;margin:0 4px 12px',
+    text:'Optional epic quests for extra XP & coins. Claim one, slay it, earn the loot!'}));
+
+  var avail=state.extras;
+  if(avail.length===0){
+    main.appendChild(emptyState('🗡️','No bonus quests right now','Check back soon for epic loot!'));
+    return;
+  }
+  avail.forEach(function(x){
+    var mine=x.claimedBy===p.id;
+    var claimedByOther=x.claimedBy && x.claimedBy!==p.id;
+    var c=E('div',{class:'quest'+(x.done?' done':'')});
+    c.appendChild(E('div',{class:'qicon',style:'background:var(--purple-soft)',text:x.em}));
+    var meta=E('div',{class:'qmeta'},[
+      E('span',{class:'tag xp',text:'⭐ '+x.xp+' XP'}),
+      E('span',{class:'tag coin',text:'🪙 '+x.coins})
+    ]);
+    if(claimedByOther) meta.appendChild(E('span',{class:'tag who',text:'⚔️ '+P(x.claimedBy).name+' is on it'}));
+    if(mine&&!x.done) meta.appendChild(E('span',{class:'tag pend',text:'🎯 your quest'}));
+    if(x.done&&!x.verified) meta.appendChild(E('span',{class:'tag pend',text:'awaiting Daddy'}));
+    c.appendChild(E('div',{class:'qbody'},[E('h3',{text:x.title}),meta]));
+
+    if(p.id==='daddy'){
+      // Daddy can't claim; just sees status
+      c.appendChild(E('span',{class:'tag who',text:x.claimedBy?('→ '+P(x.claimedBy).name):'unclaimed'}));
+    } else if(!x.claimedBy){
+      c.appendChild(E('button',{class:'btn teal sm',on:{click:function(){claimExtra(x);}}},'Claim'));
+    } else if(mine && !x.done){
+      var b=E('button',{class:'qcheck',on:{click:function(ev){completeExtra(x,ev);}},'aria-label':'Complete'});
+      b.innerHTML=ICONS.check; c.appendChild(b);
+    } else if(mine && x.done){
+      var d=E('div',{class:'qcheck done'});d.style.color='#fff';d.innerHTML=ICONS.check.replace('currentColor','#fff');c.appendChild(d);
+    }
+    main.appendChild(c);
+  });
+}
+function claimExtra(x){
+  x.claimedBy=state.activeProfile; save();render();
+  toast('🎯','Quest claimed — go get the loot!','xp');
+}
+function completeExtra(x,ev){
+  x.done=true;x.verified=false;
+  var p=P(x.claimedBy);p.xp+=x.xp;p.coins+=x.coins;
+  addLog(x.claimedBy,'🌟',P(x.claimedBy).name+' conquered bonus quest “'+x.title+'” — +'+x.xp+' XP!');
+  dealDamage(x.claimedBy,1);
+  var r=ev.currentTarget.getBoundingClientRect();
+  burst(r.left+r.width/2,r.top+r.height/2);xpFloat(r.left+r.width/2,r.top,'+'+x.xp+' XP');
+  toast('🏆','Epic win! +'+x.xp+' XP, +'+x.coins+' 🪙','victory');
+  checkRaidDefeat();save();render();
+}
+
+/* ============================================================
+   VIEW: GOALS (treasury + savings + payout requests)
+   ============================================================ */
+function viewGoals(main){
+  var p=P();
+  if(p.id==='daddy'){
+    main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'💰'}),E('h2',{text:'Clan Treasury'})]));
+    ['jakob','dean'].forEach(function(kid){
+      var kp=P(kid);
+      main.appendChild(E('div',{class:'leader'},[
+        avNode(kid,kp.gear,'lav'),
+        E('div',{class:'linfo'},[E('b',{text:kp.name}),E('span',{text:'$'+(kp.coins*COIN_TO_USD).toFixed(2)+' available'})]),
+        E('div',{class:'lxp'},[E('b',{text:'🪙 '+kp.coins}),E('span',{text:'coins'})])
+      ]));
+    });
+    main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'📜'}),E('h2',{text:'Savings Goals'})]));
+    state.goals.forEach(function(g){main.appendChild(goalCard(g,true));});
+    return;
+  }
+
+  // kid treasury hero
+  main.appendChild(E('div',{class:'treasury'},[
+    E('div',{style:'font-weight:800;opacity:.9;font-size:.85rem',text:'⚔️ '+p.name+"'s War Chest"}),
+    E('div',{class:'bal'},[E('b',{text:'🪙 '+p.coins}),E('span',{class:'c',text:'= $'+(p.coins*COIN_TO_USD).toFixed(2)+' allowance'})]),
+    E('div',{style:'margin-top:14px'},[
+      E('button',{class:'btn gold block',on:{click:function(){requestPayout();}}},'💵 Request Allowance Payout')
+    ])
+  ]));
+
+  // pending payouts
+  var myPend=state.payouts.filter(function(x){return x.who===p.id&&x.status==='pending';});
+  if(myPend.length){
+    main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'⏳'}),E('h2',{text:'Pending Payouts'})]));
+    myPend.forEach(function(x){
+      main.appendChild(E('div',{class:'card flat',style:'display:flex;align-items:center;gap:10px'},[
+        E('span',{style:'font-size:1.6rem',text:'💵'}),
+        E('div',{style:'flex:1'},[E('b',{text:'$'+x.usd.toFixed(2)+' ('+x.coins+' 🪙)'}),
+          E('div',{style:'font-size:.78rem;color:var(--ink-soft);font-weight:700',text:'Waiting for Daddy to approve · '+relTime(x.ts)})]),
+        E('span',{class:'tag pend',text:'pending'})
+      ]));
+    });
+  }
+
+  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'🎯'}),E('h2',{text:'My Savings Goals'}),
+    E('button',{class:'count',style:'cursor:pointer;border:none',on:{click:addGoal}},'+ New')]));
+  var myGoals=state.goals.filter(function(g){return g.owner===p.id;});
+  if(myGoals.length===0){
+    main.appendChild(emptyState('🏆','No goals yet','Set a treasure to work toward — every coin counts!'));
+  } else {
+    myGoals.forEach(function(g){main.appendChild(goalCard(g,false));});
+  }
+}
+function goalCard(g,readonly){
+  var pct=Math.min(100,Math.round(g.saved/g.target*100));
+  var done=g.saved>=g.target;
+  return E('div',{class:'goalcard'},[
+    E('div',{class:'gtop'},[E('span',{class:'gem',text:done?'🏆':g.em}),E('h3',{text:(readonly?P(g.owner).name+': ':'')+g.title}),E('span',{class:'gpct',text:pct+'%'})]),
+    E('div',{class:'sword-track'},[(function(){var f=E('div',{class:'fill'});f.style.width=pct+'%';return f;})()]),
+    E('div',{class:'gfoot'},[
+      E('span',{text:'🪙 '+g.saved+' / '+g.target}),
+      E('span',{text:done?'Goal reached! 🎉':('🪙 '+(g.target-g.saved)+' to go')})
+    ])
+  ]);
+}
+function requestPayout(){
+  var p=P();
+  if(p.coins<10){toast('🪙','Need at least 10 coins to cash out','coin');return;}
+  modal({
+    title:'💵 Request Payout',
+    lead:'Convert coins to allowance. 10 🪙 = $1.00. Daddy will approve it.',
+    fields:[{name:'coins',label:'Coins to cash out (you have '+p.coins+')',type:'number',value:Math.min(p.coins,50),min:10,max:p.coins,step:10}],
+    okLabel:'Request Payout', okClass:'gold',
+    onOk:function(v){
+      var c=Math.max(10,Math.min(p.coins,parseInt(v.coins,10)||10));
+      c=Math.floor(c/10)*10;
+      p.coins-=c;
+      state.payouts.push({id:'p'+Date.now(),who:p.id,coins:c,usd:c*COIN_TO_USD,status:'pending',ts:Date.now()});
+      addLog(p.id,'💵',P(p.id).name+' requested a $'+(c*COIN_TO_USD).toFixed(2)+' payout — awaiting Daddy');
+      save();render();toast('💵','Payout requested! Daddy will approve','coin');
+    }
+  });
+}
+function addGoal(){
+  modal({
+    title:'🎯 New Savings Goal',
+    lead:'What treasure are you saving for, warrior?',
+    fields:[
+      {name:'title',label:'Goal name',type:'text',value:'',placeholder:'e.g. New game'},
+      {name:'target',label:'Coins needed',type:'number',value:100,min:10,step:10}
+    ],
+    okLabel:'Add Goal',okClass:'teal',
+    onOk:function(v){
+      if(!v.title.trim())return;
+      state.goals.push({id:'g'+Date.now(),owner:state.activeProfile,title:v.title.trim().slice(0,40),em:'🎯',target:Math.max(10,parseInt(v.target,10)||100),saved:0});
+      save();render();toast('🎯','Goal added — to the treasury!','victory');
+    }
+  });
+}
+
+/* ============================================================
+   VIEW: SQUAD / CLAN
+   ============================================================ */
+function viewSquad(main){
+  var p=P();
+  main.appendChild(momentumCard());
+
+  // leaderboard
+  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'🏅'}),E('h2',{text:'Clan Leaderboard'})]));
+  var ranked=Object.keys(state.profiles).map(function(k){return state.profiles[k];})
+    .sort(function(a,b){return b.xp-a.xp;});
+  ranked.forEach(function(pr,i){
+    var medal=['🥇','🥈','🥉'][i]||((i+1)+'');
+    main.appendChild(E('div',{class:'leader'+(pr.id===p.id?' me':'')},[
+      E('div',{class:'rank',text:medal}),
+      avNode(pr.id,pr.gear,'lav'),
+      E('div',{class:'linfo'},[E('b',{text:pr.name+(pr.id==='daddy'?' 👑':'')}),E('span',{text:pr.role+' · Lv '+levelOf(pr.xp)})]),
+      E('div',{class:'lxp'},[E('b',{text:pr.xp}),E('span',{text:'XP'})])
+    ]));
+  });
+
+  main.appendChild(raidCard());
+
+  // Daddy oversight
+  if(p.id==='daddy') main.appendChild(oversightPanel());
+
+  // battle log
+  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'📜'}),E('h2',{text:'Battle Log'})]));
+  var logCard=E('div',{class:'card'});
+  if(state.log.length===0){
+    logCard.appendChild(emptyState('📭','Quiet on the battlefield','Complete a quest to start the log!'));
+  } else {
+    state.log.slice(0,12).forEach(function(l){
+      logCard.appendChild(E('div',{class:'logitem'},[
+        avNode(l.who,P(l.who)?P(l.who).gear:null,'lav'),
+        E('div',{class:'lbody'},[E('p',{text:l.text}),E('span',{class:'lt',text:relTime(l.ts)})]),
+        E('span',{class:'lbadge',text:l.em})
+      ]));
+    });
+  }
+  main.appendChild(logCard);
+}
+
+function oversightPanel(){
+  var wrap=E('div',{});
+  // pending photo verifications
+  var pendPhotos=state.quests.filter(function(q){return q.done&&!q.verified&&q.photo;});
+  var pendExtra=state.extras.filter(function(x){return x.done&&!x.verified;});
+  var pendPay=state.payouts.filter(function(x){return x.status==='pending';});
+
+  wrap.appendChild(E('div',{class:'oversight',style:'margin:8px 0 14px'},[
+    E('div',{style:'display:flex;align-items:center;gap:10px'},[
+      E('span',{style:'font-size:1.8rem',text:'👑'}),
+      E('div',{},[E('h2',{style:'font-size:1.25rem;color:#fff',text:'Clan Leader Oversight'}),
+        E('div',{style:'opacity:.92;font-weight:700;font-size:.85rem',text:(pendPhotos.length+pendExtra.length+pendPay.length)+' item(s) need your approval'})])
+    ])
+  ]));
+
+  if(pendPhotos.length+pendExtra.length===0 && pendPay.length===0){
+    wrap.appendChild(emptyState('✅','All clear, Clan Leader!','No approvals pending. The clan is running smoothly.'));
+    return wrap;
+  }
+
+  if(pendPhotos.length){
+    wrap.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'📷'}),E('h2',{text:'Verify Photo Proof'})]));
+    pendPhotos.forEach(function(q){
+      var row=E('div',{class:'appr'});
+      if(q.photo&&q.photo!=='pending') row.appendChild(E('img',{class:'athumb',src:q.photo,alt:'proof'}));
+      else row.appendChild(E('span',{style:'font-size:1.8rem',text:'📷'}));
+      row.appendChild(E('div',{class:'ainfo'},[E('b',{text:q.title}),E('span',{text:P(q.who).name+' · +15 XP proof bonus'})]));
+      row.appendChild(E('div',{class:'actions'},[
+        E('button',{class:'iconbtn ok','aria-label':'Approve',on:{click:function(){verifyQuest(q,true);}}},'✓'),
+        E('button',{class:'iconbtn no','aria-label':'Reject',on:{click:function(){verifyQuest(q,false);}}},'✕')
+      ]));
+      wrap.appendChild(row);
+    });
+  }
+  if(pendExtra.length){
+    wrap.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'🌟'}),E('h2',{text:'Approve Bonus Quests'})]));
+    pendExtra.forEach(function(x){
+      wrap.appendChild(E('div',{class:'appr'},[
+        E('span',{style:'font-size:1.8rem',text:x.em}),
+        E('div',{class:'ainfo'},[E('b',{text:x.title}),E('span',{text:P(x.claimedBy).name+' · +'+x.xp+' XP'})]),
+        E('div',{class:'actions'},[
+          E('button',{class:'iconbtn ok','aria-label':'Approve',on:{click:function(){x.verified=true;addLog('daddy','🛡️','Daddy verified “'+x.title+'” for '+P(x.claimedBy).name+' ✅');save();render();toast('✅','Approved!','victory');}}},'✓'),
+          E('button',{class:'iconbtn no','aria-label':'Reject',on:{click:function(){x.done=false;x.verified=false;save();render();toast('↩️','Sent back to redo','xp');}}},'✕')
+        ])
+      ]));
+    });
+  }
+  if(pendPay.length){
+    wrap.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'💵'}),E('h2',{text:'Approve Allowance'})]));
+    pendPay.forEach(function(x){
+      wrap.appendChild(E('div',{class:'appr'},[
+        E('span',{style:'font-size:1.8rem',text:'💵'}),
+        E('div',{class:'ainfo'},[E('b',{text:'$'+x.usd.toFixed(2)+' payout'}),E('span',{text:P(x.who).name+' · '+x.coins+' 🪙 · '+relTime(x.ts)})]),
+        E('div',{class:'actions'},[
+          E('button',{class:'iconbtn ok','aria-label':'Approve',on:{click:function(){x.status='paid';addLog(x.who,'💵','Daddy paid '+P(x.who).name+' $'+x.usd.toFixed(2)+' allowance 💰');save();render();toast('💰','Allowance paid!','coin');}}},'✓'),
+          E('button',{class:'iconbtn no','aria-label':'Decline',on:{click:function(){x.status='declined';P(x.who).coins+=x.coins;save();render();toast('↩️','Coins refunded to '+P(x.who).name,'coin');}}},'✕')
+        ])
+      ]));
+    });
+  }
+  return wrap;
+}
+function verifyQuest(q,ok){
+  if(ok){q.verified=true;addLog(q.who,'🛡️','Daddy verified “'+q.title+'” for '+P(q.who).name+' — proof accepted! ✅');toast('✅','Proof verified!','victory');}
+  else {q.verified=false;q.photo=null;q.done=false;var p=P(q.who);p.xp=Math.max(0,p.xp-15);addLog(q.who,'↩️','Daddy asked '+P(q.who).name+' to redo “'+q.title+'”');toast('↩️','Sent back to redo','xp');}
+  save();render();
+}
+
+/* ============================================================
+   VIEW: ME (profile, switch, armory, about)
+   ============================================================ */
+function viewMe(main){
+  var p=P();
+  // profile header
+  var head=E('div',{class:'profhead'});
+  var av=E('div',{class:'bigav',style:'background:'+lighten(p.color)});av.innerHTML=avatarFor(p.id,p.gear);
+  head.appendChild(av);
+  head.appendChild(E('h2',{text:p.name+(p.id==='daddy'?' 👑':'')}));
+  head.appendChild(E('div',{class:'role',text:p.role+' · Level '+levelOf(p.xp)+' · '+p.xp+' XP · 🪙 '+p.coins}));
+  main.appendChild(head);
+
+  // switch warriors
+  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'🔄'}),E('h2',{text:'Switch Warrior'})]));
+  var row=E('div',{class:'switchrow'});
+  ['jakob','dean','daddy'].forEach(function(k){
+    var pr=P(k);
+    var card=E('button',{class:'switch-card'+(k===state.activeProfile?' active':''),on:{click:function(){switchProfile(k);}}});
+    var a=E('div',{class:'av'});a.innerHTML=avatarFor(k,pr.gear);card.appendChild(a);
+    card.appendChild(E('b',{text:pr.name}));card.appendChild(E('span',{text:k==='daddy'?'Clan Leader':'Lv '+levelOf(pr.xp)}));
+    row.appendChild(card);
+  });
+  main.appendChild(row);
+
+  // armory
+  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'🛡️'}),E('h2',{text:'Armory'}),
+    E('span',{class:'count',text:'🪙 '+p.coins+' · ⭐ '+p.xp})]));
+  main.appendChild(E('p',{style:'color:var(--ink-soft);font-weight:700;margin:0 4px 12px',text:'Unlock & equip new armor with coins and XP.'}));
+  var grid=E('div',{class:'armory-grid'});
+  // default armor option
+  grid.appendChild(armoCard({id:'a_default',name:'Clan Armor',gear:null,cost:0,costType:'coins',isDefault:true}));
+  state.armory.forEach(function(a){grid.appendChild(armoCard(a));});
+  main.appendChild(grid);
+
+  // settings / about
+  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'⚙️'}),E('h2',{text:'Clan Settings'})]));
+  main.appendChild(E('div',{class:'card'},[
+    E('button',{class:'btn ghost block',style:'margin-bottom:10px',on:{click:function(){
+      if(confirm('Reset all Chore Wars demo data? This restores the original clan, quests and treasury.')) resetDemo();
+    }}},'🔄 Reset Demo Data'),
+    E('button',{class:'btn ghost block',on:{click:showAbout}},'ℹ️ About Chore Wars')
+  ]));
+
+  // branding (full line, unobtrusive)
+  main.appendChild(E('div',{class:'aboutbrand'},[
+    E('img',{src:'3shamrocks_black.png',alt:'3Shamrocks Studio logo'}),
+    E('div',{class:'tm',text:'Chore Wars™ — a 3Shamrocks Studio game'}),
+    E('div',{class:'cp',text:'© 2026 3Shamrocks Studio. All rights reserved.'})
+  ]));
+}
+function lighten(hex){
+  // produce a soft tinted bg
+  return hex+'22';
+}
+function armoCard(a){
+  var p=P();
+  var owned = a.isDefault || (state.owned[p.id]||[]).indexOf(a.gear)>=0;
+  var equipped = (p.gear||null)===(a.gear||null);
+  var cls='armo'+(equipped?' equipped':(owned?' owned':' locked'));
+  var card=E('div',{class:cls});
+  if(equipped) card.appendChild(E('span',{class:'ribbon eq',text:'Equipped'}));
+  else if(owned) card.appendChild(E('span',{class:'ribbon ow',text:'Owned'}));
+  var prev=E('div',{class:'preview'});prev.innerHTML=avatarFor(p.id,a.gear);card.appendChild(prev);
+  card.appendChild(E('h4',{text:a.name}));
+  card.appendChild(E('div',{class:'price',text:a.isDefault?'Default':(a.costType==='coins'?('🪙 '+a.cost):('⭐ '+a.cost+' XP'))}));
+  if(equipped){
+    card.appendChild(E('button',{class:'btn ghost sm',disabled:'true'},'Wearing'));
+  } else if(owned){
+    card.appendChild(E('button',{class:'btn purple sm',on:{click:function(){equipGear(a.gear);}}},'Equip'));
+  } else {
+    var can = a.costType==='coins'? p.coins>=a.cost : p.xp>=a.cost;
+    card.appendChild(E('button',{class:'btn gold sm',disabled:can?null:'true',on:{click:function(ev){buyGear(a,ev);}}}, can?'Unlock':'Locked'));
+  }
+  return card;
+}
+function buyGear(a,ev){
+  var p=P();
+  if(a.costType==='coins'){ if(p.coins<a.cost)return; p.coins-=a.cost; }
+  else { if(p.xp<a.cost)return; /* XP is "spent" as prestige unlock; keep level but deduct */ p.xp-=a.cost; }
+  (state.owned[p.id]=state.owned[p.id]||[]).push(a.gear);
+  p.gear=a.gear;
+  addLog(p.id,'🛡️',P(p.id).name+' unlocked & equipped '+a.name+'!');
+  var r=ev.currentTarget.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2);
+  toast('🛡️','Unlocked '+a.name+'! Looking legendary','victory');
+  save();render();
+}
+function equipGear(gear){
+  var p=P();p.gear=gear;save();render();toast('✨','Armor equipped!','xp');
+}
+
+/* ============================================================
+   PROFILE SWITCH (with quick picker from top chip)
+   ============================================================ */
+function switchProfile(id){
+  state.activeProfile=id;currentTab=(id==='daddy'?'squad':'missions');save();render();window.scrollTo(0,0);
+  toast(id==='daddy'?'👑':'⚔️','Now playing as '+P(id).name+(id==='daddy'?' (Clan Leader)':'!'), id==='daddy'?'victory':'xp');
+}
+function openProfilePicker(){
+  modal({
+    title:'⚔️ Choose Your Warrior',
+    lead:'Switch profiles for The M Clan.',
+    custom:function(body){
+      ['jakob','dean','daddy'].forEach(function(k){
+        var pr=P(k);
+        var b=E('button',{class:'leader'+(k===state.activeProfile?' me':''),style:'width:100%;text-align:left;cursor:pointer',
+          on:{click:function(){closeModal();switchProfile(k);}}},[
+          avNode(k,pr.gear,'lav'),
+          E('div',{class:'linfo'},[E('b',{text:pr.name+(k==='daddy'?' 👑':'')}),E('span',{text:pr.role+' · Lv '+levelOf(pr.xp)})]),
+          E('div',{class:'lxp'},[E('b',{text:'🪙'+pr.coins}),E('span',{text:pr.xp+' XP'})])
+        ]);
+        body.appendChild(b);
+      });
+    }
+  });
+}
+
+function showAbout(){
+  modal({
+    title:'Chore Wars™',
+    lead:'A playful warrior-family quest game for The M Clan.',
+    custom:function(body){
+      var c=E('div',{class:'crest',style:'width:80px;height:80px;margin:0 auto 10px'});c.innerHTML=crestSVG();
+      body.appendChild(c);
+      body.appendChild(E('p',{style:'text-align:center;font-weight:700;color:var(--ink-soft)',
+        text:'Slay daily quests, raid Pizza Night together, build clan momentum, and earn real allowance — all as warriors Jakob, Dean & Daddy.'}));
+      body.appendChild(E('div',{class:'aboutbrand'},[
+        E('img',{src:'3shamrocks_black.png',alt:'3Shamrocks Studio logo'}),
+        E('div',{class:'tm',text:'Chore Wars™ — a 3Shamrocks Studio game'}),
+        E('div',{class:'cp',text:'© 2026 3Shamrocks Studio. All rights reserved.'})
+      ]));
+    },
+    okLabel:'Onward! ⚔️',okClass:'orange',onOk:function(){}
+  });
+}
+
+/* ============================================================
+   SHARED MECHANICS
+   ============================================================ */
+function addLog(who,em,text){
+  state.log.unshift({id:'l'+Date.now()+Math.floor(Math.random()*999),who:who,em:em,text:text,ts:Date.now()});
+  if(state.log.length>40)state.log.length=40;
+}
+function dealDamage(who,amt){
+  var r=state.raid;
+  if(r.defeated&&amt>0)return;
+  r.bossDealt=Math.max(0,Math.min(r.bossMax,r.bossDealt+amt));
+  if(amt>0){ r.contrib[who]=(r.contrib[who]||0)+amt; }
+  else if(amt<0 && r.contrib[who]>0){ r.contrib[who]+=amt; }
+}
+function checkRaidDefeat(){
+  var r=state.raid;
+  if(!r.defeated && r.bossDealt>=r.bossMax){
+    r.defeated=true;
+    addLog('daddy','🎉','THE CLAN DEFEATED THE BOSS! '+r.name+' is unlocked! 🍕🎉');
+    setTimeout(function(){
+      modal({
+        title:'🎉 RAID COMPLETE!',
+        custom:function(body){
+          body.appendChild(E('div',{class:'bigcelebrate'},[E('span',{class:'em',text:'🍕'})]));
+          body.appendChild(E('h2',{style:'text-align:center',text:r.name+' Unlocked!'}));
+          body.appendChild(E('p',{style:'text-align:center;font-weight:700;color:var(--ink-soft)',
+            text:'The M Clan defeated the boss together. Time to celebrate — '+r.name+' is ON! 🎉'}));
+        },
+        okLabel:'🎉 Celebrate!',okClass:'teal',onOk:function(){
+          for(var i=0;i<3;i++)setTimeout(function(){burst(Math.random()*innerWidth,innerHeight*0.4);},i*250);
+        }
+      });
+      burst(innerWidth/2,innerHeight/2);
+    },400);
+  }
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+function modal(cfg){
+  var wrap=$('#modalwrap'),m=$('#modal');clear(m);
+  m.appendChild(E('div',{class:'grab'}));
+  if(cfg.title)m.appendChild(E('h2',{text:cfg.title}));
+  if(cfg.lead)m.appendChild(E('p',{class:'lead',text:cfg.lead}));
+  var inputs={};
+  if(cfg.fields){
+    cfg.fields.forEach(function(f){
+      var inp=E('input',{type:f.type||'text',value:f.value!=null?f.value:''});
+      if(f.placeholder)inp.placeholder=f.placeholder;
+      if(f.min!=null)inp.min=f.min;if(f.max!=null)inp.max=f.max;if(f.step!=null)inp.step=f.step;
+      inputs[f.name]=inp;
+      m.appendChild(E('div',{class:'field'},[E('label',{text:f.label}),inp]));
+    });
+  }
+  if(cfg.custom){var b=E('div',{});cfg.custom(b);m.appendChild(b);}
+  var btnrow=E('div',{style:'display:flex;gap:10px;margin-top:18px'});
+  btnrow.appendChild(E('button',{class:'btn ghost',style:'flex:1',on:{click:closeModal}},'Close'));
+  if(cfg.onOk){
+    btnrow.appendChild(E('button',{class:'btn '+(cfg.okClass||'orange'),style:'flex:1.4',on:{click:function(){
+      var vals={};for(var k in inputs)vals[k]=inputs[k].value;closeModal();cfg.onOk(vals);
+    }}},cfg.okLabel||'OK'));
+  }
+  m.appendChild(btnrow);
+  wrap.classList.add('show');
+  wrap.onclick=function(e){if(e.target===wrap)closeModal();};
+}
+function closeModal(){$('#modalwrap').classList.remove('show');}
+
+function emptyState(em,title,msg){
+  return E('div',{class:'empty'},[E('span',{class:'em',text:em}),E('h3',{text:title}),E('p',{text:msg})]);
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+function boot(){
+  load();
+  $('#splashCrest').innerHTML=crestSVG();
+  $('#profileChip').addEventListener('click',openProfilePicker);
+  render();
+  // hide splash
+  setTimeout(function(){$('#splash').classList.add('gone');},1600);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+}
+boot();
+</script>
+</body>
+</html>

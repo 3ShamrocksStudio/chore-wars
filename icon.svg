@@ -1,0 +1,20 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Chore Wars">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF8A5B"/>
+      <stop offset="1" stop-color="#FF6B35"/>
+    </linearGradient>
+    <linearGradient id="sh" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7B68EE"/>
+      <stop offset="1" stop-color="#5F4BD6"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="110" ry="110" fill="url(#bg)"/>
+  <path d="M256 70 L398 118 V250 Q398 370 256 442 Q114 370 114 250 V118 Z" fill="url(#sh)" stroke="#fff" stroke-width="14"/>
+  <path d="M256 110 L362 146 V250 Q362 348 256 408 Q150 348 150 250 V146 Z" fill="rgba(255,255,255,.14)"/>
+  <g stroke="#fff" stroke-width="20" stroke-linecap="round">
+    <path d="M192 320 L320 178"/>
+    <path d="M320 320 L192 178"/>
+  </g>
+  <circle cx="256" cy="252" r="26" fill="#4ECDC4" stroke="#fff" stroke-width="9"/>
+</svg>
