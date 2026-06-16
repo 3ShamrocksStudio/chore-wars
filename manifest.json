@@ -1,15 +1,15 @@
 {
-  "name": "Chore Wars — The M Clan",
+  "name": "Chore Wars — Family Chores",
   "short_name": "Chore Wars",
-  "description": "A playful warrior-family gamified chore quest game. Slay daily quests, raid Pizza Night, build clan momentum, and earn allowance. A 3Shamrocks Studio game.",
+  "description": "A simple, friendly family chore manager. Add chores, assign them, complete & verify, and unlock a shared family reward together. A 3Shamrocks Studio app.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#FFF6EC",
-  "theme_color": "#FF6B35",
+  "background_color": "#F4F6FB",
+  "theme_color": "#4F7CFF",
   "lang": "en",
-  "categories": ["games", "lifestyle", "education"],
+  "categories": ["productivity", "lifestyle", "education"],
   "icons": [
     {
       "src": "icon.svg",
