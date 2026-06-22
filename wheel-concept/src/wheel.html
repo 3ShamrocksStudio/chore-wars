@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chore Wars™ — Wheel of Fortune concept mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#4F7CFF; --primary-deep:#3A63E0; --primary-soft:#E8EEFF;
+    --accent:#FF6B35; --accent-deep:#E8551F;
+    --gold:#F59E0B; --gold-deep:#D97706;
+    --green:#16A34A; --green-deep:#0E7A34;
+    --ink:#1E2533; --ink-soft:#586173; --ink-faint:#8A94A6;
+    --bg:#F4F6FB; --card:#FFFFFF; --line:#E7ECF3;
+    --shadow:0 6px 18px rgba(40,60,100,.10);
+    --shadow-lg:0 18px 44px rgba(20,30,70,.22);
+    --radius:22px; --radius-sm:14px; --radius-pill:999px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Nunito',system-ui,sans-serif; color:var(--ink);
+    background:#1b1f47 url('assets/arena-bg.png') center/cover fixed no-repeat;
+    min-height:100vh; padding:46px 30px 30px;
+  }
+  h1,h2,h3,.dis{font-family:'Baloo 2',system-ui,sans-serif}
+  .board-head{text-align:center;color:#fff;margin-bottom:34px}
+  .board-head .kicker{display:inline-flex;align-items:center;gap:9px;font-weight:800;
+    font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:#FFE7A8;
+    background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.22);
+    padding:7px 16px;border-radius:var(--radius-pill);backdrop-filter:blur(6px)}
+  .board-head h1{font-size:2.5rem;margin:16px 0 6px;letter-spacing:-.01em;
+    text-shadow:0 3px 18px rgba(0,0,0,.35)}
+  .board-head h1 b{color:#FFD16B}
+  .board-head p{color:#d6dcff;font-weight:700;font-size:1.02rem;max-width:680px;margin:0 auto}
+
+  .stage{display:flex;gap:26px;justify-content:center;align-items:flex-start;
+    flex-wrap:nowrap;max-width:1720px;margin:0 auto}
+
+  /* phone frame */
+  .phone{width:392px;background:var(--bg);border-radius:42px;padding:13px;
+    box-shadow:var(--shadow-lg),0 0 0 2px rgba(255,255,255,.10);position:relative;flex:0 0 auto}
+  .phone.hero{width:430px;transform:translateY(-18px);
+    box-shadow:0 28px 64px rgba(10,16,50,.45),0 0 0 3px rgba(255,209,107,.45)}
+  .screen{background:var(--bg);border-radius:30px;overflow:hidden;height:812px;
+    display:flex;flex-direction:column;position:relative}
+  .hero .screen{height:846px}
+  .label-tag{position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+    background:#fff;color:var(--primary-deep);font-family:'Baloo 2';font-weight:800;
+    font-size:.78rem;padding:6px 16px;border-radius:var(--radius-pill);
+    box-shadow:var(--shadow);white-space:nowrap;z-index:20}
+  .hero .label-tag{background:linear-gradient(120deg,var(--gold),var(--accent));color:#fff}
+
+  /* app header */
+  .app-head{display:flex;align-items:center;gap:10px;padding:16px 16px 12px}
+  .crest{width:38px;height:38px;border-radius:11px;object-fit:cover;
+    box-shadow:0 3px 9px rgba(40,60,100,.18)}
+  .app-head .tt b{font-family:'Baloo 2';font-size:1.06rem;display:block;line-height:1}
+  .app-head .tt span{font-size:.64rem;font-weight:800;color:var(--ink-soft);letter-spacing:.03em}
+  .who{margin-left:auto;display:flex;align-items:center;gap:7px;background:var(--card);
+    border:2px solid var(--line);border-radius:var(--radius-pill);padding:3px 12px 3px 3px;
+    font-weight:800;font-size:.84rem;box-shadow:var(--shadow)}
+  .ava{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+    color:#fff;font-family:'Baloo 2';font-size:.86rem}
+  .ava.j{background:linear-gradient(135deg,#4F7CFF,#6C97FF)}
+  .ava.d{background:linear-gradient(135deg,#16A34A,#22C55E)}
+  .ava.p{background:linear-gradient(135deg,#A855F7,#EC4899)}
+
+  /* stat strip */
+  .stats{display:flex;gap:9px;padding:4px 16px 12px}
+  .stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);
+    padding:9px 10px;text-align:center;box-shadow:var(--shadow)}
+  .stat .n{font-family:'Baloo 2';font-size:1.15rem;line-height:1.05;display:flex;
+    align-items:center;justify-content:center;gap:4px}
+  .stat .k{font-size:.62rem;font-weight:800;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+  .stat.spin .n{color:var(--accent-deep)} .stat.streak .n{color:var(--gold-deep)} .stat.star .n{color:var(--primary-deep)}
+
+  /* wheel */
+  .wheel-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:6px 16px;position:relative}
+  .wheel-stage{position:relative;width:330px;height:330px;margin:2px auto 0}
+  .pointer{position:absolute;top:-6px;left:50%;transform:translateX(-50%);z-index:6;
+    width:0;height:0;border-left:17px solid transparent;border-right:17px solid transparent;
+    border-top:30px solid var(--accent);filter:drop-shadow(0 3px 4px rgba(0,0,0,.28))}
+  .pointer::after{content:"";position:absolute;top:-30px;left:-7px;width:14px;height:14px;
+    background:var(--accent);border-radius:50%;border:3px solid #fff}
+  svg.wheel{display:block;filter:drop-shadow(0 10px 26px rgba(20,30,70,.34));
+    animation:spin 5.5s cubic-bezier(.15,.85,.18,1) forwards}
+  @keyframes spin{from{transform:rotate(0)}to{transform:rotate(1080deg)}}
+  .hub{position:absolute;top:50%;left:50%;width:74px;height:74px;transform:translate(-50%,-50%);
+    border-radius:50%;background:#fff;box-shadow:0 4px 14px rgba(20,30,70,.3),inset 0 0 0 4px var(--gold);
+    display:grid;place-items:center;z-index:5;overflow:hidden}
+  .hub img{width:100%;height:100%;object-fit:cover}
+  .seg-label{font-family:'Baloo 2';font-weight:800;fill:#fff;font-size:13px}
+  .seg-emoji{font-size:21px}
+
+  .spin-btn{margin-top:18px;width:100%;max-width:300px;border:none;cursor:pointer;
+    background:linear-gradient(120deg,var(--accent),var(--accent-deep));color:#fff;
+    font-family:'Baloo 2';font-size:1.18rem;padding:16px;border-radius:var(--radius-pill);
+    box-shadow:0 10px 22px rgba(232,85,31,.42);display:flex;align-items:center;justify-content:center;gap:9px}
+  .spin-sub{font-size:.78rem;font-weight:800;color:var(--ink-soft);margin-top:9px}
+
+  /* jackpot meter */
+  .jackpot{margin:14px 16px 16px;background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:13px 15px;box-shadow:var(--shadow)}
+  .jackpot .row{display:flex;align-items:center;gap:8px;font-family:'Baloo 2';font-size:.94rem}
+  .jackpot .row .pct{margin-left:auto;color:var(--gold-deep);font-size:.84rem}
+  .bar{height:13px;border-radius:99px;background:var(--primary-soft);margin-top:9px;overflow:hidden}
+  .bar i{display:block;height:100%;width:68%;border-radius:99px;
+    background:linear-gradient(90deg,var(--gold),var(--accent))}
+  .jackpot small{display:block;margin-top:7px;font-weight:700;color:var(--ink-soft);font-size:.74rem}
+
+  /* generic section */
+  .body{flex:1;overflow:hidden;padding:2px 16px 16px}
+  .sec-t{font-family:'Baloo 2';font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--ink-faint);margin:14px 2px 8px;display:flex;align-items:center;gap:7px}
+  .sec-t .c{margin-left:auto;background:var(--card);border:1.5px solid var(--line);
+    padding:2px 9px;border-radius:99px;font-size:.72rem;color:var(--ink-soft)}
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);
+    padding:13px;margin-bottom:9px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px}
+  .qicon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:1.25rem;flex:0 0 auto}
+  .qicon.b{background:var(--primary-soft)} .qicon.g{background:#DCFCE7} .qicon.o{background:#FEEFE6}
+  .qcard .qt{font-family:'Baloo 2';font-size:1rem;line-height:1.15}
+  .qcard .qm{font-size:.76rem;font-weight:800;color:var(--ink-soft);margin-top:2px}
+  .pill{margin-left:auto;font-family:'Baloo 2';font-size:.78rem;padding:6px 11px;border-radius:99px;white-space:nowrap}
+  .pill.token{background:linear-gradient(120deg,var(--accent),var(--accent-deep));color:#fff}
+  .pill.done{background:#DCFCE7;color:var(--green-deep)}
+  .check{width:30px;height:30px;border-radius:50%;border:2.5px solid var(--line);flex:0 0 auto;display:grid;place-items:center;color:var(--ink-faint);font-weight:900}
+  .check.on{background:var(--green);border-color:var(--green);color:#fff}
+
+  /* win overlay (screen 2) */
+  .win{background:linear-gradient(165deg,#243089,#3A63E0 60%,#4F7CFF);height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:24px;text-align:center;position:relative;overflow:hidden}
+  .win::before{content:"";position:absolute;inset:-40% -10% auto;height:120%;
+    background:radial-gradient(circle at 50% 30%,rgba(255,209,107,.45),transparent 60%)}
+  .win .burst{width:236px;filter:drop-shadow(0 12px 28px rgba(0,0,0,.4));position:relative;z-index:2}
+  .win h2{color:#fff;font-size:1.05rem;letter-spacing:.16em;text-transform:uppercase;
+    margin-top:6px;position:relative;z-index:2;opacity:.92}
+  .win .prize{position:relative;z-index:2;background:#fff;border-radius:var(--radius);
+    padding:18px 26px;margin-top:14px;box-shadow:var(--shadow-lg)}
+  .win .prize .pe{font-size:2.6rem}
+  .win .prize .pt{font-family:'Baloo 2';font-size:1.6rem;color:var(--ink);margin-top:2px}
+  .win .prize .pm{font-weight:800;color:var(--ink-soft);font-size:.84rem;margin-top:3px}
+  .win .cta{position:relative;z-index:2;margin-top:26px;display:flex;gap:10px}
+  .win .cta button{border:none;font-family:'Baloo 2';font-size:1rem;padding:14px 22px;border-radius:99px;cursor:pointer}
+  .win .cta .keep{background:#fff;color:var(--primary-deep);box-shadow:var(--shadow)}
+  .win .cta .again{background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.4)}
+  .win .toks{position:relative;z-index:2;color:#cdd8ff;font-weight:800;font-size:.82rem;margin-top:16px}
+
+  /* parent screen */
+  .ptab{display:flex;gap:6px;padding:4px 16px 10px}
+  .ptab .t{flex:1;text-align:center;font-family:'Baloo 2';font-size:.84rem;padding:9px;border-radius:12px;color:var(--ink-soft)}
+  .ptab .t.on{background:var(--primary);color:#fff;box-shadow:var(--shadow)}
+  .fair{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .fair .ft{font-family:'Baloo 2';display:flex;align-items:center;gap:7px;font-size:.96rem}
+  .fair .ft .ok{margin-left:auto;font-size:.72rem;background:#DCFCE7;color:var(--green-deep);padding:3px 10px;border-radius:99px;font-weight:800}
+  .frow{display:flex;align-items:center;gap:10px;margin-top:11px}
+  .frow .nm{width:54px;font-weight:800;font-size:.82rem}
+  .frow .fb{flex:1;height:11px;border-radius:99px;background:var(--primary-soft);overflow:hidden}
+  .frow .fb i{display:block;height:100%;border-radius:99px}
+  .frow .v{width:38px;text-align:right;font-family:'Baloo 2';font-size:.82rem;color:var(--ink-soft)}
+
+  .slice-row{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius-sm);padding:11px 13px;margin-bottom:8px;box-shadow:var(--shadow)}
+  .swatch{width:16px;height:16px;border-radius:5px;flex:0 0 auto}
+  .slice-row .st{font-family:'Baloo 2';font-size:.95rem}
+  .slice-row .odds{margin-left:auto;font-weight:800;font-size:.8rem;color:var(--ink-soft);
+    background:var(--bg);border:1px solid var(--line);padding:3px 10px;border-radius:99px}
+
+  /* footer */
+  .board-foot{text-align:center;margin:36px auto 4px;color:#c9d0ff}
+  .board-foot img{height:30px;opacity:.96;background:#fff;padding:8px 16px;border-radius:14px;box-shadow:var(--shadow)}
+  .board-foot p{font-weight:800;font-size:.74rem;margin-top:12px;letter-spacing:.04em;color:#aab4f0}
+  .legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:18px auto 0;max-width:900px}
+  .legend span{color:#dfe4ff;font-weight:800;font-size:.8rem;display:flex;align-items:center;gap:6px;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);padding:6px 13px;border-radius:99px}
+</style>
+</head>
+<body>
+  <div class="board-head">
+    <span class="kicker">⚔️ Chore Wars™ · The M Clan · Concept</span>
+    <h1>Do your quests. Earn spins. <b>Win the Wheel.</b></h1>
+    <p>The Wheel of Fortune is the new heart of Chore Wars — a daily ritual the kid pulls themselves into. Luck only ever decides <em>which</em> reward; finishing real chores is the only way to earn the spin.</p>
+  </div>
+
+  <div class="stage">
+
+    <!-- SCREEN 1: EARN (quest list) -->
+    <div class="phone">
+      <span class="label-tag">① Earn spins — finish quests</span>
+      <div class="screen">
+        <div class="app-head">
+          <img class="crest" src="assets/crest.jpg" alt="Chore Wars crest">
+          <div class="tt"><b>Chore Wars</b><span>The M Clan</span></div>
+          <div class="who"><span class="ava j">J</span>Jakob</div>
+        </div>
+        <div class="stats">
+          <div class="stat star"><div class="n">⭐ 240</div><div class="k">Stars</div></div>
+          <div class="stat spin"><div class="n">🎟️ 2</div><div class="k">Spins</div></div>
+          <div class="stat streak"><div class="n">🔥 5</div><div class="k">Day streak</div></div>
+        </div>
+        <div class="body">
+          <div class="sec-t">Today's quests <span class="c">2 left</span></div>
+          <div class="qcard">
+            <div class="qicon b">🛏️</div>
+            <div><div class="qt">Make your bed</div><div class="qm">Daily · 1 spin</div></div>
+            <div class="check on">✓</div>
+          </div>
+          <div class="qcard">
+            <div class="qicon o">🗑️</div>
+            <div><div class="qt">Take out trash</div><div class="qm">Tap to finish · snap a photo</div></div>
+            <span class="pill token">+🎟️</span>
+          </div>
+          <div class="qcard">
+            <div class="qicon g">🍽️</div>
+            <div><div class="qt">Clear the table</div><div class="qm">Quest Wheel mission · 1 spin</div></div>
+            <span class="pill token">+🎟️</span>
+          </div>
+
+          <div class="sec-t">Waiting on Dad <span class="c">1</span></div>
+          <div class="qcard">
+            <div class="qicon b">🧦</div>
+            <div><div class="qt">Sort the laundry</div><div class="qm">Photo sent · verifying…</div></div>
+            <span class="pill" style="background:#FEF1D6;color:#B45309">Pending</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: THE WHEEL (centerpiece) -->
+    <div class="phone hero">
+      <span class="label-tag">★ My Wheel — the centerpiece</span>
+      <div class="screen">
+        <div class="app-head">
+          <img class="crest" src="assets/crest.jpg" alt="Chore Wars crest">
+          <div class="tt"><b>My Wheel</b><span>2 spins ready</span></div>
+          <div class="who"><span class="ava j">J</span>Jakob</div>
+        </div>
+        <div class="wheel-wrap">
+          <div class="wheel-stage">
+            <div class="pointer"></div>
+            <svg class="wheel" id="wheel" viewBox="0 0 330 330" width="330" height="330" aria-label="Reward wheel"></svg>
+            <div class="hub"><img src="assets/crest.jpg" alt="hub crest"></div>
+          </div>
+          <button class="spin-btn">SPIN THE WHEEL · 🎟️ 2</button>
+          <div class="spin-sub">Every finished chore = 1 free spin</div>
+        </div>
+        <div class="jackpot">
+          <div class="row">💎 Jackpot — saving for the LEGO set <span class="pct">68%</span></div>
+          <div class="bar"><i></i></div>
+          <small>Land the 💎 slice to fill faster · 320 / 470 ⭐</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: WIN REVEAL -->
+    <div class="phone">
+      <span class="label-tag">② You won! (real reward)</span>
+      <div class="screen">
+        <div class="win">
+          <img class="burst" src="assets/loot-burst.png" alt="treasure burst">
+          <h2>Winner!</h2>
+          <div class="prize">
+            <div class="pe">🕹️</div>
+            <div class="pt">30 min screen time</div>
+            <div class="pm">Added to your rewards · tell Dad to redeem</div>
+          </div>
+          <div class="cta">
+            <button class="keep">Keep it 🎉</button>
+            <button class="again">Spin again · 🎟️1</button>
+          </div>
+          <div class="toks">No blanks, ever — every spin pays out something real</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 4: PARENT MANAGER -->
+    <div class="phone">
+      <span class="label-tag">Parent — stock & keep it fair</span>
+      <div class="screen">
+        <div class="app-head">
+          <img class="crest" src="assets/crest.jpg" alt="Chore Wars crest">
+          <div class="tt"><b>Manage</b><span>Daddy</span></div>
+          <div class="who"><span class="ava p">D</span>Dad</div>
+        </div>
+        <div class="ptab">
+          <div class="t">Verify</div><div class="t on">The Wheel</div><div class="t">Kids</div>
+        </div>
+        <div class="body">
+          <div class="fair">
+            <div class="ft">⚖️ Fairness this week <span class="ok">✓ Balanced</span></div>
+            <div class="frow"><span class="nm">Jakob</span><span class="fb"><i style="width:54%;background:linear-gradient(90deg,#4F7CFF,#6C97FF)"></i></span><span class="v">12</span></div>
+            <div class="frow"><span class="nm">Dean</span><span class="fb"><i style="width:46%;background:linear-gradient(90deg,#16A34A,#22C55E)"></i></span><span class="v">10</span></div>
+            <small style="display:block;margin-top:9px;font-weight:700;color:var(--ink-soft);font-size:.74rem">Identical wheel odds for both · Quest Wheel auto-balances the load</small>
+          </div>
+          <div class="sec-t">Jakob's reward slices <span class="c">8 · tap to edit</span></div>
+          <div class="slice-row"><span class="swatch" style="background:#4F7CFF"></span><span class="st">🕹️ 30 min screen</span><span class="odds">2×</span></div>
+          <div class="slice-row"><span class="swatch" style="background:#16A34A"></span><span class="st">🍪 Treat</span><span class="odds">2×</span></div>
+          <div class="slice-row"><span class="swatch" style="background:#FF6B35"></span><span class="st">🍽️ Pick dinner</span><span class="odds">1×</span></div>
+          <div class="slice-row"><span class="swatch" style="background:#A855F7"></span><span class="st">⏭️ Skip-a-chore</span><span class="odds">1×</span></div>
+          <div class="slice-row"><span class="swatch" style="background:#F59E0B"></span><span class="st">💎 Jackpot (LEGO set)</span><span class="odds">1×</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="legend">
+    <span>🎟️ Spins are <b>earned</b>, never bought</span>
+    <span>🎯 No blanks — every spin wins</span>
+    <span>⚖️ Identical odds across siblings</span>
+    <span>🔥 Streaks bring them back</span>
+  </div>
+
+  <div class="board-foot">
+    <img src="assets/3shamrocks_black.png" alt="3Shamrocks Studio">
+    <p>CHORE WARS™ · WHEEL OF FORTUNE CONCEPT · © 2026 3SHAMROCKS STUDIO. ALL RIGHTS RESERVED.</p>
+  </div>
+
+<script>
+  // Build the reward wheel
+  const segs = [
+    {e:"🕹️", t:"30 min", c:"#4F7CFF"},
+    {e:"🍪", t:"Treat",  c:"#16A34A"},
+    {e:"🍽️", t:"Dinner", c:"#FF6B35"},
+    {e:"🪙", t:"+5 coins",c:"#3A63E0"},
+    {e:"🌙", t:"Stay up", c:"#22C55E"},
+    {e:"⏭️", t:"Skip job",c:"#A855F7"},
+    {e:"🎟️", t:"Spin x2", c:"#E8551F"},
+    {e:"💎", t:"JACKPOT", c:"#F59E0B"},
+  ];
+  const cx=165, cy=165, r=158, n=segs.length, step=2*Math.PI/n;
+  const svg=document.getElementById('wheel');
+  let html=`<circle cx="${cx}" cy="${cy}" r="${r+4}" fill="#fff"/>`;
+  segs.forEach((s,i)=>{
+    const a0=i*step - Math.PI/2 - step/2;
+    const a1=a0+step;
+    const x0=cx+r*Math.cos(a0), y0=cy+r*Math.sin(a0);
+    const x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1);
+    html+=`<path d="M${cx},${cy} L${x0.toFixed(1)},${y0.toFixed(1)} A${r},${r} 0 0 1 ${x1.toFixed(1)},${y1.toFixed(1)} Z" fill="${s.c}" stroke="#fff" stroke-width="2.5"/>`;
+    const am=a0+step/2;
+    const lr=r*0.62;
+    const lx=cx+lr*Math.cos(am), ly=cy+lr*Math.sin(am);
+    const deg=am*180/Math.PI+90;
+    html+=`<g transform="translate(${lx.toFixed(1)},${ly.toFixed(1)}) rotate(${deg.toFixed(1)})">
+      <text class="seg-emoji" text-anchor="middle" y="-6">${s.e}</text>
+      <text class="seg-label" text-anchor="middle" y="14">${s.t}</text></g>`;
+  });
+  html+=`<circle cx="${cx}" cy="${cy}" r="${r+4}" fill="none" stroke="#F59E0B" stroke-width="6"/>`;
+  // gold rim studs
+  for(let i=0;i<n*2;i++){const a=i*Math.PI/n - Math.PI/2;const sx=cx+(r+4)*Math.cos(a),sy=cy+(r+4)*Math.sin(a);
+    html+=`<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="3.4" fill="#FFE7A8" stroke="#D97706" stroke-width="1"/>`;}
+  svg.innerHTML=html;
+</script>
+</body>
+</html>
