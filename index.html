@@ -1,1372 +1,446 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-mode="light">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="description" content="Chore Wars — a simple, friendly family chore manager. Add chores, assign them, complete & verify, and unlock a shared family reward together. A 3Shamrocks Studio app.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#4F7CFF">
-<!-- CSP: no eval, no remote script. Inline styles/scripts (single-file app) + Google Fonts + data/blob images (photo proof). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob: data:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
-<title>Chore Wars™ — Family Chores Made Simple</title>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/svg+xml" href="icon.svg">
-<link rel="apple-touch-icon" href="icon.svg">
+<title>Chore Wars™ — Wheel of Fortune · The M Clan</title>
+<!-- CSP: single-file app · Google Fonts + data/blob images (photo proof) · no remote script/eval -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; base-uri 'none'">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{
-  /* Brand */
-  --primary:#4F7CFF; --primary-deep:#3A63E0; --primary-soft:#E8EEFF;
-  --accent:#FF6B35; --accent-deep:#E8551F;            /* Chore Wars orange (logo/goal) */
-  --gold:#F59E0B;                                      /* coins */
-  --darkgrey:#373B40;                                  /* brand logo panel (brand rule) */
+  :root{
+    --primary:#4F7CFF; --primary-deep:#3A63E0; --primary-soft:#E8EEFF;
+    --accent:#FF6B35; --accent-deep:#E8551F;
+    --gold:#F59E0B; --gold-deep:#D97706;
+    --green:#16A34A; --green-deep:#0E7A34;
+    --purple:#A855F7;
+    --ink:#1E2533; --ink-soft:#586173; --ink-faint:#8A94A6;
+    --bg:#F4F6FB; --card:#FFFFFF; --line:#E7ECF3; --sunken:#EEF1F6;
+    --shadow:0 6px 18px rgba(40,60,100,.10);
+    --shadow-lg:0 18px 44px rgba(20,30,70,.22);
+    --radius:22px; --radius-sm:14px; --radius-pill:999px;
+    --safe-b:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:var(--bg);
+    overscroll-behavior-y:none;-webkit-text-size-adjust:100%}
+  h1,h2,h3,.dis{font-family:'Baloo 2',system-ui,sans-serif}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  :focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:10px}
+  img{max-width:100%}
+  .app{max-width:460px;margin:0 auto;min-height:100dvh;position:relative;background:var(--bg);
+    box-shadow:0 0 60px rgba(20,30,70,.08)}
+  .screen{display:none;flex-direction:column;min-height:100dvh}
+  .screen.on{display:flex}
 
-  /* Status — each state has its OWN distinct hue (never reused) */
-  --open:#5B6675;       --open-soft:#EEF1F6;           /* to-do = calm slate  */
-  --pending:#B45309;    --pending-soft:#FEF1D6;        /* awaiting verify = amber */
-  --done:#15803D;       --done-soft:#DCFCE7;           /* verified = green */
-  --overdue:#DC2626;    --overdue-soft:#FEE2E2;        /* overdue = red */
+  /* ── WHO'S HERE ─────────────────────────────────────── */
+  #who{background:#171b40 url('assets/arena-bg.png') center/cover no-repeat;color:#fff;
+    align-items:center;justify-content:center;padding:32px 24px;gap:6px}
+  #who .crest{width:78px;height:78px;border-radius:20px;object-fit:cover;box-shadow:var(--shadow-lg);margin-bottom:6px}
+  #who h1{font-size:2.1rem;text-shadow:0 3px 16px rgba(0,0,0,.4)}
+  #who h1 b{color:#FFD16B}
+  #who .sub{color:#d6dcff;font-weight:800;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:26px}
+  .pickrow{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+  .pick{display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.16);border-radius:24px;padding:18px 14px 14px;width:118px;backdrop-filter:blur(6px);transition:transform .12s}
+  .pick:active{transform:scale(.95)}
+  .pick .ava{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;font-family:'Baloo 2';font-size:2rem;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.3)}
+  .pick .nm{font-family:'Baloo 2';font-size:1.15rem}
+  .pick .rl{font-size:.7rem;font-weight:800;color:#cdd8ff;text-transform:uppercase;letter-spacing:.05em}
+  .ava.j{background:linear-gradient(135deg,#4F7CFF,#6C97FF)}
+  .ava.d{background:linear-gradient(135deg,#16A34A,#22C55E)}
+  .ava.p{background:linear-gradient(135deg,#A855F7,#EC4899)}
 
-  /* Surfaces */
-  --bg:#F4F6FB; --card:#FFFFFF;
-  --ink:#1E2533; --ink-soft:#586173; --ink-faint:#8A94A6;
-  --line:#E7ECF3;
-  --shadow:0 6px 18px rgba(40,60,100,.08);
-  --shadow-lg:0 14px 34px rgba(40,60,100,.14);
-  --radius:20px; --radius-sm:14px; --radius-pill:999px;
-  --safe-bottom:env(safe-area-inset-bottom,0px);
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family:'Nunito',system-ui,-apple-system,sans-serif;
-  background:var(--bg);
-  color:var(--ink);
-  font-size:16px; line-height:1.45;
-  overflow-x:hidden;
-}
-h1,h2,h3,h4,.display{font-family:'Baloo 2',system-ui,sans-serif;font-weight:800;letter-spacing:-.01em;margin:0}
-button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
-:focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:8px}
-img{max-width:100%}
-input,select{font-family:inherit}
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  /* ── HEADER ─────────────────────────────────────────── */
+  .head{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;position:sticky;top:0;
+    background:rgba(244,246,251,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:30}
+  .head .crest{width:36px;height:36px;border-radius:11px;object-fit:cover;box-shadow:var(--shadow)}
+  .head .tt b{font-family:'Baloo 2';font-size:1.04rem;display:block;line-height:1}
+  .head .tt span{font-size:.62rem;font-weight:800;color:var(--ink-soft);letter-spacing:.04em}
+  .who-chip{margin-left:auto;display:flex;align-items:center;gap:7px;background:var(--card);
+    border:2px solid var(--line);border-radius:var(--radius-pill);padding:3px 11px 3px 3px;font-weight:800;font-size:.84rem;box-shadow:var(--shadow)}
+  .who-chip .ava{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:'Baloo 2';font-size:.82rem}
+  .body{flex:1;overflow-y:auto;padding:14px 16px calc(28px + var(--safe-b))}
 
-/* ===== App shell ===== */
-#app{max-width:600px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;position:relative}
-.screen{flex:1;padding:12px 14px 110px;animation:fadeUp .28s ease both}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important}}
+  /* ── STATS ──────────────────────────────────────────── */
+  .stats{display:flex;gap:9px;margin-bottom:14px}
+  .stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 8px;text-align:center;box-shadow:var(--shadow)}
+  .stat .n{font-family:'Baloo 2';font-size:1.15rem;line-height:1.05;display:flex;align-items:center;justify-content:center;gap:3px}
+  .stat .k{font-size:.6rem;font-weight:800;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+  .stat.star .n{color:var(--primary-deep)} .stat.spin .n{color:var(--accent-deep)} .stat.streak .n{color:var(--gold-deep)}
 
-/* ===== Top bar ===== */
-.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;
-  padding:11px 14px;background:rgba(244,246,251,.86);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.brandmark{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
-.brandmark .crest{width:34px;height:34px;flex:none}
-.brandmark .tt b{font-family:'Baloo 2';font-size:1.12rem;line-height:1;display:block;color:var(--ink)}
-.brandmark .tt span{font-size:.66rem;color:var(--ink-soft);font-weight:800;letter-spacing:.02em}
-.who-chip{display:flex;align-items:center;gap:8px;background:var(--card);border:2px solid var(--line);
-  border-radius:var(--radius-pill);padding:4px 11px 4px 4px;box-shadow:var(--shadow);font-weight:800;font-size:.9rem}
-.who-chip .nm{max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.who-chip .cd{font-size:.7rem;color:var(--ink-faint)}
+  /* ── WHEEL ──────────────────────────────────────────── */
+  .wheelcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:14px 14px 18px;margin-bottom:14px;display:flex;flex-direction:column;align-items:center}
+  .wheelstage{position:relative;width:300px;max-width:84vw;aspect-ratio:1;margin:4px auto 0}
+  .pointer{position:absolute;top:-4px;left:50%;transform:translateX(-50%);z-index:6;width:0;height:0;
+    border-left:16px solid transparent;border-right:16px solid transparent;border-top:28px solid var(--accent);filter:drop-shadow(0 3px 4px rgba(0,0,0,.28))}
+  .pointer::after{content:"";position:absolute;top:-28px;left:-7px;width:13px;height:13px;background:var(--accent);border-radius:50%;border:3px solid #fff}
+  svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(0 10px 24px rgba(20,30,70,.30))}
+  .seg-emoji{font-size:20px} .seg-label{font-family:'Baloo 2';font-weight:800;fill:#fff;font-size:12px}
+  .hub{position:absolute;top:50%;left:50%;width:66px;height:66px;transform:translate(-50%,-50%);border-radius:50%;
+    background:#fff;box-shadow:0 4px 14px rgba(20,30,70,.3),inset 0 0 0 4px var(--gold);display:grid;place-items:center;z-index:5;overflow:hidden}
+  .hub img{width:100%;height:100%;object-fit:cover}
+  .spinbtn{margin-top:18px;width:100%;max-width:320px;background:linear-gradient(120deg,var(--accent),var(--accent-deep));color:#fff;
+    font-family:'Baloo 2';font-size:1.15rem;padding:15px;border-radius:var(--radius-pill);box-shadow:0 10px 22px rgba(232,85,31,.42);
+    display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .12s,opacity .2s}
+  .spinbtn:active{transform:scale(.97)}
+  .spinbtn:disabled{background:var(--sunken);color:var(--ink-faint);box-shadow:none}
+  .spinsub{font-size:.76rem;font-weight:800;color:var(--ink-soft);margin-top:9px;text-align:center}
 
-/* ===== Avatar ===== */
-.av{border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;flex:none;
-  line-height:1;overflow:hidden;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
+  /* ── JACKPOT ────────────────────────────────────────── */
+  .jackpot{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:13px 15px;box-shadow:var(--shadow);margin-bottom:14px}
+  .jackpot .row{display:flex;align-items:center;gap:8px;font-family:'Baloo 2';font-size:.94rem}
+  .jackpot .pct{margin-left:auto;color:var(--gold-deep);font-size:.84rem}
+  .bar{height:13px;border-radius:99px;background:var(--primary-soft);margin-top:9px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--accent));transition:width .6s cubic-bezier(.2,.8,.2,1)}
+  .jackpot small{display:block;margin-top:7px;font-weight:700;color:var(--ink-soft);font-size:.74rem}
+  .modepill{margin-left:6px;font-size:.62rem;font-weight:800;background:var(--primary-soft);color:var(--primary-deep);padding:2px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:.04em}
 
-/* ===== Cards ===== */
-.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:12px;border:1px solid var(--line)}
-.card.tight{padding:12px}
-.section-title{display:flex;align-items:center;gap:8px;margin:18px 3px 9px}
-.section-title h2{font-size:1.12rem}
-.section-title .em{font-size:1.15rem}
-.section-title .count{margin-left:auto;font-size:.74rem;font-weight:800;color:var(--ink-soft);background:var(--card);
-  border:1.5px solid var(--line);padding:3px 10px;border-radius:var(--radius-pill)}
-.muted{color:var(--ink-soft);font-weight:700;font-size:.9rem}
-.subtle{color:var(--ink-faint);font-weight:700;font-size:.8rem}
+  /* ── SECTIONS / CHORES ──────────────────────────────── */
+  .sec-t{font-family:'Baloo 2';font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);margin:6px 2px 9px;display:flex;align-items:center;gap:7px}
+  .sec-t .c{margin-left:auto;background:var(--card);border:1.5px solid var(--line);padding:2px 9px;border-radius:99px;font-size:.72rem;color:var(--ink-soft)}
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px;margin-bottom:9px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px}
+  .qicon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:1.25rem;flex:0 0 auto;background:var(--primary-soft)}
+  .qcard .qt{font-family:'Baloo 2';font-size:1rem;line-height:1.15}
+  .qcard .qm{font-size:.74rem;font-weight:800;color:var(--ink-soft);margin-top:2px}
+  .doneBtn{margin-left:auto;flex:0 0 auto;font-family:'Baloo 2';font-size:.82rem;padding:9px 14px;border-radius:99px;background:var(--green);color:#fff;display:flex;align-items:center;gap:6px;transition:transform .12s}
+  .doneBtn:active{transform:scale(.95)}
+  .qcard.done{opacity:.62} .qcard.done .qicon{background:#DCFCE7}
+  .doneTag{margin-left:auto;font-family:'Baloo 2';font-size:.8rem;color:var(--green-deep);background:#DCFCE7;padding:7px 12px;border-radius:99px}
 
-/* ===== Family goal ===== */
-.goal{background:linear-gradient(135deg,var(--accent),var(--accent-deep));color:#fff;border-radius:var(--radius);
-  padding:17px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
-.goal.met{background:linear-gradient(135deg,#16A34A,#0E7A34)}
-.goal .gtop{display:flex;align-items:center;gap:12px}
-.goal .gem{font-size:2.3rem;filter:drop-shadow(0 3px 6px rgba(0,0,0,.25))}
-.goal h2{font-size:1.2rem}
-.goal .gsub{opacity:.95;font-weight:700;font-size:.86rem}
-.goal .gbar{height:18px;background:rgba(0,0,0,.18);border-radius:99px;overflow:hidden;margin:14px 0 8px;position:relative}
-.goal .gbar .fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#FFE7A8,#FFC53D);
-  transition:width .8s cubic-bezier(.2,.9,.3,1);min-width:6px}
-.goal .gfoot{display:flex;justify-content:space-between;font-weight:800;font-size:.85rem}
-.goal .contribs{display:flex;flex-wrap:wrap;gap:6px;margin-top:13px}
-.goal .contrib{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border-radius:99px;padding:3px 11px 3px 3px;font-weight:800;font-size:.8rem}
+  /* ── PARENT ─────────────────────────────────────────── */
+  .ptab{display:flex;gap:6px;margin-bottom:14px}
+  .ptab .t{flex:1;text-align:center;font-family:'Baloo 2';font-size:.84rem;padding:9px;border-radius:12px;color:var(--ink-soft);background:var(--card);border:1px solid var(--line)}
+  .ptab .t.on{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:var(--shadow)}
+  .ptab-body{display:none} .ptab-body.on{display:block}
+  .fair{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .fair .ft{font-family:'Baloo 2';display:flex;align-items:center;gap:7px;font-size:.96rem}
+  .fair .ok{margin-left:auto;font-size:.7rem;background:#DCFCE7;color:var(--green-deep);padding:3px 10px;border-radius:99px;font-weight:800}
+  .frow{display:flex;align-items:center;gap:10px;margin-top:11px}
+  .frow .nm{width:52px;font-weight:800;font-size:.82rem}
+  .frow .fb{flex:1;height:11px;border-radius:99px;background:var(--primary-soft);overflow:hidden}
+  .frow .fb i{display:block;height:100%;border-radius:99px;transition:width .5s}
+  .frow .v{width:34px;text-align:right;font-family:'Baloo 2';font-size:.82rem;color:var(--ink-soft)}
+  .slice-row{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 13px;margin-bottom:8px;box-shadow:var(--shadow)}
+  .swatch{width:15px;height:15px;border-radius:5px;flex:0 0 auto}
+  .slice-row .st{font-family:'Baloo 2';font-size:.94rem}
+  .slice-row .odds{margin-left:auto;font-weight:800;font-size:.78rem;color:var(--ink-soft);background:var(--bg);border:1px solid var(--line);padding:3px 10px;border-radius:99px}
+  .kidcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:15px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .kidcard .kh{display:flex;align-items:center;gap:10px;font-family:'Baloo 2';font-size:1.05rem}
+  .kidcard .kh .ava{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:'Baloo 2'}
+  .kidcard .pr{margin-top:11px;font-weight:800;font-size:.88rem;color:var(--ink-soft)}
+  .seg{display:inline-flex;background:var(--sunken);border-radius:99px;padding:3px;margin-top:9px}
+  .seg button{font-family:'Baloo 2';font-size:.78rem;padding:6px 13px;border-radius:99px;color:var(--ink-soft)}
+  .seg button.on{background:var(--card);color:var(--primary-deep);box-shadow:var(--shadow)}
+  .redeem{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px 13px;margin-bottom:9px;box-shadow:var(--shadow)}
+  .redeem .re{width:40px;height:40px;border-radius:11px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:1.2rem;flex:0 0 auto}
+  .redeem .rt{font-family:'Baloo 2';font-size:.96rem} .redeem .rm{font-size:.74rem;font-weight:800;color:var(--ink-soft)}
+  .payBtn{margin-left:auto;font-family:'Baloo 2';font-size:.8rem;padding:8px 13px;border-radius:99px;background:var(--primary);color:#fff}
+  .empty{text-align:center;color:var(--ink-faint);font-weight:800;font-size:.9rem;padding:26px 10px}
 
-/* ===== Chore row ===== */
-.chore{display:flex;align-items:center;gap:11px;background:var(--card);border-radius:var(--radius-sm);
-  box-shadow:var(--shadow);padding:11px;margin-bottom:9px;border:1.5px solid var(--line);transition:.18s}
-.chore.is-done{background:var(--done-soft);border-color:#BBE9C8}
-.chore.is-overdue{border-color:#F4B4B4}
-.chore .cem{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:1.45rem;flex:none;background:var(--primary-soft)}
-.chore.is-done .cem{background:#C7F0D4}
-.chore .cbody{flex:1;min-width:0}
-.chore .cbody h3{font-size:1rem;line-height:1.2}
-.chore .cbody h3.struck{text-decoration:line-through;opacity:.7}
-.chore .cmeta{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;align-items:center}
-.chip{font-size:.7rem;font-weight:800;padding:2px 8px;border-radius:99px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
-.chip.person{color:#fff}
-.chip.room{background:var(--open-soft);color:var(--ink-soft)}
-.chip.recur{background:#EAF6FF;color:#2563A8}
-.chip.xp{background:var(--primary-soft);color:var(--primary-deep)}
-.chip.coin{background:#FEF3C7;color:#92600A}
-/* status chips — distinct hues + icon, never color-only */
-.st{font-size:.72rem;font-weight:800;padding:3px 9px;border-radius:99px;display:inline-flex;align-items:center;gap:4px}
-.st.open{background:var(--open-soft);color:var(--open)}
-.st.pending{background:var(--pending-soft);color:var(--pending)}
-.st.done{background:var(--done-soft);color:var(--done)}
-.st.overdue{background:var(--overdue-soft);color:var(--overdue)}
+  .switchBtn{width:100%;margin-top:6px;font-family:'Baloo 2';font-size:.92rem;padding:13px;border-radius:var(--radius-pill);background:var(--card);border:2px solid var(--line);color:var(--ink-soft);box-shadow:var(--shadow)}
 
-/* action buttons on chore rows */
-.cact{display:flex;align-items:center;gap:7px;flex:none}
-.dobtn{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;flex:none;border:2px solid var(--line);
-  background:var(--card);transition:.15s}
-.dobtn svg{width:24px;height:24px;color:var(--open)}
-.dobtn:hover{transform:scale(1.05)}
-.dobtn:active{transform:scale(.92)}
-.dobtn.done{background:var(--done);border-color:#0E7A34}
-.dobtn.done svg{color:#fff}
-.dobtn.pending{background:var(--pending-soft);border-color:#E7C27A}
-.dobtn.pending svg{color:var(--pending)}
-.photobtn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;font-size:1.1rem;
-  background:var(--primary-soft);border:2px dashed var(--primary)}
-.photobtn.has{border-style:solid;background:var(--done-soft);border-color:var(--done)}
-.cthumb{width:42px;height:42px;border-radius:11px;object-fit:cover;flex:none;border:2px solid var(--done)}
+  /* ── WIN MODAL ──────────────────────────────────────── */
+  .scrim{position:fixed;inset:0;background:rgba(13,18,50,.62);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:80;padding:24px}
+  .scrim.on{display:flex}
+  .winbox{background:linear-gradient(165deg,#243089,#3A63E0 60%,#4F7CFF);border-radius:28px;padding:22px;max-width:360px;width:100%;text-align:center;position:relative;overflow:hidden;box-shadow:var(--shadow-lg);animation:pop .35s cubic-bezier(.2,1.3,.4,1)}
+  @keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+  .winbox::before{content:"";position:absolute;inset:-40% -10% auto;height:120%;background:radial-gradient(circle at 50% 28%,rgba(255,209,107,.45),transparent 60%)}
+  .winbox .burst{width:190px;position:relative;z-index:2;filter:drop-shadow(0 12px 26px rgba(0,0,0,.4))}
+  .winbox h2{color:#fff;font-size:1rem;letter-spacing:.16em;text-transform:uppercase;position:relative;z-index:2;opacity:.92;margin-top:-6px}
+  .prize{position:relative;z-index:2;background:#fff;border-radius:var(--radius);padding:16px 22px;margin-top:12px;box-shadow:var(--shadow-lg)}
+  .prize .pe{font-size:2.5rem} .prize .pt{font-family:'Baloo 2';font-size:1.5rem;color:var(--ink);margin-top:2px}
+  .prize .pm{font-weight:800;color:var(--ink-soft);font-size:.82rem;margin-top:3px}
+  .winbox .cta{position:relative;z-index:2;margin-top:20px}
+  .winbox .keep{background:#fff;color:var(--primary-deep);font-family:'Baloo 2';font-size:1.05rem;padding:13px 30px;border-radius:99px;box-shadow:var(--shadow)}
+  .winbox .toks{position:relative;z-index:2;color:#cdd8ff;font-weight:800;font-size:.8rem;margin-top:14px}
 
-/* ===== Verify row ===== */
-.verify{display:flex;align-items:center;gap:11px;background:var(--card);border-radius:var(--radius-sm);
-  padding:11px;margin-bottom:9px;box-shadow:var(--shadow);border:1.5px solid var(--pending-soft)}
-.verify .vbody{flex:1;min-width:0}
-.verify .vbody b{display:block;font-size:.98rem}
-.verify .vthumb{width:46px;height:46px;border-radius:11px;object-fit:cover;border:2px solid var(--pending);flex:none}
-.iconbtn{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:1.15rem;font-weight:900;flex:none;box-shadow:0 3px 0 rgba(0,0,0,.10)}
-.iconbtn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.10)}
-.iconbtn.ok{background:var(--done);color:#fff}
-.iconbtn.no{background:var(--overdue-soft);color:var(--overdue)}
+  /* ── FOOTER (Shomer standard — least focus) ─────────── */
+  .studio-credit{display:flex;align-items:center;justify-content:center;gap:9px;padding:18px 16px calc(14px + var(--safe-b));direction:ltr;flex-wrap:wrap}
+  .studio-credit .sc-badge{display:inline-flex;align-items:center;background:var(--sunken);border:1px solid var(--line);border-radius:7px;padding:4px 8px}
+  .studio-credit .sc-badge img{height:15px;width:auto;display:block;opacity:.92}
+  .studio-credit .cr{font-size:10.5px;color:var(--ink-faint);letter-spacing:.3px;line-height:1.4}
+  .studio-credit .cr b{color:var(--ink-soft);font-weight:700}
 
-/* ===== Leaderboard / member row ===== */
-.member{display:flex;align-items:center;gap:12px;padding:11px;border-radius:var(--radius-sm);margin-bottom:8px;
-  background:var(--card);border:1.5px solid var(--line);box-shadow:var(--shadow)}
-.member.me{border-color:var(--primary);background:var(--primary-soft)}
-.member .rank{font-family:'Baloo 2';font-size:1.1rem;width:24px;text-align:center;color:var(--ink-soft)}
-.member .minfo{flex:1;min-width:0}
-.member .minfo b{font-size:1rem;display:block}
-.member .minfo span{font-size:.78rem;color:var(--ink-soft);font-weight:700}
-.member .mstat{text-align:right;font-weight:800}
-.member .mstat b{font-family:'Baloo 2';font-size:1.05rem;color:var(--primary-deep)}
-.member .mstat span{display:block;font-size:.66rem;color:var(--ink-faint)}
-
-/* ===== Stats grid (Me) ===== */
-.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-.statbox{background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:12px 8px;text-align:center;box-shadow:var(--shadow)}
-.statbox b{display:block;font-family:'Baloo 2';font-size:1.3rem;line-height:1.1;color:var(--primary-deep)}
-.statbox span{font-size:.66rem;font-weight:800;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em}
-
-/* ===== Segmented controls / filters ===== */
-.segrow{display:flex;gap:7px;overflow-x:auto;padding:2px 1px 4px;margin:0 -1px 4px;-webkit-overflow-scrolling:touch}
-.segrow::-webkit-scrollbar{display:none}
-.seg{flex:none;font-weight:800;font-size:.84rem;padding:8px 13px;border-radius:var(--radius-pill);
-  background:var(--card);border:1.5px solid var(--line);color:var(--ink-soft);white-space:nowrap}
-.seg.on{background:var(--primary);color:#fff;border-color:var(--primary)}
-
-/* day chips (weekday picker) */
-.dows{display:flex;gap:6px;flex-wrap:wrap}
-.dow{width:42px;height:42px;border-radius:12px;border:2px solid var(--line);background:var(--card);
-  font-weight:800;font-size:.82rem;color:var(--ink-soft)}
-.dow.on{background:var(--primary);color:#fff;border-color:var(--primary)}
-
-/* emoji picker */
-.emojis{display:flex;gap:6px;flex-wrap:wrap}
-.emoji{width:42px;height:42px;border-radius:12px;border:2px solid var(--line);background:var(--card);font-size:1.3rem}
-.emoji.on{border-color:var(--primary);background:var(--primary-soft)}
-
-/* ===== Buttons ===== */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Baloo 2';font-weight:800;
-  border-radius:var(--radius-pill);padding:12px 18px;font-size:.98rem;transition:.16s;box-shadow:0 4px 0 rgba(0,0,0,.12);user-select:none}
-.btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.12)}
-.btn.block{width:100%}
-.btn.primary{background:var(--primary);color:#fff;box-shadow:0 4px 0 var(--primary-deep)}
-.btn.primary:active{box-shadow:0 1px 0 var(--primary-deep)}
-.btn.green{background:var(--done);color:#fff;box-shadow:0 4px 0 #0E7A34}
-.btn.green:active{box-shadow:0 1px 0 #0E7A34}
-.btn.gold{background:var(--gold);color:#5a3d00;box-shadow:0 4px 0 #C77E00}
-.btn.gold:active{box-shadow:0 1px 0 #C77E00}
-.btn.danger{background:var(--overdue);color:#fff;box-shadow:0 4px 0 #B01818}
-.btn.ghost{background:var(--card);color:var(--ink);box-shadow:0 0 0 2px var(--line) inset}
-.btn.ghost:active{transform:translateY(1px)}
-.btn.sm{padding:8px 13px;font-size:.84rem;box-shadow:0 3px 0 rgba(0,0,0,.12)}
-.btn[disabled]{opacity:.45;pointer-events:none;filter:grayscale(.3)}
-.fab{position:fixed;right:max(14px,calc((100vw - 600px)/2 + 14px));bottom:calc(82px + var(--safe-bottom));z-index:45;
-  background:var(--primary);color:#fff;border-radius:var(--radius-pill);padding:14px 18px;font-family:'Baloo 2';font-weight:800;
-  box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:7px;font-size:.98rem}
-.fab:active{transform:translateY(2px)}
-
-/* ===== Empty states ===== */
-.empty{text-align:center;padding:34px 18px;color:var(--ink-soft)}
-.empty .em{font-size:3rem;display:block;margin-bottom:10px}
-.empty h3{font-size:1.15rem;color:var(--ink);margin-bottom:4px}
-.empty p{font-weight:700;font-size:.9rem;margin:0 auto;max-width:280px}
-
-/* ===== Group headers in lists ===== */
-.grouphdr{display:flex;align-items:center;gap:8px;margin:16px 3px 8px;font-weight:800;color:var(--ink-soft);font-size:.86rem;text-transform:uppercase;letter-spacing:.04em}
-.grouphdr .gc{margin-left:auto;background:var(--card);border:1.5px solid var(--line);color:var(--ink-faint);font-size:.7rem;padding:2px 9px;border-radius:99px;letter-spacing:0;text-transform:none}
-.grouphdr.today{color:var(--primary-deep)}
-
-/* ===== Brand panel (DARK-GREY background — brand rule) ===== */
-.brandbox{background:var(--darkgrey);border-radius:16px;padding:16px 20px;display:flex;flex-direction:column;align-items:center;gap:6px}
-.brandbox img{width:180px;max-width:70%}
-.brandbox .tm{font-weight:800;font-size:.84rem;color:#D7DBE0}
-.brandbox .cp{font-size:.72rem;color:#9AA1AB;font-weight:700}
-
-/* ===== Bottom nav ===== */
-.tabbar{position:fixed;bottom:0;left:0;right:0;z-index:50;max-width:600px;margin:0 auto;
-  background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-top:1px solid var(--line);
-  display:flex;padding:6px 4px calc(6px + var(--safe-bottom));box-shadow:0 -6px 20px rgba(40,60,100,.08)}
-.tabbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:13px;color:var(--ink-faint);transition:.18s;position:relative}
-.tabbtn .ti{width:25px;height:25px}
-.tabbtn span{font-size:.62rem;font-weight:800}
-.tabbtn.active{color:var(--primary)}
-.tabbtn .ti svg{width:25px;height:25px;display:block}
-.tabbtn .badge{position:absolute;top:2px;right:calc(50% - 20px);min-width:17px;height:17px;border-radius:99px;
-  background:var(--overdue);color:#fff;font-size:.62rem;font-weight:900;display:grid;place-items:center;padding:0 4px}
-
-/* ===== Toast ===== */
-#toastwrap{position:fixed;left:0;right:0;bottom:92px;z-index:80;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 16px}
-.toast{background:var(--ink);color:#fff;font-weight:800;padding:12px 17px;border-radius:var(--radius-pill);box-shadow:var(--shadow-lg);
-  display:flex;align-items:center;gap:9px;max-width:540px;animation:toastIn .35s cubic-bezier(.2,1.4,.4,1) both;font-size:.92rem}
-.toast .em{font-size:1.2rem}
-.toast.good{background:var(--done)}
-.toast.info{background:var(--primary)}
-.toast.warn{background:var(--pending)}
-.toast.coin{background:var(--gold);color:#5a3d00}
-@keyframes toastIn{from{opacity:0;transform:translateY(18px) scale(.92)}to{opacity:1;transform:none}}
-.toast.out{animation:toastOut .3s ease forwards}
-@keyframes toastOut{to{opacity:0;transform:translateY(10px) scale(.95)}}
-
-/* ===== Confetti ===== */
-#burstwrap{position:fixed;inset:0;z-index:90;pointer-events:none;overflow:hidden}
-.spark{position:absolute;font-size:1.3rem;animation:spark .9s ease-out forwards}
-@keyframes spark{0%{opacity:1;transform:translate(0,0) scale(.6) rotate(0)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.2) rotate(var(--rot))}}
-.xpfloat{position:fixed;z-index:90;font-family:'Baloo 2';font-weight:800;color:var(--done);font-size:1.3rem;pointer-events:none;animation:xpfloat 1.1s ease-out forwards;text-shadow:0 2px 6px rgba(255,255,255,.9)}
-@keyframes xpfloat{0%{opacity:0;transform:translateY(0) scale(.7)}20%{opacity:1}100%{opacity:0;transform:translateY(-64px) scale(1.15)}}
-
-/* ===== Modal ===== */
-#modalwrap{position:fixed;inset:0;z-index:100;display:none;align-items:flex-end;justify-content:center;background:rgba(30,37,51,.5);backdrop-filter:blur(3px)}
-#modalwrap.show{display:flex;animation:fadeIn .22s ease}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.modal{background:var(--card);width:100%;max-width:600px;border-radius:26px 26px 0 0;padding:20px 18px calc(22px + var(--safe-bottom));
-  box-shadow:var(--shadow-lg);animation:sheetUp .32s cubic-bezier(.2,1.1,.3,1) both;max-height:92vh;overflow-y:auto}
-@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
-.modal .grab{width:40px;height:5px;border-radius:99px;background:var(--line);margin:0 auto 14px}
-.modal h2{font-size:1.3rem;margin-bottom:5px}
-.modal p.lead{color:var(--ink-soft);font-weight:700;margin:0 0 16px}
-.field{margin-bottom:13px}
-.field label{display:block;font-weight:800;font-size:.82rem;margin-bottom:6px;color:var(--ink-soft)}
-.field input,.field select{width:100%;font-size:1rem;font-weight:700;padding:12px 13px;border-radius:12px;border:2px solid var(--line);background:#FBFCFE;color:var(--ink)}
-.field input:focus,.field select:focus{border-color:var(--primary);outline:none}
-.field .row{display:flex;gap:10px}
-.field .row>div{flex:1}
-.bigcelebrate{text-align:center;padding:4px 0}
-.bigcelebrate .em{font-size:3.6rem;display:block;animation:pop .5s cubic-bezier(.2,1.6,.4,1) both}
-@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
-
-/* splash */
-#splash{position:fixed;inset:0;z-index:200;background:linear-gradient(160deg,var(--primary),var(--primary-deep) 60%,#2A47A8);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;transition:opacity .5s ease,visibility .5s}
-#splash.gone{opacity:0;visibility:hidden;pointer-events:none}
-#splash.hidden{display:none!important}
-#splash .crestbig{width:108px;height:108px;animation:pop .55s cubic-bezier(.2,1.6,.4,1) both}
-#splash h1{font-size:2.3rem;margin:14px 0 2px;text-shadow:0 4px 16px rgba(0,0,0,.22)}
-#splash .tag{font-weight:800;opacity:.95}
-#splash .splbrand{position:absolute;bottom:28px}
+  .toast{position:fixed;left:50%;bottom:calc(26px + var(--safe-b));transform:translateX(-50%) translateY(12px);background:#1E2533;color:#fff;
+    font-weight:800;font-size:.86rem;padding:11px 18px;border-radius:99px;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:.25s;z-index:90;max-width:90%}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media (prefers-reduced-motion:reduce){svg.wheel{transition:none !important}.winbox{animation:none}}
 </style>
 </head>
 <body>
-<a class="sr-only" href="#main">Skip to main content</a>
+<div class="app">
 
-<!-- Splash -->
-<div id="splash" role="dialog" aria-label="Chore Wars loading">
-  <div class="crestbig" id="splashCrest"></div>
-  <h1>Chore Wars</h1>
-  <div class="tag">Family chores, made simple ✨</div>
-  <div class="splbrand">
-    <div class="brandbox">
-      <img src="3shamrocks_black.png" alt="3Shamrocks Studio">
-      <div class="tm">Chore Wars™ — a 3Shamrocks Studio app</div>
+  <!-- WHO'S HERE -->
+  <section class="screen on" id="who">
+    <img class="crest" src="assets/crest.jpg" alt="Chore Wars crest">
+    <h1>Chore <b>Wars</b></h1>
+    <div class="sub">⚔️ The M Clan · Who's here?</div>
+    <div class="pickrow" id="pickrow"></div>
+  </section>
+
+  <!-- KID -->
+  <section class="screen" id="kid">
+    <div class="head">
+      <img class="crest" src="assets/crest.jpg" alt="crest">
+      <div class="tt"><b>My Wheel</b><span id="kidSpinsLbl">0 spins ready</span></div>
+      <button class="who-chip" id="kidChip" onclick="goWho()"></button>
+    </div>
+    <div class="body">
+      <div class="stats" id="kidStats"></div>
+      <div class="wheelcard">
+        <div class="wheelstage">
+          <div class="pointer"></div>
+          <svg class="wheel" id="wheel" viewBox="0 0 300 300" aria-label="Reward wheel"></svg>
+          <div class="hub"><img src="assets/crest.jpg" alt=""></div>
+        </div>
+        <button class="spinbtn" id="spinBtn">SPIN THE WHEEL · 🎟️ <span id="spinCount">0</span></button>
+        <div class="spinsub">Finish a chore to earn a spin 🎟️</div>
+      </div>
+      <div class="jackpot" id="jackpotBox"></div>
+      <div class="sec-t">Today's chores <span class="c" id="choreCount">0</span></div>
+      <div id="choreList"></div>
+    </div>
+  </section>
+
+  <!-- PARENT -->
+  <section class="screen" id="parent">
+    <div class="head">
+      <img class="crest" src="assets/crest.jpg" alt="crest">
+      <div class="tt"><b>Manage</b><span>Daddy</span></div>
+      <button class="who-chip" id="parentChip" onclick="goWho()"></button>
+    </div>
+    <div class="body">
+      <div class="ptab">
+        <button class="t on" data-tab="redeem">Redeem</button>
+        <button class="t" data-tab="wheel">The Wheel</button>
+        <button class="t" data-tab="kids">Kids</button>
+      </div>
+      <div class="ptab-body on" id="tab-redeem"></div>
+      <div class="ptab-body" id="tab-wheel"></div>
+      <div class="ptab-body" id="tab-kids"></div>
+    </div>
+  </section>
+
+  <!-- WIN MODAL -->
+  <div class="scrim" id="winScrim">
+    <div class="winbox">
+      <img class="burst" src="assets/loot-burst.png" alt="treasure burst">
+      <h2 id="winTitle">Winner!</h2>
+      <div class="prize">
+        <div class="pe" id="winEmoji">🎉</div>
+        <div class="pt" id="winPrize">Reward</div>
+        <div class="pm" id="winMsg"></div>
+      </div>
+      <div class="cta"><button class="keep" id="winKeep">Keep it 🎉</button></div>
+      <div class="toks">No blanks, ever — every spin pays out something real</div>
     </div>
   </div>
+
+  <footer class="studio-credit">
+    <span class="sc-badge"><img src="assets/3shamrocks_black.png" alt="3Shamrocks Studio" width="100" height="15"></span>
+    <span class="cr">© 2026 <b>3Shamrocks Studio</b> · All rights reserved.</span>
+  </footer>
+
+  <div class="toast" id="toast"></div>
 </div>
-
-<div id="app">
-  <div class="topbar">
-    <div class="brandmark">
-      <div class="crest" id="topCrest"></div>
-      <div class="tt"><b>Chore Wars</b><span>Family Chores</span></div>
-    </div>
-    <button class="who-chip" id="whoChip" aria-label="Switch family member">
-      <span class="av" id="chipAv" style="width:30px;height:30px;font-size:.95rem"></span>
-      <span class="nm" id="chipName">—</span>
-      <span class="cd">▾</span>
-    </button>
-  </div>
-
-  <main id="main" class="screen" aria-live="polite"></main>
-
-  <nav class="tabbar" id="tabbar" aria-label="Main navigation"></nav>
-</div>
-
-<div id="toastwrap" aria-live="assertive"></div>
-<div id="burstwrap"></div>
-<div id="modalwrap" role="dialog" aria-modal="true"><div class="modal" id="modal"></div></div>
-<input type="file" id="photoInput" accept="image/*" capture="environment" class="sr-only" aria-hidden="true">
 
 <script>
 "use strict";
-/* ============================================================
-   Chore Wars™ — Family Chore Manager
-   © 2026 3Shamrocks Studio. All rights reserved.
-   Single-file, dependency-free PWA. No eval. All dynamic text
-   rendered via textContent / DOM builders (no innerHTML of user
-   data) so user input can never inject markup.
-   ============================================================ */
+const KEY='chorewars_wheel_v1';
 
-/* ---------- Service worker: own it, evict strays (shared github.io origin) ---------- */
-(function(){
-  if(!('serviceWorker' in navigator)) return;
-  var BASE = location.pathname.replace(/[^/]*$/,'');
-  navigator.serviceWorker.getRegistrations().then(function(regs){
-    regs.forEach(function(r){ if(r.scope.indexOf(location.origin+BASE)!==0){ r.unregister(); } });
-    navigator.serviceWorker.register('sw.js').catch(function(){});
-  }).catch(function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
-})();
-
-/* ---------- Safe DOM builder ---------- */
-function E(tag, props, kids){
-  var n=document.createElement(tag);
-  if(props) for(var k in props){
-    if(k==='class') n.className=props[k];
-    else if(k==='text') n.textContent=props[k];
-    else if(k==='html') n.innerHTML=props[k];            // ONLY trusted static SVG strings below
-    else if(k==='on') for(var ev in props[k]) n.addEventListener(ev,props[k][ev]);
-    else if(k==='style') n.setAttribute('style',props[k]);
-    else if(k in n && k!=='list'){ try{ n[k]=props[k]; }catch(e){ n.setAttribute(k,props[k]); } }
-    else n.setAttribute(k,props[k]);
-  }
-  if(kids!=null){ (Array.isArray(kids)?kids:[kids]).forEach(function(c){
-    if(c==null||c===false) return;
-    n.appendChild(typeof c==='string'?document.createTextNode(c):c);
-  });}
-  return n;
-}
-function $(s,r){return (r||document).querySelector(s);}
-function clear(n){while(n.firstChild)n.removeChild(n.firstChild);}
-
-/* ---------- Static SVG art (no user data) ---------- */
-function crestSVG(){
-  return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Chore Wars">\
-   <defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6C97FF"/><stop offset="1" stop-color="#4F7CFF"/></linearGradient></defs>\
-   <rect x="14" y="14" width="72" height="72" rx="20" fill="url(#cg)"/>\
-   <path d="M34 52 l11 11 L70 36" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>\
-  </svg>';
-}
-var ICONS={
-  today:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="M8.5 15l2.2 2.2L15.5 12"/></svg>',
-  chores:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg>',
-  followup:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>',
-  family:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 21v-1.5a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5V21"/><circle cx="17.5" cy="9" r="2.4"/><path d="M16 14.4a4.5 4.5 0 0 1 5.5 4.4V21"/></svg>',
-  me:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 16 0v1"/></svg>',
-  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 6"/></svg>',
-  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>'
-};
-
-/* ============================================================
-   STATE
-   ============================================================ */
-var STORE_KEY='chorewars_v2';
-var COIN_TO_USD=0.10;       // 10 coins = $1.00 allowance
-var XP_PER_LEVEL=200;
-var OVERDUE_LOOKBACK=14;    // days back we surface missed recurring chores
-var ROOMS=['Bedroom','Bathroom','Kitchen','Living Room','Outside','Whole House','Other'];
-var CHORE_EMOJIS=['🧹','🛏️','🪥','🐶','🍽️','🪴','🗑️','♻️','🚗','🧺','🧽','📚','🧸','🚿','🪣','🍂','🧼','👕'];
-var DOW=[{i:1,l:'Mon'},{i:2,l:'Tue'},{i:3,l:'Wed'},{i:4,l:'Thu'},{i:5,l:'Fri'},{i:6,l:'Sat'},{i:0,l:'Sun'}];
-var DOW_LABEL=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-
-var TABS=[
-  {id:'today',label:'Today',icon:ICONS.today},
-  {id:'chores',label:'Chores',icon:ICONS.chores},
-  {id:'followup',label:'Follow-up',icon:ICONS.followup},
-  {id:'family',label:'Family',icon:ICONS.family},
-  {id:'me',label:'Me',icon:ICONS.me}
+// Reward wheel — identical odds for every kid (fairness). No blanks.
+const SLICES=[
+  {id:'screen', e:'🕹️', t:'30 min',   c:'#4F7CFF', w:3, kind:'reward', label:'30 min screen time'},
+  {id:'treat',  e:'🍪', t:'Treat',    c:'#16A34A', w:3, kind:'reward', label:'A treat'},
+  {id:'dinner', e:'🍽️', t:'Dinner',   c:'#FF6B35', w:2, kind:'reward', label:'Pick tonight’s dinner'},
+  {id:'coins',  e:'🪙', t:'+5 stars', c:'#3A63E0', w:3, kind:'stars',  amount:5, label:'+5 bonus stars'},
+  {id:'stayup', e:'🌙', t:'Stay up',  c:'#22C55E', w:2, kind:'reward', label:'Stay up 15 min'},
+  {id:'skip',   e:'⏭️', t:'Skip job', c:'#A855F7', w:1, kind:'reward', label:'Skip-a-chore token'},
+  {id:'respin', e:'🎟️', t:'Spin x2',  c:'#E8551F', w:2, kind:'respin', label:'Spin again!'},
+  {id:'jackpot',e:'💎', t:'JACKPOT',  c:'#F59E0B', w:1, kind:'jackpot', amount:25, label:'JACKPOT!'},
 ];
+const N=SLICES.length, STEP=360/N;
+const JACKPOT_TARGET=100;
 
-var state=null, currentTab='today', choresView='today';
-
-function uid(p){ return (p||'id')+'_'+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36); }
-
-function defaultState(){
-  var jakob='m_jakob', dean='m_dean', daddy='m_daddy';
-  var y=dayKey(addDays(today(),-1));          // yesterday → deterministic overdue demo
-  var sat=dayKey(nextWeekday(6));             // upcoming Saturday → one-off demo
+function seed(){
   return {
-    activeMember:jakob,
-    startDate:dayKey(today()),   // never count recurring chores as "missed" before the family started using the app
-    members:[
-      {id:jakob,name:'Jakob',role:'kid',   color:'#4F7CFF',emoji:'🦊',xp:120,coins:34},
-      {id:dean, name:'Dean', role:'kid',   color:'#A855F7',emoji:'🐯',xp:180,coins:22},
-      {id:daddy,name:'Daddy',role:'parent',color:'#EC4899',emoji:'🦁',xp:0,  coins:0}
-    ],
+    view:'who', current:null, familyJackpot:0,
+    members:{
+      jakob:{name:'Jakob', role:'kid', av:'j', stars:240, spins:2, streak:5,
+        jackpot:55, mode:'kid', prize:'the LEGO set', won:[], weekStars:12},
+      dean:{name:'Dean', role:'kid', av:'d', stars:175, spins:1, streak:3,
+        jackpot:30, mode:'kid', prize:'a new scooter', won:[], weekStars:10},
+      daddy:{name:'Dad', role:'parent', av:'p'}
+    },
     chores:[
-      {id:uid('c'),title:'Make your bed',       emoji:'🛏️',room:'Bedroom',    assignee:jakob,recur:'daily', days:[],   due:null,xp:20,coins:5},
-      {id:uid('c'),title:'Brush teeth (AM)',    emoji:'🪥',room:'Bathroom',   assignee:jakob,recur:'daily', days:[],   due:null,xp:10,coins:2},
-      {id:uid('c'),title:'Tidy your desk',      emoji:'🧹',room:'Bedroom',    assignee:jakob,recur:'daily', days:[],   due:null,xp:15,coins:4},
-      {id:uid('c'),title:'Water the plants',    emoji:'🪴',room:'Living Room',assignee:jakob,recur:'days',  days:[2,5],due:null,xp:15,coins:4},
-      {id:uid('c'),title:'Take out recycling',  emoji:'♻️',room:'Kitchen',    assignee:jakob,recur:'weekly',days:[3],  due:null,xp:25,coins:8},
-      {id:uid('c'),title:'Feed the dog',        emoji:'🐶',room:'Kitchen',    assignee:dean, recur:'daily', days:[],   due:null,xp:15,coins:4},
-      {id:uid('c'),title:'Set the dinner table',emoji:'🍽️',room:'Kitchen',    assignee:dean, recur:'days',  days:[1,2,3,4,5],due:null,xp:15,coins:4},
-      {id:uid('c'),title:'Tidy the toy bin',    emoji:'🧸',room:'Living Room',assignee:dean, recur:'daily', days:[],   due:null,xp:10,coins:3},
-      {id:uid('c'),title:'Vacuum living room',  emoji:'🧹',room:'Living Room',assignee:dean, recur:'weekly',days:[6],  due:null,xp:30,coins:10},
-      {id:uid('c'),title:'Wash the car',        emoji:'🚗',room:'Outside',    assignee:dean, recur:'once',  days:[],   due:sat,xp:40,coins:15},
-      {id:uid('c'),title:'Organize the bookshelf',emoji:'📚',room:'Bedroom',  assignee:dean, recur:'once',  days:[],   due:y,  xp:25,coins:8}
-    ],
-    completions:[],   // filled below
-    goal:{reward:'Pizza Night',emoji:'🍕',target:null,unlockedWeek:null}, // target null = auto (all chores due this week)
-    log:[],
-    payouts:[]
+      {id:'c1', who:'jakob', icon:'🛏️', name:'Make your bed', meta:'Daily', done:true},
+      {id:'c2', who:'jakob', icon:'🗑️', name:'Take out trash', meta:'Daily', done:false},
+      {id:'c3', who:'jakob', icon:'🍽️', name:'Clear the table', meta:'One-off', done:false},
+      {id:'c4', who:'dean',  icon:'🧦', name:'Sort the laundry', meta:'Daily', done:false},
+      {id:'c5', who:'dean',  icon:'🪥', name:'Brush teeth', meta:'Daily', done:true},
+      {id:'c6', who:'dean',  icon:'📚', name:'Tidy your books', meta:'One-off', done:false},
+    ]
   };
 }
-/* Seed a few completions so the app opens alive (built after chores exist) */
-function seedCompletions(s){
-  function find(t){ return s.chores.find(function(c){return c.title===t;}); }
-  var tk=dayKey(today());
-  var bed=find('Make your bed'), teeth=find('Brush teeth (AM)'), dog=find('Feed the dog');
-  s.completions=[];
-  if(bed)   s.completions.push({id:uid('done'),choreId:bed.id,  member:bed.assignee,  cycle:tk,status:'done',   doneAt:tsAgo(120),verifiedAt:tsAgo(90),photo:null});
-  if(dog)   s.completions.push({id:uid('done'),choreId:dog.id,  member:dog.assignee,  cycle:tk,status:'done',   doneAt:tsAgo(60), verifiedAt:tsAgo(40),photo:null});
-  if(teeth) s.completions.push({id:uid('done'),choreId:teeth.id,member:teeth.assignee,cycle:tk,status:'pending',doneAt:tsAgo(20),verifiedAt:null,photo:null});
-  s.log=[
-    {id:uid('l'),text:'Jakob completed “Make your bed” — verified ✅ (+20 XP)',ts:tsAgo(90)},
-    {id:uid('l'),text:'Dean completed “Feed the dog” — verified ✅ (+15 XP)',ts:tsAgo(40)},
-    {id:uid('l'),text:'Jakob marked “Brush teeth (AM)” done — waiting for Daddy',ts:tsAgo(20)}
-  ];
+let S=load();
+function load(){ try{const j=JSON.parse(localStorage.getItem(KEY));return j&&j.members?j:seed();}catch(e){return seed();} }
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
+
+// ── helpers ──
+const $=id=>document.getElementById(id);
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2300);}
+function avHtml(av){return `<span class="ava ${av}">${av==='j'?'J':'D'}</span>`;}
+function show(v){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(v).classList.add('on');S.view=v;window.scrollTo(0,0);}
+function goWho(){S.current=null;save();show('who');renderWho();}
+
+// ── WHEEL SVG ──
+function buildWheel(){
+  const cx=150,cy=150,r=143;
+  let h=`<circle cx="${cx}" cy="${cy}" r="${r+4}" fill="#fff"/>`;
+  SLICES.forEach((s,i)=>{
+    const a0=(i*STEP-90-STEP/2)*Math.PI/180, a1=a0+STEP*Math.PI/180;
+    const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
+    h+=`<path d="M${cx},${cy} L${x0.toFixed(1)},${y0.toFixed(1)} A${r},${r} 0 0 1 ${x1.toFixed(1)},${y1.toFixed(1)} Z" fill="${s.c}" stroke="#fff" stroke-width="2.5"/>`;
+    const am=(i*STEP-90)*Math.PI/180, lr=r*0.64, lx=cx+lr*Math.cos(am), ly=cy+lr*Math.sin(am), deg=(i*STEP);
+    h+=`<g transform="translate(${lx.toFixed(1)},${ly.toFixed(1)}) rotate(${deg})"><text class="seg-emoji" text-anchor="middle" y="-5">${s.e}</text><text class="seg-label" text-anchor="middle" y="13">${s.t}</text></g>`;
+  });
+  h+=`<circle cx="${cx}" cy="${cy}" r="${r+4}" fill="none" stroke="#F59E0B" stroke-width="6"/>`;
+  for(let i=0;i<N*2;i++){const a=(i*180/N-90)*Math.PI/180,sx=cx+(r+4)*Math.cos(a),sy=cy+(r+4)*Math.sin(a);h+=`<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="3.2" fill="#FFE7A8" stroke="#D97706" stroke-width="1"/>`;}
+  $('wheel').innerHTML=h;
+}
+let curRot=0, spinning=false;
+function weightedPick(){const tot=SLICES.reduce((a,s)=>a+s.w,0);let r=Math.random()*tot;for(let i=0;i<N;i++){r-=SLICES[i].w;if(r<=0)return i;}return N-1;}
+
+function doSpin(){
+  const k=S.members[S.current]; if(spinning||!k||k.spins<1)return;
+  spinning=true; k.spins--; save(); renderKid();
+  const idx=weightedPick(), seg=SLICES[idx];
+  const jitter=Math.random()*30-15;
+  const base=((curRot % 360)+360)%360;
+  const target=curRot - base + 360*5 - idx*STEP + jitter;
+  curRot=target;
+  const wheel=$('wheel');
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  wheel.style.transition=reduce?'none':'transform 4.6s cubic-bezier(.15,.85,.18,1)';
+  requestAnimationFrame(()=>{wheel.style.transform=`rotate(${target}deg)`;});
+  let done=false;
+  const finish=()=>{ if(done)return; done=true; wheel.removeEventListener('transitionend',finish); award(seg); spinning=false; };
+  if(reduce){award(seg);spinning=false;} else {wheel.addEventListener('transitionend',finish);setTimeout(finish,5200);}
 }
 
-/* ============================================================
-   TIME HELPERS (local-date based)
-   ============================================================ */
-function today(){var d=new Date();d.setHours(0,0,0,0);return d;}
-function addDays(d,n){var x=new Date(d);x.setDate(x.getDate()+n);x.setHours(0,0,0,0);return x;}
-function dayKey(d){var y=d.getFullYear(),m=('0'+(d.getMonth()+1)).slice(-2),dd=('0'+d.getDate()).slice(-2);return y+'-'+m+'-'+dd;}
-function parseKey(k){return new Date(k+'T00:00:00');}
-function weekStart(d){d=d||today();var wd=(d.getDay()+6)%7;return addDays(d,-wd);} /* Monday */
-function weekKey(d){return dayKey(weekStart(d));}
-function weekDays(){var ws=weekStart();var out=[];for(var i=0;i<7;i++)out.push(addDays(ws,i));return out;}
-function nextWeekday(target){var d=today();for(var i=0;i<8;i++){if(d.getDay()===target)return d;d=addDays(d,1);}return today();}
-function tsAgo(min){return Date.now()-min*60000;}
-function relTime(ts){var s=(Date.now()-ts)/1000;if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
-function fmtDate(d){return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});}
-
-/* ============================================================
-   PERSISTENCE
-   ============================================================ */
-function load(){
-  try{var raw=localStorage.getItem(STORE_KEY);if(raw){state=JSON.parse(raw);return;}}catch(e){}
-  resetDemo(true);
-}
-function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify(state));}catch(e){}}
-function resetDemo(silent){
-  state=defaultState();seedCompletions(state);currentTab='today';choresView='today';save();
-  if(!silent){render();toast('🔄','Demo data reset — fresh start!','info');}
+function award(seg){
+  const k=S.members[S.current];
+  let emoji=seg.e, prize=seg.label, msg='Added to your rewards · tell Dad to redeem', title='Winner!';
+  if(seg.kind==='stars'){ k.stars+=seg.amount; k.weekStars+=seg.amount; msg='Bonus stars added to your total ⭐'; }
+  else if(seg.kind==='respin'){ k.spins++; msg='You earned your spin back — go again! 🎟️'; title='Lucky!'; }
+  else if(seg.kind==='jackpot'){
+    title='JACKPOT! 💎';
+    if(k.mode==='family'){ S.familyJackpot=Math.min(JACKPOT_TARGET,S.familyJackpot+seg.amount); msg='Added to the FAMILY jackpot 💎'; }
+    else { k.jackpot=Math.min(JACKPOT_TARGET,k.jackpot+seg.amount); msg='Your big-prize meter jumped! 💎'; }
+  }
+  else { k.won.push({label:seg.label, e:seg.e, t:Date.now()}); }
+  save();
+  $('winTitle').textContent=title; $('winEmoji').textContent=emoji; $('winPrize').textContent=prize; $('winMsg').textContent=msg;
+  $('winScrim').classList.add('on');
+  renderKid();
 }
 
-/* ============================================================
-   DERIVED HELPERS
-   ============================================================ */
-function M(id){return state.members.find(function(m){return m.id===id;})||null;}
-function active(){return M(state.activeMember)||state.members[0];}
-function isParentRole(id){var m=M(id);return m&&m.role==='parent';}
-function hasParent(){return state.members.some(function(m){return m.role==='parent';});}
-function kids(){return state.members.filter(function(m){return m.role==='kid';});}
-function levelOf(xp){return Math.floor(xp/XP_PER_LEVEL)+1;}
-function memberName(id){var m=M(id);return m?m.name:'—';}
+// ── RENDER: WHO ──
+function renderWho(){
+  $('pickrow').innerHTML=Object.entries(S.members).map(([id,m])=>
+    `<button class="pick" onclick="enter('${id}')"><span class="ava ${m.av}">${m.name[0]}</span><span class="nm">${m.name}</span><span class="rl">${m.role==='parent'?'Parent':'Hunter'}</span></button>`
+  ).join('');
+}
+function enter(id){ S.current=id; save(); const m=S.members[id]; if(m.role==='parent'){show('parent');renderParent();} else {show('kid');renderKid();} }
 
-function isDueOn(ch,d){
-  if(ch.archived) return false;
-  if(ch.recur==='once') return ch.due===dayKey(d);
-  if(ch.recur==='daily') return true;
-  if(ch.recur==='weekly'||ch.recur==='days') return (ch.days||[]).indexOf(d.getDay())>=0;
-  return false;
+// ── RENDER: KID ──
+function renderKid(){
+  const k=S.members[S.current]; if(!k)return;
+  $('kidChip').innerHTML=`${avHtml(k.av)} ${k.name}`;
+  $('kidSpinsLbl').textContent=`${k.spins} spin${k.spins===1?'':'s'} ready`;
+  $('kidStats').innerHTML=
+    `<div class="stat star"><div class="n">⭐ ${k.stars}</div><div class="k">Stars</div></div>`+
+    `<div class="stat spin"><div class="n">🎟️ ${k.spins}</div><div class="k">Spins</div></div>`+
+    `<div class="stat streak"><div class="n">🔥 ${k.streak}</div><div class="k">Day streak</div></div>`;
+  $('spinCount').textContent=k.spins;
+  $('spinBtn').disabled=k.spins<1||spinning;
+  const fam=k.mode==='family';
+  const val=fam?S.familyJackpot:k.jackpot, pct=Math.round(val/JACKPOT_TARGET*100);
+  $('jackpotBox').innerHTML=
+    `<div class="row">💎 ${fam?'Family Jackpot':'Jackpot'} — ${fam?'one big clan reward':'saving for '+k.prize}<span class="modepill">${fam?'Family':'Per-kid'}</span><span class="pct">${pct}%</span></div>`+
+    `<div class="bar"><i style="width:${pct}%"></i></div>`+
+    `<small>Land the 💎 slice to fill faster · ${val} / ${JACKPOT_TARGET} 💎${pct>=100?' — PRIZE UNLOCKED! 🎉 tell Dad':''}</small>`;
+  const mine=S.chores.filter(c=>c.who===S.current);
+  const left=mine.filter(c=>!c.done).length;
+  $('choreCount').textContent=`${left} left`;
+  $('choreList').innerHTML=mine.map(c=>
+    `<div class="qcard ${c.done?'done':''}"><div class="qicon">${c.icon}</div>`+
+    `<div><div class="qt">${c.name}</div><div class="qm">${c.meta} · earns 🎟️ +⭐</div></div>`+
+    (c.done?`<span class="doneTag">Done ✓</span>`:`<button class="doneBtn" onclick="finishChore('${c.id}')">Finish ✓</button>`)+
+    `</div>`).join('');
 }
-function cycleKeyFor(ch,d){ return ch.recur==='once' ? (ch.due||'once') : dayKey(d); }
-function completionFor(choreId,cycle){ return state.completions.find(function(c){return c.choreId===choreId && c.cycle===cycle;}); }
-function statusOn(ch,d){
-  var c=completionFor(ch.id,cycleKeyFor(ch,d));
-  if(!c) return 'open';
-  return c.status; /* pending | done */
+function finishChore(id){
+  const c=S.chores.find(x=>x.id===id); if(!c||c.done)return;
+  c.done=true; const k=S.members[S.current]; k.spins++; k.stars+=10; k.weekStars+=10; save();
+  toast('Chore done! +🎟️ spin · +10 ⭐'); renderKid();
 }
-function ch(id){return state.chores.find(function(c){return c.id===id;});}
 
-function recurLabel(c){
-  if(c.recur==='once') return c.due?('Due '+fmtDate(parseKey(c.due))):'One-off';
-  if(c.recur==='daily') return 'Every day';
-  if(c.recur==='weekly') return 'Weekly · '+(c.days||[]).map(function(i){return DOW_LABEL[i];}).join('');
-  if(c.recur==='days') return (c.days||[]).map(function(i){return DOW_LABEL[i];}).join(' ');
-  return '';
+// ── RENDER: PARENT ──
+let pTab='redeem';
+function renderParent(){
+  $('parentChip').innerHTML=`${avHtml('p')} Dad`;
+  document.querySelectorAll('.ptab .t').forEach(b=>b.classList.toggle('on',b.dataset.tab===pTab));
+  document.querySelectorAll('.ptab-body').forEach(b=>b.classList.remove('on'));
+  $('tab-'+pTab).classList.add('on');
+  if(pTab==='redeem')renderRedeem(); else if(pTab==='wheel')renderWheelTab(); else renderKidsTab();
 }
-
-/* ---- Family goal math (driven by REAL verified completions this week) ---- */
-function weekDoneCount(){
-  var ws=weekStart(),we=addDays(ws,6);
-  return state.completions.filter(function(c){
-    if(c.status!=='done')return false;
-    var d=parseKey(c.cycle);return d>=ws&&d<=we;
-  }).length;
-}
-function weekDoneByMember(id){
-  var ws=weekStart(),we=addDays(ws,6);
-  return state.completions.filter(function(c){
-    if(c.status!=='done'||c.member!==id)return false;
-    var d=parseKey(c.cycle);return d>=ws&&d<=we;
-  }).length;
-}
-function weekDueCount(){
-  var n=0;weekDays().forEach(function(d){state.chores.forEach(function(c){if(isDueOn(c,d))n++;});});
-  return n;
-}
-function goalTarget(){ return state.goal.target!=null ? state.goal.target : Math.max(1,weekDueCount()); }
-function goalMet(){ return weekDoneCount()>=goalTarget(); }
-
-/* ---- Follow-up data ---- */
-function pendingCompletions(){ return state.completions.filter(function(c){return c.status==='pending';}); }
-function overdueItems(){
-  // Past occurrences (before today) that are still open (no completion). Within lookback for recurring.
-  var out=[],tk=today();
-  state.chores.forEach(function(c){
-    if(c.archived)return;
-    if(c.recur==='once'){
-      if(c.due && parseKey(c.due)<tk && statusOn(c,parseKey(c.due))==='open')
-        out.push({chore:c,date:parseKey(c.due)});
-    } else {
-      var floor=state.startDate?parseKey(state.startDate):addDays(tk,-OVERDUE_LOOKBACK);
-      for(var i=1;i<=OVERDUE_LOOKBACK;i++){
-        var d=addDays(tk,-i);
-        if(d<floor) break;                                  // don't flag misses before the family started
-        if(isDueOn(c,d) && statusOn(c,d)==='open') out.push({chore:c,date:d});
-      }
+function renderRedeem(){
+  const kids=['jakob','dean']; let html='';
+  kids.forEach(id=>{const k=S.members[id];
+    if(k.won.length){ html+=`<div class="sec-t">${k.name}'s rewards to give <span class="c">${k.won.length}</span></div>`;
+      k.won.forEach((w,i)=>{html+=`<div class="redeem"><div class="re">${w.e}</div><div><div class="rt">${w.label}</div><div class="rm">${k.name} won this</div></div><button class="payBtn" onclick="payOut('${id}',${i})">Mark given</button></div>`;});
     }
   });
-  out.sort(function(a,b){return a.date-b.date;});
-  return out;
+  if(!html)html='<div class="empty">No rewards waiting. When the kids spin and win, they show up here to pay out. 🎁</div>';
+  $('tab-redeem').innerHTML=html;
 }
-function followupCount(){ return pendingCompletions().length + overdueItems().length; }
-
-/* ============================================================
-   ACTIONS
-   ============================================================ */
-function award(memberId,xp,coins,sign){var m=M(memberId);if(!m)return;m.xp=Math.max(0,m.xp+sign*xp);m.coins=Math.max(0,m.coins+sign*coins);}
-function logEvent(text){state.log.unshift({id:uid('l'),text:text,ts:Date.now()});if(state.log.length>60)state.log.length=60;}
-
-function markDone(c,d,ev){
-  var cyc=cycleKeyFor(c,d);
-  if(completionFor(c.id,cyc)) return;
-  var auto = isParentRole(c.assignee) || !hasParent();   // parent chores / no-parent family auto-complete
-  var comp={id:uid('done'),choreId:c.id,member:c.assignee,cycle:cyc,status:auto?'done':'pending',
-            doneAt:Date.now(),verifiedAt:auto?Date.now():null,photo:null};
-  state.completions.push(comp);
-  if(ev){var r=ev.currentTarget.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2);}
-  if(auto){
-    award(c.assignee,c.xp,c.coins,1);
-    logEvent(memberName(c.assignee)+' completed “'+c.title+'” (+'+c.xp+' XP)');
-    toast('✅','Done! +'+c.xp+' XP, +'+c.coins+' 🪙','good');
-    checkGoal();
-  } else {
-    logEvent(memberName(c.assignee)+' marked “'+c.title+'” done — waiting for verify');
-    toast('⏳','Sent to '+parentName()+' to verify','warn');
-  }
-  save();render();
+function payOut(id,i){ S.members[id].won.splice(i,1); save(); toast('Reward marked as given ✓'); renderRedeem(); }
+function renderWheelTab(){
+  let html=`<div class="fair"><div class="ft">🎯 Same wheel, same odds for both kids</div><small style="display:block;margin-top:8px;font-weight:700;color:var(--ink-soft);font-size:.78rem">No blanks. Differences in winnings come only from how many chores each kid finishes — never luck stacked against a sibling.</small></div>`;
+  html+=`<div class="sec-t">Reward slices <span class="c">${N}</span></div>`;
+  SLICES.forEach(s=>{html+=`<div class="slice-row"><span class="swatch" style="background:${s.c}"></span><span class="st">${s.e} ${s.label}</span><span class="odds">${s.w}×</span></div>`;});
+  $('tab-wheel').innerHTML=html;
 }
-function undoCompletion(comp){
-  if(comp.status==='done'){ award(comp.member,ch(comp.choreId)?ch(comp.choreId).xp:0,ch(comp.choreId)?ch(comp.choreId).coins:0,-1); }
-  state.completions=state.completions.filter(function(c){return c!==comp;});
-  save();render();
+function renderKidsTab(){
+  const j=S.members.jakob.weekStars, d=S.members.dean.weekStars, mx=Math.max(j,d,1);
+  const bal=Math.abs(j-d)<=Math.max(6,mx*0.35);
+  let html=`<div class="fair"><div class="ft">⚖️ Fairness this week <span class="ok">${bal?'✓ Balanced':'Catching up'}</span></div>`+
+    `<div class="frow"><span class="nm">Jakob</span><span class="fb"><i style="width:${Math.round(j/mx*100)}%;background:linear-gradient(90deg,#4F7CFF,#6C97FF)"></i></span><span class="v">${j}</span></div>`+
+    `<div class="frow"><span class="nm">Dean</span><span class="fb"><i style="width:${Math.round(d/mx*100)}%;background:linear-gradient(90deg,#16A34A,#22C55E)"></i></span><span class="v">${d}</span></div>`+
+    `<small style="display:block;margin-top:9px;font-weight:700;color:var(--ink-soft);font-size:.74rem">Weekly stars earned. The Quest Wheel (next phase) auto-balances the chore load.</small></div>`;
+  ['jakob','dean'].forEach(id=>{const k=S.members[id];const fam=k.mode==='family';const val=fam?S.familyJackpot:k.jackpot;
+    html+=`<div class="kidcard"><div class="kh"><span class="ava ${k.av}">${k.name[0]}</span> ${k.name}</div>`+
+      `<div class="pr">🎯 Big prize: <b>${k.prize}</b> · 💎 ${val}/${JACKPOT_TARGET}</div>`+
+      `<div class="seg"><button class="${!fam?'on':''}" onclick="setMode('${id}','kid')">Per-kid jackpot</button><button class="${fam?'on':''}" onclick="setMode('${id}','family')">Family jackpot</button></div></div>`;});
+  $('tab-kids').innerHTML=html;
 }
-function attachPhoto(c,d){
-  pickPhoto(function(dataUrl){
-    var cyc=cycleKeyFor(c,d);var comp=completionFor(c.id,cyc);
-    if(!comp){ markDone(c,d); comp=completionFor(c.id,cyc); }
-    if(comp){ comp.photo=dataUrl; if(comp.status==='done'&&!isParentRole(c.assignee)){} save();render();
-      toast('📷','Photo added to proof','info'); }
-  });
-}
-function verify(comp,ok){
-  var c=ch(comp.choreId);if(!c)return;
-  if(ok){
-    comp.status='done';comp.verifiedAt=Date.now();
-    award(comp.member,c.xp,c.coins,1);
-    logEvent(memberName(comp.member)+' completed “'+c.title+'” — verified ✅ (+'+c.xp+' XP)');
-    toast('✅','Verified! '+memberName(comp.member)+' earned +'+c.xp+' XP','good');
-    checkGoal();
-  } else {
-    state.completions=state.completions.filter(function(x){return x!==comp;});
-    logEvent(memberName(comp.member)+' asked to redo “'+c.title+'”');
-    toast('↩️','Sent back to redo','warn');
-  }
-  save();render();
-}
-function parentName(){var p=state.members.find(function(m){return m.role==='parent';});return p?p.name:'a parent';}
+function setMode(id,m){ S.members.jakob.mode=m; S.members.dean.mode=m; save(); toast(m==='family'?'Switched to one shared family jackpot 👨‍👦‍👦':'Each kid saves toward their own prize'); renderKidsTab(); }
 
-function checkGoal(){
-  if(goalMet() && state.goal.unlockedWeek!==weekKey()){
-    state.goal.unlockedWeek=weekKey();
-    logEvent('🎉 Family goal reached — '+state.goal.reward+' unlocked!');
-    save();
-    setTimeout(function(){
-      modal({title:'🎉 Goal Unlocked!',custom:function(b){
-        b.appendChild(E('div',{class:'bigcelebrate'},[E('span',{class:'em',text:state.goal.emoji})]));
-        b.appendChild(E('h2',{style:'text-align:center',text:state.goal.reward+' unlocked!'}));
-        b.appendChild(E('p',{style:'text-align:center;font-weight:700;color:var(--ink-soft)',
-          text:'The whole family finished their chores this week. Time to celebrate together! 🎉'}));
-      },okLabel:'🎉 Celebrate',okClass:'green',onOk:function(){
-        for(var i=0;i<4;i++)(function(k){setTimeout(function(){burst(Math.random()*innerWidth,innerHeight*0.35);},k*220);})(i);
-      }});
-      burst(innerWidth/2,innerHeight*0.4);
-    },350);
-  }
-}
+// ── events ──
+$('spinBtn').addEventListener('click',doSpin);
+$('winKeep').addEventListener('click',()=>$('winScrim').classList.remove('on'));
+$('winScrim').addEventListener('click',e=>{if(e.target===$('winScrim'))$('winScrim').classList.remove('on');});
+document.querySelectorAll('.ptab .t').forEach(b=>b.addEventListener('click',()=>{pTab=b.dataset.tab;renderParent();}));
 
-/* ============================================================
-   FEEDBACK
-   ============================================================ */
-function toast(em,msg,kind){
-  var t=E('div',{class:'toast'+(kind?' '+kind:'')},[E('span',{class:'em',text:em}),E('span',{text:msg})]);
-  $('#toastwrap').appendChild(t);
-  setTimeout(function(){t.classList.add('out');setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},320);},2300);
-}
-function burst(x,y){
-  var em=['✨','🎉','⭐','💫','👏','🌟'];
-  for(var i=0;i<12;i++){
-    var s=E('span',{class:'spark',text:em[i%em.length]});
-    var ang=(Math.PI*2)*(i/12)+Math.random()*0.5,dist=55+Math.random()*65;
-    s.style.left=x+'px';s.style.top=y+'px';
-    s.style.setProperty('--dx',(Math.cos(ang)*dist)+'px');
-    s.style.setProperty('--dy',(Math.sin(ang)*dist)+'px');
-    s.style.setProperty('--rot',(Math.random()*360-180)+'deg');
-    $('#burstwrap').appendChild(s);
-    (function(el){setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},950);})(s);
-  }
-}
-
-/* ============================================================
-   SHARED UI BITS
-   ============================================================ */
-function avatar(m,size){
-  var s=size||40;
-  var el=E('span',{class:'av',style:'width:'+s+'px;height:'+s+'px;background:'+(m?m.color:'#999')+';font-size:'+(s*0.5)+'px'});
-  el.textContent=(m&&(m.emoji||m.name[0]))||'?';
-  return el;
-}
-function personChip(id){var m=M(id);return E('span',{class:'chip person',style:'background:'+(m?m.color:'#999'),text:(m?(m.emoji+' '+m.name):'?')});}
-function statusChip(st){
-  var map={open:['To-do','○'],pending:['Awaiting verify','⏳'],done:['Done','✓'],overdue:['Overdue','!']};
-  var x=map[st]||map.open;
-  return E('span',{class:'st '+st},[E('span',{text:x[1]}),E('span',{text:x[0]})]);
-}
-function emptyState(em,title,msg,action){
-  var e=E('div',{class:'empty'},[E('span',{class:'em',text:em}),E('h3',{text:title}),E('p',{text:msg})]);
-  if(action) e.appendChild(E('div',{style:'margin-top:14px'},[action]));
-  return e;
-}
-
-/* ============================================================
-   RENDER
-   ============================================================ */
-function render(){
-  var a=active();
-  var chipAv=$('#chipAv');clear(chipAv);chipAv.style.background=a.color;chipAv.textContent=a.emoji||a.name[0];
-  $('#chipName').textContent=a.name;
-  $('#topCrest').innerHTML=crestSVG();
-
-  var tb=$('#tabbar');clear(tb);
-  var fc=followupCount();
-  TABS.forEach(function(t){
-    var kids=[E('span',{class:'ti',html:t.icon}),E('span',{text:t.label})];
-    if(t.id==='followup'&&fc>0) kids.push(E('span',{class:'badge',text:String(fc)}));
-    tb.appendChild(E('button',{class:'tabbtn'+(currentTab===t.id?' active':''),'aria-current':currentTab===t.id?'page':null,
-      on:{click:function(){currentTab=t.id;render();window.scrollTo(0,0);}}},kids));
-  });
-
-  var main=$('#main');clear(main);
-  ({today:viewToday,chores:viewChores,followup:viewFollowup,family:viewFamily,me:viewMe}[currentTab])(main);
-
-  // floating add button on the Chores tab
-  var oldFab=$('#fab');if(oldFab)oldFab.remove();
-  if(currentTab==='chores'){
-    document.body.appendChild(E('button',{id:'fab',class:'fab','aria-label':'Add a chore',
-      on:{click:function(){openChoreForm(null);}}},['＋',' Add chore']));
-  }
-}
-
-/* ---------- GOAL CARD ---------- */
-function goalCard(){
-  var done=weekDoneCount(),target=goalTarget(),pct=Math.min(100,Math.round(done/target*100)),met=done>=target;
-  var remain=Math.max(0,target-done);
-  var contribs=state.members.map(function(m){return {m:m,n:weekDoneByMember(m.id)};}).filter(function(x){return x.n>0;}).sort(function(a,b){return b.n-a.n;});
-  return E('div',{class:'goal'+(met?' met':'')},[
-    E('div',{class:'gtop'},[
-      E('span',{class:'gem',text:met?'🎉':state.goal.emoji}),
-      E('div',{style:'flex:1'},[
-        E('h2',{text:'Family Goal: '+state.goal.reward}),
-        E('div',{class:'gsub',text:met?'Unlocked! Everyone finished their chores 🎉':(remain+' more chore'+(remain===1?'':'s')+' this week to unlock '+state.goal.reward+'!')})
-      ])
-    ]),
-    E('div',{class:'gbar'},[(function(){var f=E('div',{class:'fill'});f.style.width=pct+'%';return f;})()]),
-    E('div',{class:'gfoot'},[E('span',{text:done+' of '+target+' chores done'}),E('span',{text:pct+'%'})]),
-    contribs.length?E('div',{class:'contribs'},contribs.map(function(x){
-      return E('div',{class:'contrib'},[avatar(x.m,24),E('span',{text:x.m.name+' · '+x.n})]);
-    })):null
-  ]);
-}
-
-/* ---------- chore row (used across views) ---------- */
-function choreRow(c,d,opts){
-  opts=opts||{};
-  var st=opts.forceStatus||statusOn(c,d);
-  var comp=completionFor(c.id,cycleKeyFor(c,d));
-  var row=E('div',{class:'chore'+(st==='done'?' is-done':'')+(opts.overdue?' is-overdue':'')});
-  row.appendChild(E('div',{class:'cem',text:c.emoji||'🧹'}));
-
-  var meta=E('div',{class:'cmeta'});
-  if(opts.showPerson!==false) meta.appendChild(personChip(c.assignee));
-  if(c.room) meta.appendChild(E('span',{class:'chip room',text:'🏠 '+c.room}));
-  meta.appendChild(E('span',{class:'chip recur',text:recurLabel(c)}));
-  meta.appendChild(E('span',{class:'chip xp',text:'⭐ '+c.xp}));
-  meta.appendChild(E('span',{class:'chip coin',text:'🪙 '+c.coins}));
-  var body=E('div',{class:'cbody'},[E('h3',{class:st==='done'?'struck':'',text:c.title}),meta]);
-  // status line under meta for clarity
-  if(opts.showStatus!==false) meta.appendChild(statusChip(opts.overdue?'overdue':st));
-  row.appendChild(body);
-
-  if(opts.manage){
-    // tap row opens editor
-    row.style.cursor='pointer';
-    row.addEventListener('click',function(){openChoreForm(c);});
-    return row;
-  }
-
-  // action cluster (complete / photo)
-  var act=E('div',{class:'cact'});
-  if(comp&&comp.photo&&comp.photo!=='pending'){
-    act.appendChild(E('img',{class:'cthumb',src:comp.photo,alt:'photo proof'}));
-  } else if(st==='open' && opts.allowPhoto!==false){
-    act.appendChild(E('button',{class:'photobtn','aria-label':'Add photo proof',title:'Add photo proof',
-      on:{click:function(){attachPhoto(c,d);}}},'📷'));
-  }
-  var btn=E('button',{class:'dobtn'+(st==='done'?' done':st==='pending'?' pending':''),
-    'aria-label':st==='done'?'Completed':(st==='pending'?'Awaiting verify — tap to undo':'Mark done')});
-  btn.innerHTML=ICONS.check;
-  btn.addEventListener('click',function(ev){
-    if(st==='open') markDone(c,d,ev);
-    else if(st==='pending'){ if(comp) undoCompletion(comp); }      // kid can undo their pending mark
-    else if(st==='done'){ if(active().role==='parent'&&comp){ undoCompletion(comp); toast('↩️','Re-opened','warn'); } }
-  });
-  act.appendChild(btn);
-  row.appendChild(act);
-  return row;
-}
-
-/* ============================================================
-   VIEW: TODAY
-   ============================================================ */
-function viewToday(main){
-  var a=active();
-  main.appendChild(goalCard());
-
-  // Parent: verify queue + everyone's progress
-  if(a.role==='parent'){
-    var pend=pendingCompletions();
-    if(pend.length){
-      main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'⏳'}),E('h2',{text:'Needs your verification'}),E('span',{class:'count',text:String(pend.length)})]));
-      pend.forEach(function(comp){main.appendChild(verifyRow(comp));});
-    }
-    main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'👀'}),E('h2',{text:"Today's progress"})]));
-    var td=today();
-    var anyKid=false;
-    kids().forEach(function(k){
-      var due=state.chores.filter(function(c){return c.assignee===k.id&&isDueOn(c,td);});
-      if(due.length===0)return;
-      anyKid=true;
-      var done=due.filter(function(c){return statusOn(c,td)==='done';}).length;
-      main.appendChild(E('button',{class:'member',style:'width:100%;text-align:left;cursor:pointer',
-        on:{click:function(){switchMember(k.id);}}},[
-        avatar(k,46),
-        E('div',{class:'minfo'},[E('b',{text:k.name}),E('span',{text:done+' of '+due.length+' chores done today'})]),
-        E('div',{class:'mstat'},[E('b',{text:done+'/'+due.length}),E('span',{text:'today'})])
-      ]));
-    });
-    if(!anyKid) main.appendChild(emptyState('🌤️','No chores scheduled today','Add some from the Chores tab and assign them to the kids.'));
-    // parent's own today chores
-    var mine=state.chores.filter(function(c){return c.assignee===a.id&&isDueOn(c,td);});
-    if(mine.length){
-      main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'🧰'}),E('h2',{text:'Your chores today'})]));
-      mine.forEach(function(c){main.appendChild(choreRow(c,td,{showPerson:false}));});
-    }
-    return;
-  }
-
-  // Kid: their own chores today
-  var td=today();
-  var mine=state.chores.filter(function(c){return c.assignee===a.id&&isDueOn(c,td);});
-  var open=mine.filter(function(c){return statusOn(c,td)!=='done';});
-  var done=mine.filter(function(c){return statusOn(c,td)==='done';});
-
-  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'📋'}),E('h2',{text:"Hi "+a.name+"! Today's chores"}),
-    E('span',{class:'count',text:done.length+'/'+mine.length})]));
-
-  if(mine.length===0){
-    main.appendChild(emptyState('🎈','Nothing for you today','No chores scheduled. Check the Chores tab or enjoy your day!'));
-    return;
-  }
-  open.forEach(function(c){main.appendChild(choreRow(c,td,{showPerson:false}));});
-  if(open.length===0){
-    main.appendChild(emptyState('🌟','All done for today!','Awesome work, '+a.name+'. You finished every chore!'));
-  }
-  if(done.length){
-    main.appendChild(E('div',{class:'grouphdr'},['Finished today',E('span',{class:'gc',text:String(done.length)})]));
-    done.forEach(function(c){main.appendChild(choreRow(c,td,{showPerson:false}));});
-  }
-}
-
-function verifyRow(comp){
-  var c=ch(comp.choreId);if(!c)return E('div');
-  var row=E('div',{class:'verify'});
-  if(comp.photo&&comp.photo!=='pending') row.appendChild(E('img',{class:'vthumb',src:comp.photo,alt:'photo proof'}));
-  else row.appendChild(E('span',{class:'cem',style:'background:var(--pending-soft)',text:c.emoji||'🧹'}));
-  row.appendChild(E('div',{class:'vbody'},[
-    E('b',{text:c.title}),
-    E('div',{class:'cmeta'},[personChip(comp.member),E('span',{class:'chip xp',text:'⭐ '+c.xp}),E('span',{class:'subtle',text:relTime(comp.doneAt)})])
-  ]));
-  row.appendChild(E('div',{style:'display:flex;gap:7px'},[
-    E('button',{class:'iconbtn ok','aria-label':'Verify complete',on:{click:function(){verify(comp,true);}}},'✓'),
-    E('button',{class:'iconbtn no','aria-label':'Send back to redo',on:{click:function(){verify(comp,false);}}},'✕')
-  ]));
-  return row;
-}
-
-/* ============================================================
-   VIEW: CHORES (manage + filter/sort)
-   ============================================================ */
-function viewChores(main){
-  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'🗂️'}),E('h2',{text:'All Chores'}),
-    E('span',{class:'count',text:String(state.chores.filter(function(c){return !c.archived;}).length)})]));
-
-  var views=[['today','Today'],['week','This week'],['person','By person'],['room','By room'],['all','All chores']];
-  var seg=E('div',{class:'segrow'});
-  views.forEach(function(v){seg.appendChild(E('button',{class:'seg'+(choresView===v[0]?' on':''),
-    on:{click:function(){choresView=v[0];render();}}},v[1]));});
-  main.appendChild(seg);
-
-  var list=state.chores.filter(function(c){return !c.archived;});
-  if(list.length===0){
-    main.appendChild(emptyState('🧹','No chores yet','Tap “＋ Add chore” to create your first one and assign it to a family member.'));
-    return;
-  }
-
-  if(choresView==='today'){ groupSingleDay(main,today(),'Due today'); }
-  else if(choresView==='week'){
-    weekDays().forEach(function(d){ groupSingleDay(main,d,fmtDate(d),dayKey(d)===dayKey(today())); });
-  }
-  else if(choresView==='person'){
-    state.members.forEach(function(m){
-      var cs=list.filter(function(c){return c.assignee===m.id;});
-      if(!cs.length)return;
-      main.appendChild(groupHeader(m.name,cs.length,false,avatar(m,22)));
-      cs.forEach(function(c){main.appendChild(choreRow(c,today(),{manage:true,showStatus:false}));});
-    });
-  }
-  else if(choresView==='room'){
-    var rooms={};list.forEach(function(c){(rooms[c.room||'Other']=rooms[c.room||'Other']||[]).push(c);});
-    Object.keys(rooms).sort().forEach(function(rm){
-      main.appendChild(groupHeader('🏠 '+rm,rooms[rm].length,false));
-      rooms[rm].forEach(function(c){main.appendChild(choreRow(c,today(),{manage:true,showStatus:false}));});
-    });
-  }
-  else { // all
-    list.slice().sort(function(a,b){return a.title.localeCompare(b.title);}).forEach(function(c){
-      main.appendChild(choreRow(c,today(),{manage:true,showStatus:false}));
-    });
-  }
-  main.appendChild(E('p',{class:'subtle',style:'text-align:center;margin-top:14px',text:'Tip: tap any chore to edit, reassign, or delete it.'}));
-}
-function groupHeader(label,count,today,pre){
-  var k=[];if(pre)k.push(pre);k.push(label);k.push(E('span',{class:'gc',text:count+' chore'+(count===1?'':'s')}));
-  return E('div',{class:'grouphdr'+(today?' today':'')},k);
-}
-function groupSingleDay(main,d,label,isToday){
-  var due=state.chores.filter(function(c){return !c.archived&&isDueOn(c,d);});
-  if(choresView==='today'&&due.length===0){
-    main.appendChild(emptyState('🌤️','Nothing due today','No chores are scheduled for today. Switch to “This week” or “All chores”.'));
-    return;
-  }
-  if(due.length===0)return;
-  main.appendChild(groupHeader(label,due.length,isToday));
-  due.forEach(function(c){
-    var st=statusOn(c,d);var past=d<today();
-    main.appendChild(choreRow(c,d,{manage:false,overdue:past&&st==='open'}));
-  });
-}
-
-/* ============================================================
-   VIEW: FOLLOW-UP (overdue + pending verify)
-   ============================================================ */
-function viewFollowup(main){
-  var a=active();
-  var pend=pendingCompletions();
-  var over=overdueItems();
-
-  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'🔎'}),E('h2',{text:'Follow-up'})]));
-  if(pend.length===0&&over.length===0){
-    main.appendChild(emptyState('✅','All caught up!','Nothing overdue and nothing waiting to be verified. Nice and tidy.'));
-    return;
-  }
-
-  // Pending verification
-  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'⏳'}),E('h2',{text:'Awaiting verification'}),E('span',{class:'count',text:String(pend.length)})]));
-  if(pend.length===0){
-    main.appendChild(E('p',{class:'muted',style:'margin:0 3px 6px',text:'Nothing to verify right now.'}));
-  } else if(a.role==='parent'){
-    pend.forEach(function(comp){main.appendChild(verifyRow(comp));});
-  } else {
-    pend.forEach(function(comp){
-      var c=ch(comp.choreId);if(!c)return;
-      main.appendChild(E('div',{class:'chore'},[
-        E('div',{class:'cem',style:'background:var(--pending-soft)',text:c.emoji||'🧹'}),
-        E('div',{class:'cbody'},[E('h3',{text:c.title}),E('div',{class:'cmeta'},[personChip(comp.member),statusChip('pending'),E('span',{class:'subtle',text:relTime(comp.doneAt)})])])
-      ]));
-    });
-    main.appendChild(E('p',{class:'subtle',style:'text-align:center;margin-top:4px',text:parentName()+' will verify these soon.'}));
-  }
-
-  // Overdue
-  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'⚠️'}),E('h2',{text:'Overdue & missed'}),E('span',{class:'count',text:String(over.length)})]));
-  if(over.length===0){
-    main.appendChild(E('p',{class:'muted',style:'margin:0 3px',text:'Nothing overdue. 🎉'}));
-  } else {
-    over.forEach(function(o){
-      var st=statusOn(o.chore,o.date);
-      var row=choreRow(o.chore,o.date,{overdue:true});
-      // add the missed date as context (one-offs already show "Due …" in their recur label)
-      if(o.chore.recur!=='once') row.querySelector('.cmeta').appendChild(E('span',{class:'subtle',text:'· missed '+fmtDate(o.date)}));
-      main.appendChild(row);
-    });
-  }
-}
-
-/* ============================================================
-   VIEW: FAMILY (goal, leaderboard, members, allowance)
-   ============================================================ */
-function viewFamily(main){
-  var a=active();
-  main.appendChild(goalCard());
-  main.appendChild(E('button',{class:'btn ghost block',style:'margin-bottom:14px',on:{click:openGoalForm}},'🎯 Edit family reward'));
-
-  // Leaderboard — by chores done THIS WEEK (chore-relevant), then XP
-  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'🏆'}),E('h2',{text:'This week'})]));
-  var ranked=state.members.slice().sort(function(x,y){return weekDoneByMember(y.id)-weekDoneByMember(x.id) || y.xp-x.xp;});
-  ranked.forEach(function(m,i){
-    var n=weekDoneByMember(m.id);
-    main.appendChild(E('div',{class:'member'+(m.id===a.id?' me':'')},[
-      E('div',{class:'rank',text:['🥇','🥈','🥉'][i]||String(i+1)}),
-      avatar(m,46),
-      E('div',{class:'minfo'},[E('b',{text:m.name+(m.role==='parent'?' · Parent':'')}),E('span',{text:'Lv '+levelOf(m.xp)+' · '+m.xp+' XP'})]),
-      E('div',{class:'mstat'},[E('b',{text:String(n)}),E('span',{text:'chores'})])
-    ]));
-  });
-
-  // Allowance (coins → $) — parent can pay out
-  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'🪙'}),E('h2',{text:'Allowance'})]));
-  kids().forEach(function(k){
-    var usd=(k.coins*COIN_TO_USD).toFixed(2);
-    var rowKids=[avatar(k,40),
-      E('div',{class:'minfo'},[E('b',{text:k.name}),E('span',{text:k.coins+' coins · 10 🪙 = $1.00'})]),
-      E('div',{class:'mstat'},[E('b',{text:'$'+usd}),E('span',{text:'available'})])];
-    var row=E('div',{class:'member'},rowKids);
-    if(a.role==='parent'&&k.coins>0){
-      row.appendChild(E('button',{class:'btn gold sm',style:'margin-left:8px',on:{click:function(){payOut(k);}}},'Pay'));
-    }
-    main.appendChild(row);
-  });
-
-  // Members management
-  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'👨‍👩‍👦'}),E('h2',{text:'Family members'}),
-    E('button',{class:'count',style:'cursor:pointer',on:{click:function(){openMemberForm(null);}}},'＋ Add')]));
-  state.members.forEach(function(m){
-    main.appendChild(E('button',{class:'member',style:'width:100%;text-align:left;cursor:pointer',
-      on:{click:function(){openMemberForm(m);}}},[
-      avatar(m,44),
-      E('div',{class:'minfo'},[E('b',{text:m.name}),E('span',{text:(m.role==='parent'?'Parent (can verify)':'Kid')})]),
-      E('span',{class:'subtle',text:'Edit ›'})
-    ]));
-  });
-
-  // Recent activity log
-  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'📜'}),E('h2',{text:'Recent activity'})]));
-  var card=E('div',{class:'card'});
-  if(state.log.length===0) card.appendChild(E('p',{class:'muted',text:'No activity yet — complete a chore to start the log.'}));
-  else state.log.slice(0,12).forEach(function(l,i){
-    card.appendChild(E('div',{style:'display:flex;gap:9px;padding:9px 2px;'+(i?'border-top:1px solid var(--line)':'')},[
-      E('div',{style:'flex:1'},[E('p',{style:'margin:0;font-weight:700;font-size:.9rem',text:l.text}),
-        E('span',{class:'subtle',text:relTime(l.ts)})])
-    ]));
-  });
-  main.appendChild(card);
-}
-function payOut(k){
-  if(k.coins<=0)return;
-  var usd=(k.coins*COIN_TO_USD).toFixed(2);
-  if(!confirm('Pay '+k.name+' $'+usd+' allowance? This clears their coin balance.'))return;
-  logEvent('Daddy paid '+k.name+' $'+usd+' allowance 💵');
-  state.payouts.push({id:uid('p'),who:k.id,coins:k.coins,usd:+usd,ts:Date.now()});
-  k.coins=0;save();render();toast('💵','Paid '+k.name+' $'+usd,'coin');
-}
-
-/* ============================================================
-   VIEW: ME (profile, switch, settings, brand)
-   ============================================================ */
-function viewMe(main){
-  var a=active();
-  var head=E('div',{style:'display:flex;flex-direction:column;align-items:center;text-align:center;padding:6px 0 4px'});
-  head.appendChild((function(){var x=avatar(a,96);x.style.boxShadow='var(--shadow-lg)';x.style.marginBottom='10px';return x;})());
-  head.appendChild(E('h2',{style:'font-size:1.4rem',text:a.name}));
-  head.appendChild(E('div',{class:'muted',text:(a.role==='parent'?'Parent':'Kid')+' · Level '+levelOf(a.xp)}));
-  main.appendChild(head);
-
-  main.appendChild(E('div',{class:'statgrid',style:'margin:12px 0'},[
-    E('div',{class:'statbox'},[E('b',{text:'Lv '+levelOf(a.xp)}),E('span',{text:'Level'})]),
-    E('div',{class:'statbox'},[E('b',{text:String(a.xp)}),E('span',{text:'Total XP'})]),
-    E('div',{class:'statbox'},[E('b',{text:'🪙 '+a.coins}),E('span',{text:'Coins'})])
-  ]));
-  if(a.role!=='parent'){
-    main.appendChild(E('div',{class:'card tight',style:'text-align:center'},[
-      E('div',{class:'muted',text:'Allowance available'}),
-      E('div',{style:'font-family:Baloo 2;font-weight:800;font-size:1.5rem;color:var(--gold)',text:'$'+(a.coins*COIN_TO_USD).toFixed(2)})
-    ]));
-  }
-
-  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'🔄'}),E('h2',{text:'Switch member'})]));
-  var row=E('div',{style:'display:flex;gap:9px;flex-wrap:wrap'});
-  state.members.forEach(function(m){
-    var card=E('button',{class:'statbox'+(m.id===state.activeMember?'':''),style:'flex:1;min-width:90px;border-color:'+(m.id===state.activeMember?'var(--primary)':'var(--line)')+';background:'+(m.id===state.activeMember?'var(--primary-soft)':'var(--card)')+';cursor:pointer',
-      on:{click:function(){switchMember(m.id);}}});
-    card.appendChild((function(){var x=avatar(m,44);x.style.margin='0 auto 5px';return x;})());
-    card.appendChild(E('b',{style:'font-size:.92rem;color:var(--ink)',text:m.name}));
-    card.appendChild(E('span',{text:m.role==='parent'?'Parent':'Lv '+levelOf(m.xp)}));
-    row.appendChild(card);
-  });
-  main.appendChild(row);
-
-  main.appendChild(E('div',{class:'section-title'},[E('span',{class:'em',text:'⚙️'}),E('h2',{text:'Settings'})]));
-  main.appendChild(E('div',{class:'card'},[
-    E('button',{class:'btn ghost block',style:'margin-bottom:10px',on:{click:function(){openMemberForm(active());}}},'✏️ Edit my profile'),
-    E('button',{class:'btn ghost block',style:'margin-bottom:10px',on:{click:showAbout}},'ℹ️ About Chore Wars'),
-    E('button',{class:'btn ghost block',on:{click:function(){if(confirm('Reset all data back to the demo family, chores and progress?'))resetDemo(false);}}},'🔄 Reset to demo data')
-  ]));
-
-  // Brand panel — DARK-GREY background (brand rule)
-  main.appendChild(E('div',{class:'brandbox',style:'margin-top:8px'},[
-    E('img',{src:'3shamrocks_black.png',alt:'3Shamrocks Studio logo'}),
-    E('div',{class:'tm',text:'Chore Wars™ — a 3Shamrocks Studio app'}),
-    E('div',{class:'cp',text:'© 2026 3Shamrocks Studio. All rights reserved.'})
-  ]));
-}
-
-function switchMember(id){
-  state.activeMember=id;currentTab='today';save();render();window.scrollTo(0,0);
-  toast(M(id).emoji||'👋','Now using as '+M(id).name,'info');
-}
-
-function showAbout(){
-  modal({title:'Chore Wars™',lead:'A simple, friendly family chore manager.',custom:function(b){
-    var c=E('div',{style:'width:70px;height:70px;margin:0 auto 10px'});c.innerHTML=crestSVG();b.appendChild(c);
-    b.appendChild(E('p',{style:'text-align:center;font-weight:700;color:var(--ink-soft)',
-      text:'Add chores, assign them to each person, complete & verify them, and work together to unlock a shared family reward. Doing real chores is the only thing that earns XP, coins and progress.'}));
-    b.appendChild(E('div',{class:'brandbox',style:'margin-top:14px'},[
-      E('img',{src:'3shamrocks_black.png',alt:'3Shamrocks Studio logo'}),
-      E('div',{class:'tm',text:'Chore Wars™ — a 3Shamrocks Studio app'}),
-      E('div',{class:'cp',text:'© 2026 3Shamrocks Studio. All rights reserved.'})
-    ]));
-  },okLabel:'Got it',okClass:'primary',onOk:function(){}});
-}
-
-/* ============================================================
-   CHORE FORM (add / edit / delete)
-   ============================================================ */
-function openChoreForm(existing){
-  var editing=!!existing;
-  var data=existing?Object.assign({},existing):{title:'',emoji:'🧹',room:'Bedroom',assignee:(kids()[0]||state.members[0]).id,
-    recur:'daily',days:[],due:dayKey(today()),xp:15,coins:5};
-  if(!data.days)data.days=[];
-
-  modal({
-    title:editing?'Edit chore':'Add a chore',
-    lead:editing?'Update, reassign or delete this chore.':'Create a chore and assign it to someone.',
-    custom:function(body){
-      // Title
-      var title=E('input',{type:'text',value:data.title,placeholder:'e.g. Make your bed',maxlength:'48'});
-      body.appendChild(E('div',{class:'field'},[E('label',{text:'Chore name'}),title]));
-
-      // Emoji
-      var emojiWrap=E('div',{class:'emojis'});
-      CHORE_EMOJIS.forEach(function(em){
-        var b=E('button',{class:'emoji'+(data.emoji===em?' on':''),type:'button',text:em,'aria-label':'Icon '+em,
-          on:{click:function(){data.emoji=em;[].forEach.call(emojiWrap.children,function(c){c.classList.toggle('on',c.textContent===em);});}}});
-        emojiWrap.appendChild(b);
-      });
-      body.appendChild(E('div',{class:'field'},[E('label',{text:'Icon'}),emojiWrap]));
-
-      // Assignee + Room
-      var assignee=E('select',{},state.members.map(function(m){return E('option',{value:m.id,selected:m.id===data.assignee?true:null,text:m.name+(m.role==='parent'?' (parent)':'')});}));
-      var room=E('select',{},ROOMS.map(function(r){return E('option',{value:r,selected:r===data.room?true:null,text:r});}));
-      body.appendChild(E('div',{class:'field'},[E('div',{class:'row'},[
-        E('div',{},[E('label',{text:'Assign to'}),assignee]),
-        E('div',{},[E('label',{text:'Room'}),room])
-      ])]));
-
-      // Recurrence
-      var recurOpts=[['once','One-off'],['daily','Daily'],['weekly','Weekly'],['days','Specific days']];
-      var recurSeg=E('div',{class:'segrow'});
-      var dueInput=E('input',{type:'date',value:data.due||dayKey(today())});
-      var dueField=E('div',{class:'field'},[E('label',{text:'Due date'}),dueInput]);
-      var dowField=E('div',{class:'field'});
-      var dowLabel=E('label',{text:'On these days'});
-      var dows=E('div',{class:'dows'});
-      DOW.forEach(function(dw){
-        var b=E('button',{class:'dow'+(data.days.indexOf(dw.i)>=0?' on':''),type:'button',text:dw.l,'aria-pressed':data.days.indexOf(dw.i)>=0?'true':'false',
-          on:{click:function(){
-            if(data.recur==='weekly'){ data.days=[dw.i]; }
-            else { var k=data.days.indexOf(dw.i); if(k>=0)data.days.splice(k,1); else data.days.push(dw.i); }
-            [].forEach.call(dows.children,function(c,idx){var on=data.days.indexOf(DOW[idx].i)>=0;c.classList.toggle('on',on);c.setAttribute('aria-pressed',on?'true':'false');});
-          }}});
-        dows.appendChild(b);
-      });
-      dowField.appendChild(dowLabel);dowField.appendChild(dows);
-
-      function syncRecurUI(){
-        dueField.style.display=data.recur==='once'?'':'none';
-        dowField.style.display=(data.recur==='weekly'||data.recur==='days')?'':'none';
-        dowLabel.textContent=data.recur==='weekly'?'On this day (pick one)':'On these days';
-        [].forEach.call(recurSeg.children,function(c,idx){c.classList.toggle('on',recurOpts[idx][0]===data.recur);});
-      }
-      recurOpts.forEach(function(o){
-        recurSeg.appendChild(E('button',{class:'seg',type:'button',text:o[1],on:{click:function(){
-          data.recur=o[0];
-          if(o[0]==='weekly'&&data.days.length>1)data.days=[data.days[0]];
-          syncRecurUI();
-        }}}));
-      });
-      body.appendChild(E('div',{class:'field'},[E('label',{text:'Repeats'}),recurSeg]));
-      body.appendChild(dueField);
-      body.appendChild(dowField);
-      syncRecurUI();
-
-      // XP + coins
-      var xp=E('input',{type:'number',value:data.xp,min:'0',max:'200',step:'5'});
-      var coins=E('input',{type:'number',value:data.coins,min:'0',max:'100',step:'1'});
-      body.appendChild(E('div',{class:'field'},[E('div',{class:'row'},[
-        E('div',{},[E('label',{text:'⭐ XP reward'}),xp]),
-        E('div',{},[E('label',{text:'🪙 Coins'}),coins])
-      ])]));
-
-      // Save / delete buttons
-      var actions=E('div',{style:'display:flex;gap:10px;margin-top:8px'});
-      actions.appendChild(E('button',{class:'btn ghost',style:'flex:1',on:{click:closeModal}},'Cancel'));
-      actions.appendChild(E('button',{class:'btn primary',style:'flex:1.4',on:{click:function(){
-        var t=title.value.trim();
-        if(!t){title.focus();title.style.borderColor='var(--overdue)';return;}
-        data.title=t.slice(0,48);data.room=room.value;data.assignee=assignee.value;
-        data.due=data.recur==='once'?dueInput.value:null;
-        data.xp=Math.max(0,parseInt(xp.value,10)||0);data.coins=Math.max(0,parseInt(coins.value,10)||0);
-        if((data.recur==='weekly'||data.recur==='days')&&data.days.length===0){toast('📅','Pick at least one day','warn');return;}
-        if(data.recur==='once'&&!data.due){toast('📅','Pick a due date','warn');return;}
-        if(editing){
-          var c=ch(existing.id);Object.assign(c,data);
-          toast('✏️','Chore updated','good');
-        } else {
-          data.id=uid('c');data.archived=false;state.chores.push(data);
-          toast('✅','Chore added','good');
-        }
-        closeModal();save();render();
-      }}},editing?'Save changes':'Add chore'));
-      body.appendChild(actions);
-
-      if(editing){
-        body.appendChild(E('button',{class:'btn danger block',style:'margin-top:10px',on:{click:function(){
-          if(!confirm('Delete “'+existing.title+'”? This removes the chore and its history.'))return;
-          state.chores=state.chores.filter(function(c){return c.id!==existing.id;});
-          state.completions=state.completions.filter(function(c){return c.choreId!==existing.id;});
-          closeModal();save();render();toast('🗑️','Chore deleted','info');
-        }}},'🗑️ Delete chore'));
-      }
-    }
-  });
-}
-
-/* ============================================================
-   MEMBER FORM (add / edit / delete)
-   ============================================================ */
-var MEMBER_EMOJIS=['🦊','🐯','🦁','🐶','🐱','🐵','🐼','🐨','🐸','🦄','🐲','🦖','🐙','🦋','⭐','⚡'];
-var MEMBER_COLORS=['#4F7CFF','#A855F7','#EC4899','#0EA5E9','#10B981','#F59E0B','#EF4444','#8B5CF6'];
-function openMemberForm(existing){
-  var editing=!!existing;
-  var data=existing?Object.assign({},existing):{name:'',role:'kid',color:MEMBER_COLORS[state.members.length%MEMBER_COLORS.length],emoji:MEMBER_EMOJIS[state.members.length%MEMBER_EMOJIS.length],xp:0,coins:0};
-  modal({title:editing?'Edit member':'Add member',lead:editing?'Update name, role or look.':'Add a family member.',custom:function(body){
-    var name=E('input',{type:'text',value:data.name,placeholder:'Name',maxlength:'20'});
-    body.appendChild(E('div',{class:'field'},[E('label',{text:'Name'}),name]));
-
-    var role=E('select',{},[E('option',{value:'kid',selected:data.role==='kid'?true:null,text:'Kid (does chores)'}),
-      E('option',{value:'parent',selected:data.role==='parent'?true:null,text:'Parent (verifies chores)'})]);
-    body.appendChild(E('div',{class:'field'},[E('label',{text:'Role'}),role]));
-
-    var emWrap=E('div',{class:'emojis'});
-    MEMBER_EMOJIS.forEach(function(em){emWrap.appendChild(E('button',{class:'emoji'+(data.emoji===em?' on':''),type:'button',text:em,
-      on:{click:function(){data.emoji=em;[].forEach.call(emWrap.children,function(c){c.classList.toggle('on',c.textContent===em);});}}}));});
-    body.appendChild(E('div',{class:'field'},[E('label',{text:'Avatar'}),emWrap]));
-
-    var colWrap=E('div',{class:'emojis'});
-    MEMBER_COLORS.forEach(function(col){
-      var b=E('button',{class:'emoji',type:'button','aria-label':'Color',style:'background:'+col+';border-color:'+(data.color===col?'var(--ink)':'var(--line)')+';border-width:3px',
-        on:{click:function(){data.color=col;[].forEach.call(colWrap.children,function(c,idx){c.style.borderColor=MEMBER_COLORS[idx]===col?'var(--ink)':'var(--line)';});}}});
-      colWrap.appendChild(b);
-    });
-    body.appendChild(E('div',{class:'field'},[E('label',{text:'Color'}),colWrap]));
-
-    var actions=E('div',{style:'display:flex;gap:10px;margin-top:8px'});
-    actions.appendChild(E('button',{class:'btn ghost',style:'flex:1',on:{click:closeModal}},'Cancel'));
-    actions.appendChild(E('button',{class:'btn primary',style:'flex:1.4',on:{click:function(){
-      var nm=name.value.trim();if(!nm){name.focus();name.style.borderColor='var(--overdue)';return;}
-      data.name=nm.slice(0,20);data.role=role.value;
-      if(editing){var m=M(existing.id);Object.assign(m,data);toast('✏️','Member updated','good');}
-      else{data.id=uid('m');state.members.push(data);toast('✅',nm+' added','good');}
-      closeModal();save();render();
-    }}},editing?'Save':'Add member'));
-    body.appendChild(actions);
-
-    if(editing){
-      body.appendChild(E('button',{class:'btn danger block',style:'margin-top:10px',on:{click:function(){
-        if(state.members.length<=1){toast('⚠️','You need at least one member','warn');return;}
-        if(!confirm('Remove '+existing.name+'? Their chores will be reassigned to '+ (state.members.find(function(m){return m.id!==existing.id;}).name) +'.'))return;
-        var fallback=state.members.find(function(m){return m.id!==existing.id;}).id;
-        state.chores.forEach(function(c){if(c.assignee===existing.id)c.assignee=fallback;});
-        state.completions=state.completions.filter(function(c){return c.member!==existing.id;});
-        state.members=state.members.filter(function(m){return m.id!==existing.id;});
-        if(state.activeMember===existing.id)state.activeMember=state.members[0].id;
-        closeModal();save();render();toast('🗑️',existing.name+' removed','info');
-      }}},'🗑️ Remove member'));
-    }
-  }});
-}
-
-/* ============================================================
-   GOAL FORM (family reward)
-   ============================================================ */
-var REWARD_EMOJIS=['🍕','🍦','🎬','🎮','🏊','🎳','🍿','🎡','🧁','🏖️'];
-function openGoalForm(){
-  var data=Object.assign({},state.goal);
-  var autoTarget=weekDueCount();
-  modal({title:'🎯 Family reward',lead:'Pick the reward the family unlocks by finishing chores this week.',custom:function(body){
-    var name=E('input',{type:'text',value:data.reward,placeholder:'e.g. Pizza Night',maxlength:'28'});
-    body.appendChild(E('div',{class:'field'},[E('label',{text:'Reward name'}),name]));
-    var emWrap=E('div',{class:'emojis'});
-    REWARD_EMOJIS.forEach(function(em){emWrap.appendChild(E('button',{class:'emoji'+(data.emoji===em?' on':''),type:'button',text:em,
-      on:{click:function(){data.emoji=em;[].forEach.call(emWrap.children,function(c){c.classList.toggle('on',c.textContent===em);});}}}));});
-    body.appendChild(E('div',{class:'field'},[E('label',{text:'Icon'}),emWrap]));
-
-    var auto=data.target==null;
-    var targetInput=E('input',{type:'number',value:data.target!=null?data.target:autoTarget,min:'1',max:'200',disabled:auto?true:null});
-    var autoBtn=E('button',{class:'seg'+(auto?' on':''),type:'button',text:'Auto (all chores this week: '+autoTarget+')',
-      on:{click:function(){auto=true;targetInput.disabled=true;autoBtn.classList.add('on');fixedBtn.classList.remove('on');}}});
-    var fixedBtn=E('button',{class:'seg'+(auto?'':' on'),type:'button',text:'Custom number',
-      on:{click:function(){auto=false;targetInput.disabled=false;fixedBtn.classList.add('on');autoBtn.classList.remove('on');targetInput.focus();}}});
-    body.appendChild(E('div',{class:'field'},[E('label',{text:'Chores needed to unlock'}),E('div',{class:'segrow'},[autoBtn,fixedBtn]),E('div',{style:'margin-top:8px'},[targetInput])]));
-
-    var actions=E('div',{style:'display:flex;gap:10px;margin-top:8px'});
-    actions.appendChild(E('button',{class:'btn ghost',style:'flex:1',on:{click:closeModal}},'Cancel'));
-    actions.appendChild(E('button',{class:'btn primary',style:'flex:1.4',on:{click:function(){
-      var nm=name.value.trim()||'Family Reward';
-      state.goal.reward=nm.slice(0,28);state.goal.emoji=data.emoji;
-      state.goal.target=auto?null:Math.max(1,parseInt(targetInput.value,10)||1);
-      state.goal.unlockedWeek=null; // re-arm celebration for the new goal
-      closeModal();save();render();toast('🎯','Family reward updated','good');
-    }}},'Save reward'));
-    body.appendChild(actions);
-  }});
-}
-
-/* ============================================================
-   PHOTO PICKER
-   ============================================================ */
-function pickPhoto(cb){
-  var inp=$('#photoInput');
-  var handler=function(){
-    var f=inp.files&&inp.files[0];inp.removeEventListener('change',handler);inp.value='';
-    if(!f){cb(placeholderPhoto());return;}
-    var fr=new FileReader();fr.onload=function(){cb(fr.result);};fr.onerror=function(){cb(placeholderPhoto());};fr.readAsDataURL(f);
-  };
-  inp.addEventListener('change',handler);inp.click();
-}
-function placeholderPhoto(){
-  var svg='<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="#4F7CFF"/><text x="60" y="58" font-size="40" text-anchor="middle">📷</text><text x="60" y="92" font-size="13" text-anchor="middle" fill="#fff" font-family="sans-serif">Proof</text></svg>';
-  return 'data:image/svg+xml;utf8,'+encodeURIComponent(svg);
-}
-
-/* ============================================================
-   MODAL
-   ============================================================ */
-function modal(cfg){
-  var wrap=$('#modalwrap'),m=$('#modal');clear(m);
-  m.appendChild(E('div',{class:'grab'}));
-  if(cfg.title)m.appendChild(E('h2',{text:cfg.title}));
-  if(cfg.lead)m.appendChild(E('p',{class:'lead',text:cfg.lead}));
-  if(cfg.custom){var b=E('div',{});cfg.custom(b);m.appendChild(b);}
-  if(cfg.onOk||cfg.okLabel){
-    var btnrow=E('div',{style:'display:flex;gap:10px;margin-top:16px'});
-    btnrow.appendChild(E('button',{class:'btn ghost',style:'flex:1',on:{click:closeModal}},'Close'));
-    btnrow.appendChild(E('button',{class:'btn '+(cfg.okClass||'primary'),style:'flex:1.4',on:{click:function(){closeModal();if(cfg.onOk)cfg.onOk();}}},cfg.okLabel||'OK'));
-    m.appendChild(btnrow);
-  }
-  wrap.classList.add('show');
-  wrap.onclick=function(e){if(e.target===wrap)closeModal();};
-  m.scrollTop=0;
-}
-function closeModal(){$('#modalwrap').classList.remove('show');}
-
-/* ============================================================
-   BOOT
-   ============================================================ */
-function boot(){
-  load();
-  $('#splashCrest').innerHTML=crestSVG();
-  $('#whoChip').addEventListener('click',function(){currentTab='me';render();window.scrollTo(0,0);});
-  render();
-  setTimeout(function(){
-    var sp=$('#splash');if(!sp)return;
-    sp.classList.add('gone');
-    // Belt-and-suspenders: never let the splash trap the user if the
-    // fade transition doesn't complete (e.g. throttled background tab).
-    var kill=function(){sp.classList.add('hidden');};
-    sp.addEventListener('transitionend',kill,{once:true});
-    setTimeout(kill,900);
-  },1400);
-  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
-}
-boot();
+// ── boot ──
+buildWheel();
+if(S.current&&S.members[S.current]){ const m=S.members[S.current]; if(m.role==='parent'){show('parent');renderParent();}else{show('kid');renderKid();} }
+else { show('who'); renderWho(); }
 </script>
 </body>
 </html>
