@@ -1,15 +1,15 @@
 {
-  "name": "Chore Wars — Family Chores",
-  "short_name": "Chore Wars",
-  "description": "A simple, friendly family chore manager. Add chores, assign them, complete & verify, and unlock a shared family reward together. A 3Shamrocks Studio app.",
+  "name": "Chore Royale — Spin, Battle, Win",
+  "short_name": "Chore Royale",
+  "description": "The family game show for chores. Spin the Chore Roulette, battle a sibling in a Splat Showdown to dodge a chore, and trade stars for real prizes. A parent referees. A 3Shamrocks Studio app.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F4F6FB",
+  "background_color": "#171b40",
   "theme_color": "#4F7CFF",
   "lang": "en",
-  "categories": ["productivity", "lifestyle", "education"],
+  "categories": ["games", "education", "lifestyle"],
   "icons": [
     {
       "src": "icon.svg",

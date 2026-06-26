@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#4F7CFF">
-<title>Chore Wars™ — Wheel of Fortune · The M Clan</title>
-<!-- CSP: single-file app · Google Fonts + data/blob images · no remote script, no eval -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; base-uri 'none'">
+<title>Chore Royale™ — Spin · Battle · Win · The M Clan</title>
+<!-- CSP: self-contained app by default. Online battles (opt-in) load supabase-js from jsdelivr + talk to *.supabase.co only when a parent enables it. No eval. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'none'">
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,7 +30,7 @@
     overscroll-behavior-y:none;-webkit-text-size-adjust:100%}
   h1,h2,h3,.dis{font-family:'Baloo 2',system-ui,sans-serif}
   button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
-  input{font-family:inherit}
+  input,select{font-family:inherit}
   :focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:10px}
   img{max-width:100%}
   .app{max-width:460px;margin:0 auto;min-height:100dvh;position:relative;background:var(--bg);box-shadow:0 0 60px rgba(20,30,70,.08)}
@@ -38,7 +38,7 @@
   .screen.on{display:flex}
   .body{flex:1;overflow-y:auto;padding:14px 16px calc(26px + var(--safe-b))}
 
-  /* ── DARK HERO SCREENS (onboard / who) ─────────────── */
+  /* ── DARK HERO SCREENS ─────────────── */
   .hero{background:#171b40 url('assets/arena-bg.png') center/cover no-repeat;color:#fff;position:relative}
   .hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,18,50,.30),rgba(15,18,50,.66))}
   .hero>*{position:relative;z-index:1}
@@ -56,6 +56,7 @@
   .ob-step h1 b{color:#FFD16B}
   .ob-step h2{font-size:1.5rem;margin-bottom:4px}
   .ob-lead{color:#dbe2ff;font-weight:700;font-size:1rem;margin-top:10px;line-height:1.5}
+  .ob-kick{display:inline-block;font-family:'Baloo 2';font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:#FFD16B;background:rgba(255,209,107,.14);border:1px solid rgba(255,209,107,.4);padding:5px 12px;border-radius:99px}
   .loopline{display:flex;flex-direction:column;gap:8px;margin:22px 0;text-align:left}
   .loopline .lr{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:12px 14px;backdrop-filter:blur(6px)}
   .loopline .lr .em{font-size:1.5rem;flex:0 0 auto}
@@ -140,7 +141,7 @@
   .sec-t{font-family:'Baloo 2';font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);margin:16px 2px 9px;display:flex;align-items:center;gap:7px}
   .sec-t:first-child{margin-top:2px}
   .sec-t .c{margin-left:auto;background:var(--card);border:1.5px solid var(--line);padding:2px 9px;border-radius:99px;font-size:.72rem;color:var(--ink-soft)}
-  .qcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px;margin-bottom:9px;box-shadow:var(--shadow);display:flex;align-items:center;gap:11px}
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px;margin-bottom:9px;box-shadow:var(--shadow);display:flex;align-items:center;gap:11px;flex-wrap:wrap}
   .qicon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:1.25rem;flex:0 0 auto;background:var(--primary-soft)}
   .qcard .qt{font-family:'Baloo 2';font-size:1rem;line-height:1.15}
   .qcard .qm{font-size:.74rem;font-weight:800;color:var(--ink-soft);margin-top:2px}
@@ -148,9 +149,26 @@
   .doneBtn{font-family:'Baloo 2';font-size:.82rem;padding:9px 13px;border-radius:99px;background:var(--green);color:#fff;display:flex;align-items:center;gap:5px;transition:transform .12s}
   .doneBtn:active{transform:scale(.95)}
   .skipBtn{font-family:'Baloo 2';font-size:.74rem;padding:9px 11px;border-radius:99px;background:var(--sunken);color:var(--ink-soft)}
+  .miniBtn{font-family:'Baloo 2';font-size:.74rem;padding:9px 11px;border-radius:99px;background:var(--primary-soft);color:var(--primary-deep)}
+  .battleBtn{font-family:'Baloo 2';font-size:.74rem;padding:9px 11px;border-radius:99px;background:linear-gradient(120deg,#FF6B35,#E8551F);color:#fff}
+  .qrow2{flex-basis:100%;display:flex;gap:6px;justify-content:flex-end;margin-top:-2px}
   .empty{text-align:center;color:var(--ink-faint);font-weight:800;font-size:.88rem;padding:22px 12px;background:var(--card);border:1px dashed var(--line);border-radius:var(--radius-sm)}
+  .awaitcard{background:#FFFBEB;border:1px solid #FCE9B6;border-radius:var(--radius-sm);padding:11px;margin-bottom:9px;display:flex;align-items:center;gap:11px}
+  .awaitcard .qicon{background:#FEF3C7}
+  .awaitcard .qm{color:var(--gold-deep)}
+  .badge-wait{margin-left:auto;font-weight:800;font-size:.72rem;color:var(--gold-deep);background:#FEF3C7;border:1px solid #FCE9B6;padding:5px 11px;border-radius:99px}
 
-  /* ── REWARDS SHOP ──────────────────────────────────── */
+  /* ── BATTLE LAUNCH (kid) ───────────────────────────── */
+  .arena{background:linear-gradient(135deg,#2A1466,#5B21B6 60%,#7C3AED);border-radius:var(--radius);padding:14px 15px;box-shadow:var(--shadow);margin-bottom:9px;color:#fff;position:relative;overflow:hidden}
+  .arena::after{content:"⚔️";position:absolute;right:-6px;bottom:-14px;font-size:5rem;opacity:.16}
+  .arena .at{font-family:'Baloo 2';font-size:1.05rem;display:flex;align-items:center;gap:7px}
+  .arena .am{font-size:.78rem;font-weight:800;color:#E9D5FF;margin-top:3px;line-height:1.4;max-width:80%}
+  .arena .ab{margin-top:12px;display:flex;gap:8px}
+  .arena .ab button{flex:1;font-family:'Baloo 2';font-size:.86rem;padding:11px;border-radius:99px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);color:#fff;transition:transform .12s}
+  .arena .ab button.go{background:#fff;color:#6D28D9;border-color:#fff}
+  .arena .ab button:active{transform:scale(.96)}
+
+  /* ── REWARDS SHOP / POWER-UPS ──────────────────────── */
   .shop{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px 13px;margin-bottom:9px;box-shadow:var(--shadow);display:flex;align-items:center;gap:11px}
   .shop .re{width:42px;height:42px;border-radius:12px;background:var(--primary-soft);display:grid;place-items:center;font-size:1.25rem;flex:0 0 auto}
   .shop .rt{font-family:'Baloo 2';font-size:.98rem;line-height:1.15}
@@ -158,6 +176,11 @@
   .claimBtn{margin-left:auto;flex:0 0 auto;font-family:'Baloo 2';font-size:.8rem;padding:9px 14px;border-radius:99px;background:var(--primary);color:#fff;transition:transform .12s}
   .claimBtn:active{transform:scale(.95)}
   .claimBtn:disabled{background:var(--sunken);color:var(--ink-faint)}
+  .powerrow{display:flex;gap:9px;overflow-x:auto;padding-bottom:4px;margin-bottom:9px;-webkit-overflow-scrolling:touch}
+  .pwr{flex:0 0 132px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px;box-shadow:var(--shadow);text-align:center}
+  .pwr .pe{font-size:1.7rem} .pwr .pn{font-family:'Baloo 2';font-size:.9rem;margin-top:3px} .pwr .pd{font-size:.68rem;font-weight:800;color:var(--ink-soft);margin-top:2px;line-height:1.3;min-height:26px}
+  .pwr button{margin-top:8px;width:100%;font-family:'Baloo 2';font-size:.78rem;padding:8px;border-radius:99px;background:var(--gold);color:#fff}
+  .pwr button:disabled{background:var(--sunken);color:var(--ink-faint)}
 
   /* ── METER / LEADERBOARD ───────────────────────────── */
   .meter{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:13px 15px;box-shadow:var(--shadow);margin-bottom:9px}
@@ -174,15 +197,32 @@
   .frow .fb i{display:block;height:100%;border-radius:99px;transition:width .5s}
   .frow .v{width:30px;text-align:right;font-family:'Baloo 2';font-size:.82rem;color:var(--ink-soft)}
 
+  /* ── PLUS UPSELL CARD ──────────────────────────────── */
+  .pluscard{background:linear-gradient(135deg,#0F172A,#1E293B);border-radius:var(--radius);padding:15px;box-shadow:var(--shadow);margin-bottom:9px;color:#fff;display:flex;align-items:center;gap:12px}
+  .pluscard .pe{font-size:2rem;flex:0 0 auto}
+  .pluscard .pt{font-family:'Baloo 2';font-size:1rem;display:flex;align-items:center;gap:6px}
+  .pluscard .pm{font-size:.74rem;font-weight:800;color:#CBD5E1;margin-top:2px;line-height:1.35}
+  .pluscard .pgo{margin-left:auto;flex:0 0 auto;font-family:'Baloo 2';font-size:.82rem;padding:9px 14px;border-radius:99px;background:linear-gradient(120deg,#FBBF24,#F59E0B);color:#3b2a00}
+
   /* ── PARENT ────────────────────────────────────────── */
   .ptab{display:flex;gap:5px;margin-bottom:14px;position:sticky;top:0}
   .ptab .t{flex:1;text-align:center;font-family:'Baloo 2';font-size:.8rem;padding:9px 4px;border-radius:12px;color:var(--ink-soft);background:var(--card);border:1px solid var(--line)}
   .ptab .t.on{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:var(--shadow)}
   .ptab-body{display:none} .ptab-body.on{display:block}
+  .refnote{background:linear-gradient(120deg,#0E7A34,#16A34A);color:#fff;border-radius:var(--radius);padding:13px 15px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .refnote b{font-family:'Baloo 2';display:flex;align-items:center;gap:7px;font-size:.98rem}
+  .refnote small{display:block;margin-top:5px;font-weight:700;font-size:.76rem;line-height:1.45;color:#DCFCE7}
   .fair{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
   .fair .ft{font-family:'Baloo 2';display:flex;align-items:center;gap:7px;font-size:.96rem}
   .fair .ok{margin-left:auto;font-size:.68rem;background:#DCFCE7;color:var(--green-deep);padding:3px 10px;border-radius:99px;font-weight:800}
   .fair small{display:block;margin-top:8px;font-weight:700;color:var(--ink-soft);font-size:.76rem;line-height:1.45}
+  .verifyrow{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;box-shadow:var(--shadow)}
+  .verifyrow .em{width:40px;height:40px;border-radius:11px;background:var(--sunken);display:grid;place-items:center;font-size:1.2rem;flex:0 0 auto}
+  .verifyrow .vt{font-family:'Baloo 2';font-size:.95rem;line-height:1.15}
+  .verifyrow .vm{font-size:.72rem;font-weight:800;color:var(--ink-soft)}
+  .verifyrow .va{margin-left:auto;display:flex;gap:6px;flex:0 0 auto}
+  .yes{width:40px;height:40px;border-radius:12px;background:var(--green);color:#fff;font-size:1.2rem;font-weight:800;display:grid;place-items:center}
+  .no{width:40px;height:40px;border-radius:12px;background:var(--sunken);color:var(--red);font-size:1.1rem;font-weight:800;display:grid;place-items:center;border:1px solid var(--line)}
   .listrow{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;box-shadow:var(--shadow)}
   .listrow .em{width:38px;height:38px;border-radius:11px;background:var(--sunken);display:grid;place-items:center;font-size:1.2rem;flex:0 0 auto}
   .listrow .lt2{font-family:'Baloo 2';font-size:.95rem;line-height:1.15}
@@ -199,12 +239,90 @@
   .swatch{width:14px;height:14px;border-radius:5px;flex:0 0 auto}
   .odds-row .ot{font-family:'Baloo 2';font-size:.92rem;flex:1}
   .odds-row .od{font-weight:800;font-size:.76rem;color:var(--ink-soft);background:var(--bg);border:1px solid var(--line);padding:3px 9px;border-radius:99px}
+  .toggle-row{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;box-shadow:var(--shadow)}
+  .toggle-row .tg{font-family:'Baloo 2';font-size:.94rem} .toggle-row .tgm{font-size:.72rem;font-weight:800;color:var(--ink-soft);margin-top:2px;line-height:1.35}
+  .sw{margin-left:auto;flex:0 0 auto;width:50px;height:30px;border-radius:99px;background:var(--sunken);position:relative;transition:.2s;border:1px solid var(--line)}
+  .sw::after{content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:var(--shadow);transition:.2s}
+  .sw.on{background:var(--green)} .sw.on::after{left:23px}
   .kidcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
   .kidcard .kh{display:flex;align-items:center;gap:10px;font-family:'Baloo 2';font-size:1.04rem}
   .kidcard .kh .ava{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:'Baloo 2'}
   .kidcard .kpills{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
   .kpill{font-weight:800;font-size:.74rem;background:var(--bg);border:1px solid var(--line);padding:5px 10px;border-radius:99px;color:var(--ink-soft)}
-  .switchBtn{width:100%;margin-top:4px;font-family:'Baloo 2';font-size:.92rem;padding:13px;border-radius:var(--radius-pill);background:var(--card);border:2px solid var(--line);color:var(--ink-soft);box-shadow:var(--shadow)}
+
+  /* ── BATTLE SCREEN ─────────────────────────────────── */
+  #battle{padding:calc(16px + var(--safe-t)) 18px calc(20px + var(--safe-b));justify-content:flex-start}
+  .bwrap{width:100%;max-width:420px;margin:0 auto;color:#fff;display:flex;flex-direction:column;flex:1}
+  .btop{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+  .btop .bttl{font-family:'Baloo 2';font-size:1.1rem;display:flex;align-items:center;gap:7px}
+  .bquit{margin-left:auto;font-weight:800;font-size:.78rem;color:#cdd6ff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:7px 13px}
+  .bscore{display:flex;align-items:center;justify-content:center;gap:12px;margin:2px 0 14px}
+  .bscore .sc{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:18px;padding:11px 12px;text-align:center;min-width:104px}
+  .bscore .sc .av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:'Baloo 2';font-size:1.2rem;margin:0 auto 5px}
+  .bscore .sc .nm{font-family:'Baloo 2';font-size:.92rem}
+  .bscore .sc .pts{font-family:'Baloo 2';font-size:1.7rem;color:#FFD16B;line-height:1.1}
+  .bscore .vsmid{font-family:'Baloo 2';font-size:1rem;color:#cdd6ff}
+  .bcard{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:16px;backdrop-filter:blur(6px)}
+  .bcard h2{font-size:1.3rem;text-align:center;line-height:1.15}
+  .bcard .blead{text-align:center;color:#cdd6ff;font-weight:800;font-size:.82rem;margin-top:6px;line-height:1.4}
+  .opts{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .opt{display:flex;align-items:center;gap:11px;background:rgba(255,255,255,.10);border:2px solid rgba(255,255,255,.18);border-radius:15px;padding:12px 14px;transition:.12s;text-align:left}
+  .opt.on{border-color:#FFD16B;background:rgba(255,209,107,.18)}
+  .opt:active{transform:scale(.98)}
+  .opt .oe{font-size:1.5rem;flex:0 0 auto}
+  .opt .ot{font-family:'Baloo 2';font-size:.98rem} .opt .om{font-size:.72rem;font-weight:800;color:#cdd6ff}
+  .opt .ock{margin-left:auto;color:#FFD16B;font-size:1.1rem;font-weight:800}
+  .bprimary{width:100%;background:linear-gradient(120deg,var(--accent),var(--accent-deep));color:#fff;font-family:'Baloo 2';font-size:1.1rem;padding:15px;border-radius:99px;box-shadow:0 10px 22px rgba(232,85,31,.42);margin-top:14px;transition:transform .12s}
+  .bprimary:active{transform:scale(.98)} .bprimary:disabled{background:rgba(255,255,255,.14);color:#9aa3c8;box-shadow:none}
+  .bghost{width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:'Baloo 2';font-size:.95rem;padding:13px;border-radius:99px;margin-top:9px}
+  .handoff{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;flex:1;padding:24px 8px}
+  .handoff .hbig{font-size:4.4rem;animation:pop .4s cubic-bezier(.2,1.3,.4,1)}
+  .handoff .hav{width:78px;height:78px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:'Baloo 2';font-size:2rem;box-shadow:0 8px 22px rgba(0,0,0,.35)}
+  .handoff h2{font-size:1.7rem}
+  .handoff .hlead{color:#cdd6ff;font-weight:800;font-size:.92rem;line-height:1.45;max-width:300px}
+  .throwgrid{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+  .throw{display:flex;align-items:center;gap:15px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.2);border-radius:20px;padding:15px 18px;width:100%;transition:transform .1s;text-align:left}
+  .throw:active{transform:scale(.97)}
+  .throw .te{font-size:2.6rem;flex:0 0 auto;filter:drop-shadow(0 3px 5px rgba(0,0,0,.3))}
+  .throw .tn{font-family:'Baloo 2';font-size:1.25rem}
+  .throw .tb{font-size:.72rem;color:#cdd6ff;font-weight:800;margin-top:1px}
+  .secret-note{margin-top:14px;font-size:.78rem;font-weight:800;color:#FFD16B;text-align:center}
+  .vsbox{display:flex;align-items:center;justify-content:center;gap:14px;margin:8px 0 4px}
+  .vsbox .side{text-align:center;flex:1}
+  .vsbox .pe{font-size:4.2rem;line-height:1;animation:pop .45s cubic-bezier(.2,1.3,.4,1);filter:drop-shadow(0 4px 8px rgba(0,0,0,.35))}
+  .vsbox .pn{font-family:'Baloo 2';font-size:.92rem;margin-top:6px}
+  .vsbox .vmid{font-family:'Baloo 2';font-size:1.3rem;color:#FFD16B}
+  .splat{text-align:center;margin:10px 0 2px;font-family:'Baloo 2';font-size:1.05rem}
+  .splat .sz{display:inline-block;margin-top:4px;font-size:calc(1.4rem + (var(--sz,3) * .45rem));animation:pop .4s}
+  .rwin{text-align:center;font-family:'Baloo 2';font-size:1.35rem;margin-top:8px}
+  /* Splat-or-Stop */
+  .sospot{text-align:center;margin:6px 0}
+  .sospot .big{font-family:'Baloo 2';font-size:3.4rem;color:#FFD16B;line-height:1}
+  .sospot .lbl{font-weight:800;font-size:.78rem;color:#cdd6ff;text-transform:uppercase;letter-spacing:.08em}
+  .sosbtns{display:flex;gap:10px;margin-top:14px}
+  .sosbtns button{flex:1;font-family:'Baloo 2';font-size:1.05rem;padding:15px;border-radius:18px}
+  .sosbtns .splatb{background:linear-gradient(120deg,#FF6B35,#E8551F);color:#fff}
+  .sosbtns .stopb{background:#fff;color:#6D28D9}
+
+  /* ── PLUS STORE SCREEN ─────────────────────────────── */
+  #plus{padding:calc(16px + var(--safe-t)) 18px calc(20px + var(--safe-b))}
+  .pluswrap{width:100%;max-width:420px;margin:0 auto;color:#fff;flex:1;display:flex;flex-direction:column}
+  .pl-hero{text-align:center;margin-bottom:16px}
+  .pl-hero .crown{font-size:3rem}
+  .pl-hero h1{font-size:2rem;margin-top:4px} .pl-hero h1 b{color:#FFD16B}
+  .pl-hero p{color:#cdd6ff;font-weight:800;font-size:.88rem;margin-top:6px;line-height:1.45}
+  .pl-price{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:16px;margin-bottom:14px;text-align:center}
+  .pl-price .amt{font-family:'Baloo 2';font-size:1.9rem} .pl-price .amt b{color:#FFD16B}
+  .pl-price .per{font-weight:800;color:#cdd6ff;font-size:.8rem}
+  .pl-feat{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:15px;padding:12px 14px;margin-bottom:8px}
+  .pl-feat .fe{font-size:1.5rem;flex:0 0 auto}
+  .pl-feat .ft2{font-family:'Baloo 2';font-size:.96rem} .pl-feat .fm{font-size:.72rem;font-weight:800;color:#cdd6ff;margin-top:1px;line-height:1.3}
+  .pl-packs{display:flex;gap:9px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px}
+  .pl-pack{flex:0 0 120px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:15px;padding:13px;text-align:center}
+  .pl-pack .pe2{font-size:1.9rem} .pl-pack .pn2{font-family:'Baloo 2';font-size:.86rem;margin-top:4px} .pl-pack .pp2{font-weight:800;font-size:.72rem;color:#FFD16B;margin-top:2px}
+  .pl-cta{width:100%;background:linear-gradient(120deg,#FBBF24,#F59E0B);color:#3b2a00;font-family:'Baloo 2';font-size:1.1rem;padding:15px;border-radius:99px;box-shadow:0 10px 22px rgba(245,158,11,.4);margin-top:4px}
+  .pl-back{width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:'Baloo 2';font-size:.95rem;padding:13px;border-radius:99px;margin-top:10px}
+  .pl-fine{text-align:center;color:#9aa3c8;font-weight:800;font-size:.7rem;margin-top:12px;line-height:1.4}
 
   /* ── RESULT / WIN MODAL ────────────────────────────── */
   .scrim{position:fixed;inset:0;background:rgba(13,18,50,.62);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:80;padding:24px}
@@ -235,7 +353,7 @@
   .confetti{position:fixed;inset:0;pointer-events:none;z-index:85;overflow:hidden}
   .confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards}
   @keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.9}}
-  @media (prefers-reduced-motion:reduce){svg.wheel{transition:none !important}.winbox,.ob-step{animation:none}.spinbtn.coach{animation:none}.confetti{display:none}}
+  @media (prefers-reduced-motion:reduce){svg.wheel{transition:none !important}.winbox,.ob-step,.handoff .hbig,.vsbox .pe,.splat .sz{animation:none}.spinbtn.coach{animation:none}.confetti{display:none}}
 </style>
 </head>
 <body>
@@ -243,50 +361,52 @@
 
   <!-- ONBOARDING -->
   <section class="screen on hero" id="onboard">
-    <img class="crestlg" src="assets/crest.jpg" alt="Chore Wars crest">
+    <img class="crestlg" src="assets/crest.jpg" alt="Chore Royale crest">
     <div class="ob-dots" id="obDots"><i class="on"></i><i></i><i></i><i></i></div>
 
     <div class="ob-step on" id="ob0">
-      <h1>Chore <b>Wars</b></h1>
-      <div class="ob-lead">The chore game where you <b>spin to discover your quest</b> — no more nagging.</div>
+      <span class="ob-kick">🎙️ Welcome to the show</span>
+      <h1>Chore <b>Royale</b></h1>
+      <div class="ob-lead">The family game show where you <b>spin to win your chores</b>, <b>battle</b> to dodge them, and trade stars for real prizes.</div>
       <div class="loopline">
-        <div class="lr"><span class="em">🎡</span><div><b>Spin the Wheel</b><span>One free spin every day</span></div></div>
-        <div class="lr"><span class="em">🧹</span><div><b>Finish your quest</b><span>Earn ⭐ stars + another spin</span></div></div>
-        <div class="lr"><span class="em">🎁</span><div><b>Trade stars for rewards</b><span>Real prizes Mum & Dad set</span></div></div>
+        <div class="lr"><span class="em">🎡</span><div><b>Spin the Roulette</b><span>One free spin every day</span></div></div>
+        <div class="lr"><span class="em">⚔️</span><div><b>Battle a sibling</b><span>Splat Showdown to dodge a chore</span></div></div>
+        <div class="lr"><span class="em">🧹</span><div><b>Finish the chore</b><span>A parent confirms → ⭐ stars</span></div></div>
+        <div class="lr"><span class="em">🎁</span><div><b>Trade stars for prizes</b><span>Real rewards Mum &amp; Dad set</span></div></div>
       </div>
       <button class="ob-btn" onclick="obNext()">Let's set up the clan →</button>
     </div>
 
     <div class="ob-step" id="ob1">
       <h2>Your clan</h2>
-      <div class="ob-lead" style="margin-top:4px">Who's playing? Name your hunters.</div>
+      <div class="ob-lead" style="margin-top:4px">Who's playing? Name your champions.</div>
       <div class="ob-card">
         <div class="fld"><label>Clan name</label><input id="clanName" value="The M Clan" maxlength="24"></div>
-        <label style="display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#cdd6ff;margin-bottom:7px">Hunters</label>
+        <label style="display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#cdd6ff;margin-bottom:7px">Champions</label>
         <div id="kidEdits"></div>
-        <button class="addkid" onclick="addKidEdit()">+ Add a hunter</button>
+        <button class="addkid" onclick="addKidEdit()">+ Add a champion</button>
       </div>
       <button class="ob-btn" onclick="obNext()">Next →</button>
       <div><button class="ob-skip" onclick="obBack()">← Back</button></div>
     </div>
 
     <div class="ob-step" id="ob2">
-      <h2>Starter rewards</h2>
-      <div class="ob-lead" style="margin-top:4px">Stars buy these real prizes. You can change them anytime.</div>
+      <h2>Starter prizes</h2>
+      <div class="ob-lead" style="margin-top:4px">Stars buy these real prizes. Change them anytime.</div>
       <div class="ob-card" id="rwPreview"></div>
       <button class="ob-btn" onclick="obNext()">Looks good →</button>
       <div><button class="ob-skip" onclick="obBack()">← Back</button></div>
     </div>
 
     <div class="ob-step" id="ob3">
-      <h2>You're ready! 🎉</h2>
-      <div class="ob-lead">Pick a hunter and take your <b>first free spin</b>. Finish the quest it lands on to earn your first stars.</div>
+      <h2>You're on! 🎉</h2>
+      <div class="ob-lead">Pick a champion and take your <b>first free spin</b>. Finish the chore it lands on — a parent confirms it — and you bank your first stars.</div>
       <div class="loopline" style="margin-bottom:8px">
         <div class="lr"><span class="em">🔥</span><div><b>Build a streak</b><span>Play daily — shields protect it</span></div></div>
         <div class="lr"><span class="em">🏆</span><div><b>Fill the family meter</b><span>A goal the whole clan earns together</span></div></div>
-        <div class="lr"><span class="em">☀️</span><div><b>Summer Splash is live</b><span>Limited-time tiles & a summer prize</span></div></div>
+        <div class="lr"><span class="em">☀️</span><div><b>Summer Splash is live</b><span>Limited-time tiles &amp; a summer prize</span></div></div>
       </div>
-      <button class="ob-btn" onclick="finishOnboard()">Start playing →</button>
+      <button class="ob-btn" onclick="finishOnboard()">Start the show →</button>
     </div>
     <footer class="studio-credit" style="margin-top:auto">
       <span class="sc-badge"><img src="assets/3shamrocks_black.png" alt="3Shamrocks Studio" width="96" height="14"></span>
@@ -296,9 +416,9 @@
 
   <!-- WHO'S HERE -->
   <section class="screen hero" id="who">
-    <img class="crestlg" src="assets/crest.jpg" alt="Chore Wars crest">
-    <h1>Chore <b>Wars</b></h1>
-    <div class="sub" id="whoSub">⚔️ The M Clan · Who's here?</div>
+    <img class="crestlg" src="assets/crest.jpg" alt="Chore Royale crest">
+    <h1>Chore <b>Royale</b></h1>
+    <div class="sub" id="whoSub">👑 The M Clan · Who's here?</div>
     <div class="pickrow" id="pickrow"></div>
     <button class="who-reset" onclick="resetAll()">Start over (clear data)</button>
   </section>
@@ -316,19 +436,37 @@
       <div class="wheelcard">
         <div class="wheelstage">
           <div class="pointer"></div>
-          <svg class="wheel" id="wheel" viewBox="0 0 300 300" aria-label="Quest wheel"></svg>
+          <svg class="wheel" id="wheel" viewBox="0 0 300 300" aria-label="Chore roulette wheel"></svg>
           <div class="hub"><img src="assets/crest.jpg" alt=""></div>
         </div>
         <button class="spinbtn" id="spinBtn">SPIN</button>
         <div class="spinsub" id="spinSub"></div>
       </div>
-      <div class="sec-t">My quests <span class="c" id="questCount">0</span></div>
+
+      <div class="sec-t">My chores <span class="c" id="questCount">0</span></div>
       <div id="questList"></div>
+
+      <div id="battleZone"></div>
+
+      <div class="sec-t">Power-ups <span class="c">spend ⭐</span></div>
+      <div class="powerrow" id="powerRow"></div>
+
       <div class="sec-t">Rewards shop <span class="c" id="shopHint"></span></div>
       <div id="shopList"></div>
+
       <div class="sec-t">Family goal</div>
       <div class="meter" id="meterBox"></div>
       <div class="lead" id="leadBox"></div>
+
+      <div class="sec-t">More</div>
+      <div class="pluscard">
+        <span class="pe">👑</span>
+        <div style="flex:1">
+          <div class="pt">Chore Royale <b style="color:#FFD16B">Plus</b></div>
+          <div class="pm">More avatars, chore packs, extra spins &amp; a parent dashboard.</div>
+        </div>
+        <button class="pgo" onclick="show('plus');renderPlus()">See Plus</button>
+      </div>
     </div>
   </section>
 
@@ -336,21 +474,31 @@
   <section class="screen" id="parent">
     <div class="head">
       <img class="crest" src="assets/crest.jpg" alt="crest">
-      <div class="tt"><b>Manage</b><span id="parentSub">Parent</span></div>
+      <div class="tt"><b>Referee</b><span id="parentSub">Parent</span></div>
       <button class="who-chip" id="parentChip" onclick="goWho()" aria-label="Switch player"></button>
     </div>
     <div class="body">
       <div class="ptab">
-        <button class="t on" data-tab="redeem">Redeem</button>
-        <button class="t" data-tab="quests">Quests</button>
+        <button class="t on" data-tab="confirm">Confirm</button>
+        <button class="t" data-tab="chores">Chores</button>
         <button class="t" data-tab="rewards">Rewards</button>
         <button class="t" data-tab="family">Family</button>
       </div>
-      <div class="ptab-body on" id="tab-redeem"></div>
-      <div class="ptab-body" id="tab-quests"></div>
+      <div class="ptab-body on" id="tab-confirm"></div>
+      <div class="ptab-body" id="tab-chores"></div>
       <div class="ptab-body" id="tab-rewards"></div>
       <div class="ptab-body" id="tab-family"></div>
     </div>
+  </section>
+
+  <!-- BATTLE -->
+  <section class="screen hero" id="battle">
+    <div class="bwrap" id="battleBody"></div>
+  </section>
+
+  <!-- PLUS STORE -->
+  <section class="screen hero" id="plus">
+    <div class="pluswrap" id="plusBody"></div>
   </section>
 
   <!-- RESULT / WIN MODAL -->
@@ -364,7 +512,7 @@
         <div class="pm" id="winMsg"></div>
       </div>
       <button class="keep" id="winKeep">Got it 🎉</button>
-      <div class="note">No blanks, ever — every spin gives you something good</div>
+      <div class="note" id="winNote">No blanks, ever — every spin gives you something good</div>
     </div>
   </div>
 
@@ -378,24 +526,27 @@
 
 <script>
 "use strict";
-const KEY='chorewars_v2';
+const KEY='choreroyale_v1';
 const MAX_SPINS=8;            // daily spin cap (appointment mechanic)
+const DAILY_QUEST_CAP=4;     // bounded daily chores — the roulette won't bury you
+const BUYOFF_MULT=3;         // buy-off priced high vs the chore's stars
+const BUYOFF_CAP=1;          // capped buy-offs per day
 const COLORS=['#4F7CFF','#16A34A','#A855F7','#FF6B35','#0EA5A0','#EC4899','#F59E0B'];
 
-/* ── date helpers (browser Date is fine here) ── */
+/* ── date helpers ── */
 const today=()=>new Date().toISOString().slice(0,10);
 function daysBetween(a,b){return Math.round((Date.parse(b)-Date.parse(a))/86400000);}
 function daysUntil(iso){return Math.max(0,Math.ceil((Date.parse(iso)-Date.now())/86400000));}
 
-/* ── wheel tiles: quests are common (effort), specials are spice; no blanks ── */
+/* ── wheel tiles: chores are common (effort), specials are spice; no blanks ── */
 const TILES=[
-  {key:'quest',  e:'🧹', t:'Quest',    c:'#4F7CFF', w:3},
+  {key:'quest',  e:'🧹', t:'Chore',    c:'#4F7CFF', w:3},
   {key:'double', e:'✨', t:'2× Stars', c:'#F59E0B', w:2},
-  {key:'quest',  e:'🧺', t:'Quest',    c:'#16A34A', w:3},
+  {key:'quest',  e:'🧺', t:'Chore',    c:'#16A34A', w:3},
   {key:'jackpot',e:'💎', t:'Jackpot',  c:'#A855F7', w:1},
-  {key:'quest',  e:'🧽', t:'Quest',    c:'#22C55E', w:3},
+  {key:'quest',  e:'🧽', t:'Chore',    c:'#22C55E', w:3},
   {key:'escape', e:'🎟️', t:'Escape',   c:'#0EA5A0', w:2},
-  {key:'quest',  e:'📚', t:'Quest',    c:'#3A63E0', w:3},
+  {key:'quest',  e:'📚', t:'Chore',    c:'#3A63E0', w:3},
   {key:'mystery',e:'🎁', t:'Mystery',  c:'#EC4899', w:2},
   {key:'steal',  e:'🦝', t:'Steal',    c:'#FF6B35', w:1},
   {key:'freeze', e:'❄️', t:'Freeze',   c:'#38BDF8', w:2},
@@ -403,27 +554,24 @@ const TILES=[
   {key:'trade',  e:'🔄', t:'Trade',    c:'#EF4444', w:1},
 ];
 const N=TILES.length, STEP=360/N;
-const TILE_INFO={
-  quest:'Land a real chore. Finish it for ⭐ stars + another spin.',
-  double:'Your next finished quest pays double stars.',
-  jackpot:'Big bonus stars + a jump on the family meter.',
-  escape:'A Skip-a-Chore token — bail on one quest.',
-  mystery:'A surprise: bonus stars, a spin, or a shield.',
-  steal:'Playfully nab a sibling’s un-delivered reward. Once a day.',
-  freeze:'A Streak Shield — protects your streak if you miss a day.',
-  summer:'Limited-time summer bonus + progress to the summer prize.',
-  trade:'Hand one of your quests to a sibling.',
-};
 
 /* ── seed ── */
+function mkKid(name,i){
+  const f=(name&&name[0]||'C').toUpperCase();
+  return {name:name||('Champ '+(i+1)),role:'kid',av:f,color:COLORS[i%COLORS.length],
+    stars:i===0?120:i===1?85:40, spins:1, streak:i===0?5:i===1?3:0,
+    lastActive:'', freeSpinDate:'', spinsToday:0, stealDate:'', shields:i===0?1:0,
+    doubleNext:false, skipTokens:0, quests:[], awaiting:[], weekStars:i===0?24:i===1?16:0,
+    pending:[], questsToday:0, buyOffsToday:0, battleWins:0};
+}
 function seed(){
   return {
-    onboarded:false, view:'onboard', current:null, clan:'The M Clan', kidSeq:2,
+    onboarded:false, view:'onboard', current:null, clan:'The M Clan', refMode:true, coached:false,
     meter:{progress:40, target:100, reward:'Family pizza & movie night 🍕'},
     season:{name:'Summer Splash', emoji:'☀️', progress:25, target:60, prize:'Water-park day out 🏖️', endsISO:'2026-08-31'},
     members:{
-      jakob:{name:'Jakob', role:'kid', av:'J', color:'#4F7CFF', stars:120, spins:1, streak:5, lastActive:'', freeSpinDate:'', spinsToday:0, stealDate:'', shields:1, doubleNext:false, skipTokens:0, quests:[], weekStars:24, pending:[]},
-      dean:{name:'Dean', role:'kid', av:'D', color:'#16A34A', stars:85, spins:1, streak:3, lastActive:'', freeSpinDate:'', spinsToday:0, stealDate:'', shields:0, doubleNext:false, skipTokens:0, quests:[], weekStars:16, pending:[]},
+      k1:Object.assign(mkKid('Jakob',0)),
+      k2:Object.assign(mkKid('Dean',1)),
       dad:{name:'Dad', role:'parent', av:'D', color:'#A855F7'}
     },
     chores:[
@@ -446,10 +594,16 @@ function seed(){
   };
 }
 let S=load();
-function load(){ try{const j=JSON.parse(localStorage.getItem(KEY)); return (j&&j.members&&j.version!==undefined)?j:migrate(j);}catch(e){return seed();} }
-function migrate(j){ const s=seed(); return s; } // any old/missing shape → fresh v2 seed
-S.version=2;
-function save(){ try{S.version=2;localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
+function load(){ try{const j=JSON.parse(localStorage.getItem(KEY)); return (j&&j.members&&j.version!==undefined)?j:seed();}catch(e){return seed();} }
+S.version=1;
+function save(){ try{S.version=1;localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
+
+/* ── power-ups (buy with stars) ── */
+const POWERUPS=[
+  {id:'spin',  e:'🎟️', n:'Extra Spin',    d:'One more wheel spin now', cost:28},
+  {id:'shield',e:'❄️', n:'Streak Shield',  d:'Protects your streak',     cost:35},
+  {id:'double',e:'✨', n:'Double Up',      d:'Next chore pays 2× stars', cost:22},
+];
 
 /* ── tiny helpers ── */
 const $=id=>document.getElementById(id);
@@ -462,7 +616,7 @@ function parentName(){const p=S.members[parentId()];return p?p.name:'a parent';}
 function siblings(id){return kids().filter(k=>k!==id);}
 function choreById(id){return S.chores.find(c=>c.id===id);}
 function rewardById(id){return S.rewards.find(r=>r.id===id);}
-function escapeAttr(s){return String(s).replace(/'/g,"\\'");}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 /* ── streak / daily roll ── */
 function markActive(k){
@@ -473,7 +627,7 @@ function markActive(k){
     if(d===1){ k.streak+=1; const ms=[3,7,14,30]; if(ms.includes(k.streak)){k.spins+=2;setTimeout(()=>toast(`🔥 ${k.streak}-day streak! +2 bonus spins`),300);} }
     else if(d>1){ if(k.shields>0){k.shields-=1;} else {k.streak=1;} }
   }
-  k.lastActive=t; k.spinsToday=0;
+  k.lastActive=t; k.spinsToday=0; k.questsToday=0; k.buyOffsToday=0;
 }
 function freeAvail(k){return k.freeSpinDate!==today();}
 function canSpin(k){return k.spinsToday<MAX_SPINS && (freeAvail(k)||k.spins>0);}
@@ -520,24 +674,26 @@ function doSpin(){
 function bumpMeter(n){S.meter.progress=Math.min(S.meter.target,S.meter.progress+n);}
 function bumpSeason(n){S.season.progress=Math.min(S.season.target,S.season.progress+n);}
 function addWeek(k,n){k.weekStars+=n;}
-function pickQuest(k){const avail=S.chores.filter(c=>!k.quests.includes(c.id));if(!avail.length)return null;return avail[Math.floor(Math.random()*avail.length)];}
+function heldChores(k){return [...k.quests, ...k.awaiting.map(a=>a.id)];}
+function pickQuest(k){const held=heldChores(k);const avail=S.chores.filter(c=>!held.includes(c.id));if(!avail.length)return null;return avail[Math.floor(Math.random()*avail.length)];}
 
-/* ── resolve a landed tile → returns {emoji,title,prize,msg,confetti} ── */
+/* ── resolve a landed tile ── */
 function resolveTile(tile){
-  const k=cur(); let r={emoji:tile.e,title:'',prize:'',msg:'',confetti:false};
+  const k=cur(); let r={emoji:tile.e,title:'',prize:'',msg:'',confetti:false,note:''};
   switch(tile.key){
     case 'quest':{
+      if(k.questsToday>=DAILY_QUEST_CAP){const b=8;k.stars+=b;addWeek(k,b);r={...r,emoji:'⭐',title:'Daily quota reached!',prize:`+${b} ⭐ bonus`,msg:`You've got enough chores today — here's bonus stars instead.`,note:'Chores are capped each day so the wheel never buries you.'};break;}
       const ch=pickQuest(k);
-      if(!ch){const b=8;k.stars+=b;addWeek(k,b);r={...r,emoji:'⭐',title:'All quests done!',prize:`+${b} ⭐ bonus`,msg:'Your chore pool is clear — here are bonus stars.'};}
-      else{k.quests.push(ch.id);const val=k.doubleNext?ch.stars*2:ch.stars;r={...r,emoji:ch.icon,title:'New Quest!',prize:ch.name,msg:`Finish it for +${val} ⭐ and another spin 🎟️`};}
+      if(!ch){const b=8;k.stars+=b;addWeek(k,b);r={...r,emoji:'⭐',title:'All chores claimed!',prize:`+${b} ⭐ bonus`,msg:'Your chore pool is clear — bonus stars instead.'};}
+      else{k.quests.push(ch.id);k.questsToday++;const val=k.doubleNext?ch.stars*2:ch.stars;r={...r,emoji:ch.icon,title:'New Chore!',prize:ch.name,msg:`Finish it for +${val} ⭐ and another spin 🎟️`,note:'Battle a sibling to dodge it — or buy it off.'};}
       break;}
-    case 'double':k.doubleNext=true;r={...r,title:'Double Up!',prize:'2× Stars armed',msg:'Your next finished quest pays double ⭐.'};break;
+    case 'double':k.doubleNext=true;r={...r,title:'Double Up!',prize:'2× Stars armed',msg:'Your next finished chore pays double ⭐.'};break;
     case 'jackpot':{const b=20;k.stars+=b;addWeek(k,b);bumpMeter(15);r={...r,title:'JACKPOT! 💎',prize:`+${b} ⭐ + family meter`,msg:'Huge! Bonus stars and a big jump on the family goal.',confetti:true};break;}
-    case 'escape':k.skipTokens++;r={...r,title:'Escape!',prize:'Skip-a-Chore token',msg:'Use it on a quest to bail out, guilt-free.'};break;
+    case 'escape':k.skipTokens++;r={...r,title:'Escape!',prize:'Skip-a-Chore token',msg:'Use it on a chore to bail out, guilt-free.'};break;
     case 'trade':{
       const sibs=siblings(S.current);
       if(k.quests.length&&sibs.length){const cid=k.quests.shift();const sib=S.members[sibs[Math.floor(Math.random()*sibs.length)]];sib.quests.push(cid);r={...r,title:'Traded!',prize:choreById(cid).name,msg:`Handed to ${sib.name} 🔄`};}
-      else{k.spins++;r={...r,title:'Nothing to trade',prize:'+1 spin 🎟️',msg:'No quest to hand off — have a bonus spin.'};}
+      else{k.spins++;r={...r,title:'Nothing to trade',prize:'+1 spin 🎟️',msg:'No chore to hand off — have a bonus spin.'};}
       break;}
     case 'steal':{
       const t=today(),sibs=siblings(S.current);
@@ -562,6 +718,7 @@ function showResult(r){
   $('winBurst').style.display=r.confetti?'inline-block':'none';
   $('winTitle').textContent=r.title; $('winEmoji').textContent=r.emoji;
   $('winPrize').textContent=r.prize; $('winMsg').textContent=r.msg;
+  $('winNote').textContent=r.note||'No blanks, ever — every spin gives you something good';
   $('scrim').classList.add('on');
   if(r.confetti) confetti();
 }
@@ -573,17 +730,42 @@ function confetti(){
   document.body.appendChild(wrap);setTimeout(()=>wrap.remove(),3400);
 }
 
-/* ── quest actions ── */
-function completeQuest(cid){
+/* ── chore actions ── */
+function submitQuest(cid){
   const k=cur();const i=k.quests.indexOf(cid);if(i<0)return;
   const ch=choreById(cid);let st=ch.stars,dbl=false;
   if(k.doubleNext){st*=2;k.doubleNext=false;dbl=true;}
-  k.quests.splice(i,1);k.stars+=st;addWeek(k,st);k.spins=Math.min(99,k.spins+1);bumpMeter(5);markActive(k);
-  save();toast(`Quest done! +${st} ⭐${dbl?' (2×!)':''} · +1 spin 🎟️`);renderKid();
+  k.quests.splice(i,1);
+  if(S.refMode){
+    k.awaiting.push({id:cid,stars:st,dbl,when:today()});
+    save();toast(`Sent to ${parentName()} to confirm ✓`);renderKid();
+  } else {
+    applyReward(k,cid,st,dbl);
+    save();toast(`Chore done! +${st} ⭐${dbl?' (2×!)':''} · +1 spin 🎟️`);renderKid();
+  }
+}
+function applyReward(k,cid,st,dbl){
+  k.stars+=st;addWeek(k,st);k.spins=Math.min(99,k.spins+1);bumpMeter(5);markActive(k);
 }
 function skipQuest(cid){
   const k=cur();if(k.skipTokens<1){toast('No Escape tokens — land 🎟️ Escape on the wheel');return;}
-  const i=k.quests.indexOf(cid);if(i<0)return;k.skipTokens--;k.quests.splice(i,1);save();toast('Quest skipped with an Escape token 🎟️');renderKid();
+  const i=k.quests.indexOf(cid);if(i<0)return;k.skipTokens--;k.quests.splice(i,1);save();toast('Chore skipped with an Escape token 🎟️');renderKid();
+}
+function buyOff(cid){
+  const k=cur();const ch=choreById(cid);if(!ch)return;
+  if(k.buyOffsToday>=BUYOFF_CAP){toast(`Only ${BUYOFF_CAP} buy-off a day — try a battle ⚔️`);return;}
+  const cost=ch.stars*BUYOFF_MULT;
+  if(k.stars<cost){toast(`Buy-off costs ⭐ ${cost} — need ${cost-k.stars} more`);return;}
+  const i=k.quests.indexOf(cid);if(i<0)return;
+  k.stars-=cost;k.quests.splice(i,1);k.buyOffsToday++;save();
+  toast(`Bought off "${ch.name}" for ⭐ ${cost} — back in the pool ♻️`);renderKid();
+}
+function buyPowerup(id){
+  const k=cur();const p=POWERUPS.find(x=>x.id===id);if(!p)return;
+  if(k.stars<p.cost){toast(`Need ⭐ ${p.cost-k.stars} more for ${p.n}`);return;}
+  k.stars-=p.cost;
+  if(id==='shield')k.shields++;else if(id==='spin')k.spins++;else if(id==='double')k.doubleNext=true;
+  save();toast(`Got ${p.e} ${p.n}!`);renderKid();
 }
 
 /* ── reward shop ── */
@@ -594,21 +776,237 @@ function claimReward(rid){
   save();toast(`Claimed ${rw.name}! Ask ${parentName()} to deliver 🎁`);renderKid();
 }
 
+/* ════════════ SPLAT SHOWDOWN — battles ════════════
+   Same-device pass-and-play. Fair by design: hidden choice + luck, never reflex.
+   • Pick: Pie 🥧 beats Spaghetti 🍝 beats Ketchup 🍅 beats Pie (the triangle).
+   • Picks are made in secret (pass the phone), revealed together — no timer, no aim.
+   • The splat SIZE is engine-rolled (random), so a faster phone/older kid gets no edge.
+   • Cross-device (two phones) is a parent opt-in — see the Online card / README.        */
+const THROWS={ pie:{e:'🥧',n:'Pie',beats:'spaghetti'}, spaghetti:{e:'🍝',n:'Spaghetti',beats:'ketchup'}, ketchup:{e:'🍅',n:'Ketchup',beats:'pie'} };
+function rollSplat(){return 1+Math.floor(Math.random()*5);}   // engine-rolled splat size 1–5
+let B=null;
+
+function enterBattle(){
+  const sibs=siblings(S.current);
+  if(!sibs.length){toast('Add another player to battle');return;}
+  B={mode:'splat', challenger:S.current, opponent:sibs[0], stake:null, rule:'loser',
+     round:1, wins:{}, splat:{}, phase:'setup', pickA:null, pickB:null, splatSize:0};
+  B.wins[B.challenger]=0;B.wins[B.opponent]=0;B.splat[B.challenger]=0;B.splat[B.opponent]=0;
+  show('battle');renderBattle();
+}
+function bQuit(){B=null;show('kid');renderKid();}
+
+function avHtml(id,big){const m=S.members[id];return `<span class="av" style="background:${m.color}">${m.av}</span>`;}
+function nm(id){return S.members[id].name;}
+
+function renderBattle(){
+  const el=$('battleBody');
+  if(!B){show('kid');return;}
+  if(B.phase==='setup') return el.innerHTML=bSetup();
+  if(B.phase==='handoff') return el.innerHTML=bHandoff();
+  if(B.phase==='pick') return el.innerHTML=bPick();
+  if(B.phase==='reveal') return el.innerHTML=bReveal();
+  if(B.phase==='done') return el.innerHTML=bDone();
+  if(B.phase==='sos') return el.innerHTML=bSoS();
+  if(B.phase==='sosdone') return el.innerHTML=bSoSDone();
+}
+function bTop(t){return `<div class="btop"><div class="bttl">⚔️ ${t}</div><button class="bquit" onclick="bQuit()">Quit</button></div>`;}
+function bScore(){
+  const c=B.challenger,o=B.opponent;
+  return `<div class="bscore">
+    <div class="sc"><div class="av" style="background:${S.members[c].color}">${S.members[c].av}</div><div class="nm">${esc(nm(c))}</div><div class="pts">${B.wins[c]}</div></div>
+    <div class="vsmid">vs</div>
+    <div class="sc"><div class="av" style="background:${S.members[o].color}">${S.members[o].av}</div><div class="nm">${esc(nm(o))}</div><div class="pts">${B.wins[o]}</div></div></div>`;
+}
+function bSetup(){
+  const k=S.members[B.challenger];const sibs=siblings(B.challenger);
+  const oppOpts=sibs.map(id=>`<button class="opt ${B.opponent===id?'on':''}" onclick="B.opponent='${id}';renderBattle()"><span class="oe">${S.members[id].av==''?'🙂':''}</span><span class="av" style="width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:'Baloo 2';background:${S.members[id].color}">${S.members[id].av}</span><div><div class="ot">${esc(nm(id))}</div><div class="om">🔥 ${S.members[id].streak} day streak</div></div>${B.opponent===id?'<span class="ock">✓</span>':''}</button>`).join('');
+  const stakeOpts=k.quests.map(cid=>`<button class="opt ${B.stake===cid?'on':''}" onclick="B.stake='${cid}';renderBattle()"><span class="oe">${(choreById(cid)||{}).icon||'🧹'}</span><div><div class="ot">${esc((choreById(cid)||{}).name||'')}</div><div class="om">Loser does this chore</div></div>${B.stake===cid?'<span class="ock">✓</span>':''}</button>`).join('');
+  const friendly=`<button class="opt ${B.stake===null?'on':''}" onclick="B.stake=null;renderBattle()"><span class="oe">🎈</span><div><div class="ot">Friendly</div><div class="om">Just for fun &amp; bragging rights</div></div>${B.stake===null?'<span class="ock">✓</span>':''}</button>`;
+  return bTop('Battle setup')+`
+    <div class="bcard">
+      <h2>Pick your rival</h2>
+      <div class="opts">${oppOpts}</div>
+    </div>
+    <div class="bcard" style="margin-top:10px">
+      <h2>What's on the line?</h2>
+      <div class="opts">${friendly}${stakeOpts||''}</div>
+      ${k.quests.length?'':'<div class="blead">Spin to win a chore, then come back to put it on the line 🎡</div>'}
+    </div>
+    <div class="bcard" style="margin-top:10px">
+      <h2>Game mode</h2>
+      <div class="opts">
+        <button class="opt ${B.mode==='splat'?'on':''}" onclick="B.mode='splat';renderBattle()"><span class="oe">🥧</span><div><div class="ot">Splat Showdown</div><div class="om">Pie · Spaghetti · Ketchup — best of 3</div></div>${B.mode==='splat'?'<span class="ock">✓</span>':''}</button>
+        <button class="opt ${B.mode==='sos'?'on':''}" onclick="B.mode='sos';renderBattle()"><span class="oe">🎯</span><div><div class="ot">Splat or Stop</div><div class="om">Push-your-luck — great for little ones</div></div>${B.mode==='sos'?'<span class="ock">✓</span>':''}</button>
+      </div>
+    </div>
+    <button class="bprimary" onclick="startBattle()">Start the battle ⚔️</button>
+    <button class="bghost" onclick="bQuit()">Maybe later</button>
+    <div class="secret-note">Same odds for everyone · luck + a secret pick · nothing timed</div>`;
+}
+function startBattle(){
+  if(B.mode==='sos'){ B.turn=B.challenger; B.sos={}; B.sos[B.challenger]=null; B.sos[B.opponent]=null; B.pot=0; B.splats=0; B.phase='handoff'; B.next='sos'; return renderBattle(); }
+  B.round=1;B.wins[B.challenger]=0;B.wins[B.opponent]=0;B.splat[B.challenger]=0;B.splat[B.opponent]=0;
+  B.picker=B.challenger;B.pickA=null;B.pickB=null;B.phase='handoff';B.next='pick';renderBattle();
+}
+function bHandoff(){
+  const who=B.mode==='sos'?B.turn:B.picker;
+  const m=S.members[who];
+  const sub=B.mode==='sos'
+    ? `It's <b>${esc(m.name)}'s</b> turn to push their luck. Everyone else — no peeking!`
+    : `Pass the phone to <b>${esc(m.name)}</b> to pick in secret. No peeking, ${esc(nm(who===B.challenger?B.opponent:B.challenger))}!`;
+  return bTop(B.mode==='sos'?'Splat or Stop':`Round ${B.round} of 3`)+(B.mode==='sos'?'':bScore())+`
+    <div class="handoff">
+      <div class="hav" style="background:${m.color}">${m.av}</div>
+      <h2>${esc(m.name)}, you're up!</h2>
+      <div class="hlead">${sub}</div>
+      <button class="bprimary" style="max-width:280px" onclick="afterHandoff()">I'm ${esc(m.name)} — ready 👀</button>
+    </div>`;
+}
+function afterHandoff(){ B.phase=B.next; renderBattle(); }
+function bPick(){
+  const who=B.picker;const m=S.members[who];
+  const rows=Object.keys(THROWS).map(key=>{const t=THROWS[key];return `<button class="throw" onclick="choose('${key}')"><span class="te">${t.e}</span><div><div class="tn">${t.n}</div><div class="tb">beats ${THROWS[t.beats].n} ${THROWS[t.beats].e}</div></div></button>`;}).join('');
+  return bTop(`Round ${B.round} of 3`)+`
+    <div class="bcard">
+      <h2 style="color:${m.color==='#FBBF24'?'#fff':'#fff'}">${esc(m.name)} — pick in secret 🤫</h2>
+      <div class="blead">Tap your throw. It stays hidden until the reveal.</div>
+      <div class="throwgrid">${rows}</div>
+    </div>
+    <div class="secret-note">Pie 🥧 → Spaghetti 🍝 → Ketchup 🍅 → Pie</div>`;
+}
+function choose(key){
+  if(B.picker===B.challenger){ B.pickA=key; B.picker=B.opponent; B.phase='handoff'; B.next='pick'; renderBattle(); }
+  else { B.pickB=key; B.phase='reveal'; B.splatSize=rollSplat(); resolveRound(); renderBattle(); }
+}
+function resolveRound(){
+  const a=B.pickA,b=B.pickB;
+  if(a===b){B.roundResult='tie';return;}
+  const aWins=THROWS[a].beats===b;
+  const winner=aWins?B.challenger:B.opponent;
+  B.wins[winner]++;B.splat[winner]+=B.splatSize;B.roundResult=winner;
+}
+function bReveal(){
+  const a=THROWS[B.pickA],b=THROWS[B.pickB];
+  let banner,splat='';
+  if(B.roundResult==='tie'){ banner=`<div class="rwin">😮 Splat-off — same throw! Replay round ${B.round}.</div>`; }
+  else{ const w=B.roundResult; splat=`<div class="splat">${esc(nm(w))} lands a splat!<br><span class="sz" style="--sz:${B.splatSize}">💥</span><br><span style="font-size:.8rem;color:#cdd6ff">engine-rolled size ${B.splatSize}/5 · +${B.splatSize} ⭐ if they win</span></div>`;
+    banner=`<div class="rwin">${esc(nm(w))} takes round ${B.round}! 🎉</div>`; }
+  const over=B.wins[B.challenger]>=2||B.wins[B.opponent]>=2;
+  const btn=B.roundResult==='tie'
+    ? `<button class="bprimary" onclick="nextRound(true)">Replay round →</button>`
+    : (over?`<button class="bprimary" onclick="battleFinish()">See the result 🏆</button>`:`<button class="bprimary" onclick="nextRound(false)">Next round →</button>`);
+  return bTop(`Round ${B.round} of 3`)+bScore()+`
+    <div class="bcard">
+      <div class="vsbox">
+        <div class="side"><div class="pe">${a.e}</div><div class="pn">${esc(nm(B.challenger))}<br>${a.n}</div></div>
+        <div class="vmid">VS</div>
+        <div class="side"><div class="pe">${b.e}</div><div class="pn">${esc(nm(B.opponent))}<br>${b.n}</div></div>
+      </div>
+      ${splat}${banner}
+    </div>${btn}`;
+}
+function nextRound(replay){
+  if(!replay)B.round++;
+  B.pickA=null;B.pickB=null;B.picker=B.challenger;B.phase='handoff';B.next='pick';renderBattle();
+}
+function battleFinish(){
+  const c=B.challenger,o=B.opponent;
+  const winnerId=B.wins[c]>B.wins[o]?c:o, loserId=winnerId===c?o:c;
+  const win=S.members[winnerId], lose=S.members[loserId];
+  let line;
+  if(B.stake){
+    [c,o].forEach(id=>{const m=S.members[id];const i=m.quests.indexOf(B.stake);if(i>=0)m.quests.splice(i,1);
+      const j=m.awaiting.findIndex(a=>a.id===B.stake);if(j>=0)m.awaiting.splice(j,1);});
+    if(!heldChores(lose).includes(B.stake)) lose.quests.push(B.stake);
+    line=`${win.name} dodged "${choreById(B.stake).name}" — ${lose.name} takes it on ♻️`;
+  } else line=`${win.name} wins the friendly — bragging rights! 🎈`;
+  const bonus=Math.min(15,B.splat[winnerId]||0);
+  win.stars+=bonus;addWeek(win,bonus);win.battleWins=(win.battleWins||0)+1;
+  markActive(win);markActive(lose);
+  B.result={winnerId,loserId,bonus,line};
+  B.phase='done';save();renderBattle();
+}
+function bDone(){
+  const w=S.members[B.result.winnerId];
+  return bTop('Battle over')+`
+    <div class="handoff">
+      <div class="hbig">🏆</div>
+      <div class="hav" style="background:${w.color}">${w.av}</div>
+      <h2>${esc(w.name)} wins!</h2>
+      <div class="hlead">${esc(B.result.line)}${B.result.bonus?`<br><b style="color:#FFD16B">+${B.result.bonus} ⭐ splat bonus</b>`:''}</div>
+      <div class="blead" style="max-width:300px">The chore never disappears — whoever lost still earns its stars by doing it. A parent confirms it.</div>
+      <button class="bprimary" style="max-width:280px" onclick="bQuit()">Back to my wheel →</button>
+    </div>`;
+}
+/* ── Splat or Stop (push-your-luck) ── */
+function bSoS(){
+  const m=S.members[B.turn];
+  return bTop('Splat or Stop')+`
+    <div class="bcard">
+      <h2 style="color:#fff">${esc(m.name)} — splat or stop?</h2>
+      <div class="blead">Tap <b>Splat</b> to add a random splat — but push too far and you slip! <b>Stop</b> to bank it safe.</div>
+      <div class="sospot"><div class="big">${B.pot}</div><div class="lbl">banked splats this turn</div></div>
+      <div class="sosbtns">
+        <button class="splatb" onclick="sosSplat()">💥 SPLAT</button>
+        <button class="stopb" onclick="sosStop()">✋ STOP</button>
+      </div>
+      <div class="secret-note">${B.sos[B.challenger]!=null?`${esc(nm(B.challenger))} banked ${B.sos[B.challenger]}`:''}${B.sos[B.opponent]!=null?` · ${esc(nm(B.opponent))} banked ${B.sos[B.opponent]}`:''}</div>
+    </div>`;
+}
+function sosSplat(){
+  B.splats++;
+  const bust=Math.random() < Math.min(0.55, 0.08*B.splats);
+  if(bust){ toast('💧 Slipped! Banked nothing this turn'); B.pot=0; sosBank(); return; }
+  B.pot+=rollSplat(); renderBattle();
+}
+function sosStop(){ sosBank(); }
+function sosBank(){
+  B.sos[B.turn]=B.pot;
+  if(B.turn===B.challenger){ B.turn=B.opponent; B.pot=0; B.splats=0; B.phase='handoff'; B.next='sos'; renderBattle(); }
+  else { sosFinish(); }
+}
+function sosFinish(){
+  const c=B.challenger,o=B.opponent;
+  let winnerId = B.sos[c]===B.sos[o] ? null : (B.sos[c]>B.sos[o]?c:o);
+  B.phase='sosdone'; B.sosWinner=winnerId;
+  if(winnerId){
+    const win=S.members[winnerId], lose=S.members[winnerId===c?o:c];
+    if(B.stake){
+      [c,o].forEach(id=>{const m=S.members[id];const i=m.quests.indexOf(B.stake);if(i>=0)m.quests.splice(i,1);
+        const j=m.awaiting.findIndex(a=>a.id===B.stake);if(j>=0)m.awaiting.splice(j,1);});
+      if(!heldChores(lose).includes(B.stake)) lose.quests.push(B.stake);
+    }
+    win.battleWins=(win.battleWins||0)+1;markActive(win);markActive(lose);
+  }
+  save();renderBattle();
+}
+function bSoSDone(){
+  const c=B.challenger,o=B.opponent;
+  if(!B.sosWinner){
+    return bTop('Splat or Stop')+`<div class="handoff"><div class="hbig">🤝</div><h2>It's a tie!</h2><div class="hlead">Both banked ${B.sos[c]}. No chore changes hands.</div><button class="bprimary" style="max-width:280px" onclick="bQuit()">Back to my wheel →</button></div>`;
+  }
+  const w=S.members[B.sosWinner],l=S.members[B.sosWinner===c?o:c];
+  const line=B.stake?`${w.name} dodged "${choreById(B.stake).name}" — ${l.name} takes it ♻️`:`${w.name} wins the friendly 🎈`;
+  return bTop('Splat or Stop')+`<div class="handoff"><div class="hbig">🏆</div><div class="hav" style="background:${w.color}">${w.av}</div><h2>${esc(w.name)} wins!</h2><div class="hlead">${esc(line)}<br><span style="font-size:.8rem">banked ${B.sos[c]} vs ${B.sos[o]}</span></div><button class="bprimary" style="max-width:280px" onclick="bQuit()">Back to my wheel →</button></div>`;
+}
+
 /* ── RENDER: WHO ── */
 function renderWho(){
-  $('whoSub').textContent=`⚔️ ${S.clan} · Who's here?`;
+  $('whoSub').textContent=`👑 ${S.clan} · Who's here?`;
   $('pickrow').innerHTML=Object.entries(S.members).map(([id,m])=>{
-    const extra=m.role==='kid'?`<span class="strk">🔥 ${m.streak}</span>`:`<span class="rl">Parent</span>`;
-    return `<button class="pick" onclick="enter('${id}')"><span class="ava" style="background:${m.color}">${m.av}</span><span class="nm">${m.name}</span>${m.role==='kid'?`<span class="rl">Hunter</span>${extra}`:extra}</button>`;
+    const extra=m.role==='kid'?`<span class="strk">🔥 ${m.streak}</span>`:`<span class="rl">Referee</span>`;
+    return `<button class="pick" onclick="enter('${id}')"><span class="ava" style="background:${m.color}">${m.av}</span><span class="nm">${esc(m.name)}</span>${m.role==='kid'?`<span class="rl">Champion</span>${extra}`:extra}</button>`;
   }).join('');
 }
 function enter(id){S.current=id;save();const m=S.members[id];if(m.role==='parent'){show('parent');renderParent();}else{show('kid');renderKid();}}
-function goWho(){S.current=null;save();show('who');renderWho();}
+function goWho(){S.current=null;B=null;save();show('who');renderWho();}
 
 /* ── RENDER: KID ── */
 function renderKid(){
   const k=cur();if(!k)return;
-  $('kidChip').innerHTML=`<span class="ava" style="background:${k.color}">${k.av}</span> ${k.name}`;
+  if(!k.awaiting)k.awaiting=[];
+  $('kidChip').innerHTML=`<span class="ava" style="background:${k.color}">${k.av}</span> ${esc(k.name)}`;
   const free=freeAvail(k);
   $('kidSpinsLbl').textContent= free?'Free spin ready!':(k.spins>0?`${k.spins} spin${k.spins===1?'':'s'} ready`:'No spins left');
   $('kidStats').innerHTML=
@@ -616,74 +1014,113 @@ function renderKid(){
     `<div class="stat spin"><div class="n">🎟️ ${k.spins}</div><div class="k">Spins</div></div>`+
     `<div class="stat streak"><div class="n">🔥 ${k.streak}</div><div class="k">Streak</div></div>`+
     `<div class="stat"><div class="n">❄️ ${k.shields}</div><div class="k">Shields</div></div>`;
-  // season
   const s=S.season,sp=Math.round(s.progress/s.target*100),dleft=daysUntil(s.endsISO);
-  $('seasonBox').innerHTML=`<span class="se">${s.emoji}</span><div><div class="st">${s.name}</div><div class="sm">Win the ${s.prize}</div><div class="barxs"><i style="width:${sp}%"></i></div></div><div class="days"><b>${dleft}</b><span>days left</span></div>`;
-  // spin button
+  $('seasonBox').innerHTML=`<span class="se">${s.emoji}</span><div><div class="st">${esc(s.name)}</div><div class="sm">Win the ${esc(s.prize)}</div><div class="barxs"><i style="width:${sp}%"></i></div></div><div class="days"><b>${dleft}</b><span>days left</span></div>`;
   const can=canSpin(k);const btn=$('spinBtn');
   btn.className='spinbtn'+(free?' free':'')+((free&&!S.coached)?' coach':'');
   btn.disabled=!can||spinning;
   btn.textContent= free?'🎡 FREE DAILY SPIN' : (k.spins>0?`SPIN · 🎟️ ${k.spins}`:'NO SPINS LEFT');
   if(k.spinsToday>=MAX_SPINS) btn.textContent='DAILY SPINS DONE';
-  $('spinSub').innerHTML= free?'Your <b>free spin</b> is waiting — tap to start!' : (k.spins>0?'Finish quests to earn more spins 🎟️':(k.spinsToday>=MAX_SPINS?'Come back tomorrow for more spins ☀️':'Finish a quest to earn a spin 🎟️'));
-  // quests
+  $('spinSub').innerHTML= free?'Your <b>free spin</b> is waiting — tap to start!' : (k.spins>0?'Finish chores to earn more spins 🎟️':(k.spinsToday>=MAX_SPINS?'Come back tomorrow for more spins ☀️':'Finish a chore to earn a spin 🎟️'));
+
+  // chores (active + awaiting)
   const qs=k.quests.map(choreById).filter(Boolean);
   $('questCount').textContent=`${qs.length} to do`;
-  $('questList').innerHTML= qs.length? qs.map(c=>{
-    const val=k.doubleNext?c.stars*2:c.stars;
-    return `<div class="qcard"><div class="qicon">${c.icon}</div><div style="flex:1"><div class="qt">${c.name}</div><div class="qm">+${val} ⭐${k.doubleNext?' (2×!)':''} · +1 spin</div></div><div class="qact">`+
-      (k.skipTokens>0?`<button class="skipBtn" onclick="skipQuest('${c.id}')">Skip 🎟️</button>`:``)+
-      `<button class="doneBtn" onclick="completeQuest('${c.id}')">Finish ✓</button></div></div>`;
-  }).join('') : `<div class="empty">No quests yet — spin the Wheel to discover one! 🎡</div>`;
+  let qh = qs.length? qs.map(c=>{
+    const val=k.doubleNext?c.stars*2:c.stars;const off=c.stars*BUYOFF_MULT;
+    const sibs=siblings(S.current);
+    return `<div class="qcard"><div class="qicon">${c.icon}</div><div style="flex:1;min-width:120px"><div class="qt">${esc(c.name)}</div><div class="qm">+${val} ⭐${k.doubleNext?' (2×!)':''} · +1 spin</div></div>`+
+      `<div class="qact"><button class="doneBtn" onclick="submitQuest('${c.id}')">Done ✓</button></div>`+
+      `<div class="qrow2">`+
+        (sibs.length?`<button class="battleBtn" onclick="enterBattle();B.stake='${c.id}';renderBattle()">⚔️ Battle to dodge</button>`:'')+
+        (k.skipTokens>0?`<button class="skipBtn" onclick="skipQuest('${c.id}')">Skip 🎟️</button>`:'')+
+        `<button class="miniBtn" onclick="buyOff('${c.id}')">Buy off ⭐${off}</button>`+
+      `</div></div>`;
+  }).join('') : `<div class="empty">No chores yet — spin the Roulette to win one! 🎡</div>`;
+  if(k.awaiting.length){
+    qh += k.awaiting.map(a=>{const c=choreById(a.id);if(!c)return '';return `<div class="awaitcard"><div class="qicon">${c.icon}</div><div style="flex:1"><div class="qt">${esc(c.name)}</div><div class="qm">Waiting for ${esc(parentName())} to confirm</div></div><span class="badge-wait">⏳ ${a.stars} ⭐ held</span></div>`;}).join('');
+  }
+  $('questList').innerHTML=qh;
+
+  // battle zone
+  const sibs=siblings(S.current);
+  $('battleZone').innerHTML = sibs.length ? `
+    <div class="sec-t">Splat Showdown</div>
+    <div class="arena">
+      <div class="at">⚔️ Battle a sibling</div>
+      <div class="am">Challenge ${esc(nm(sibs[0]))}${sibs.length>1?' &amp; co':''} to dodge a chore. Secret picks, best of 3 — pure luck &amp; nerve.</div>
+      <div class="ab"><button class="go" onclick="enterBattle()">Start a battle</button></div>
+    </div>` : '';
+
+  // power-ups
+  $('powerRow').innerHTML=POWERUPS.map(p=>{const can2=k.stars>=p.cost;return `<div class="pwr"><div class="pe">${p.e}</div><div class="pn">${p.n}</div><div class="pd">${p.d}</div><button ${can2?'':'disabled'} onclick="buyPowerup('${p.id}')">⭐ ${p.cost}</button></div>`;}).join('');
+
   // shop
   $('shopHint').textContent=`⭐ ${k.stars}`;
   $('shopList').innerHTML=S.rewards.map(r=>{
     const afford=k.stars>=r.cost;
-    return `<div class="shop"><div class="re">${r.icon}</div><div style="flex:1"><div class="rt">${r.name}</div><div class="rm">⭐ ${r.cost}</div></div><button class="claimBtn" ${afford?'':'disabled'} onclick="claimReward('${r.id}')">${afford?'Claim':'Locked'}</button></div>`;
+    return `<div class="shop"><div class="re">${r.icon}</div><div style="flex:1"><div class="rt">${esc(r.name)}</div><div class="rm">⭐ ${r.cost}</div></div><button class="claimBtn" ${afford?'':'disabled'} onclick="claimReward('${r.id}')">${afford?'Claim':'Locked'}</button></div>`;
   }).join('');
-  if(k.pending.length){$('shopList').innerHTML+=`<div class="empty" style="border-style:solid;color:var(--ink-soft)">🎁 ${k.pending.length} reward${k.pending.length===1?'':'s'} waiting for ${parentName()} to deliver</div>`;}
-  // family meter
+  if(k.pending.length){$('shopList').innerHTML+=`<div class="empty" style="border-style:solid;color:var(--ink-soft)">🎁 ${k.pending.length} reward${k.pending.length===1?'':'s'} waiting for ${esc(parentName())} to deliver</div>`;}
+
   const m=S.meter,mp=Math.round(m.progress/m.target*100);
-  $('meterBox').innerHTML=`<div class="row">🏆 Family goal <span class="pct">${mp}%</span></div><div class="bar"><i style="width:${mp}%"></i></div><small>Everyone fills this together → <b>${m.reward}</b> · ${m.progress}/${m.target}${mp>=100?' — UNLOCKED! 🎉 tell '+parentName():''}</small>`;
-  // leaderboard
+  $('meterBox').innerHTML=`<div class="row">🏆 Family goal <span class="pct">${mp}%</span></div><div class="bar"><i style="width:${mp}%"></i></div><small>Everyone fills this together → <b>${esc(m.reward)}</b> · ${m.progress}/${m.target}${mp>=100?' — UNLOCKED! 🎉 tell '+esc(parentName()):''}</small>`;
   const ks=kids().map(id=>S.members[id]).sort((a,b)=>b.weekStars-a.weekStars);const mx=Math.max(...ks.map(x=>x.weekStars),1);
-  $('leadBox').innerHTML=`<div class="lt">📅 This week's stars</div>`+ks.map(m2=>`<div class="frow"><span class="nm">${m2.name}</span><span class="fb"><i style="width:${Math.round(m2.weekStars/mx*100)}%;background:${m2.color}"></i></span><span class="v">${m2.weekStars}</span></div>`).join('');
+  $('leadBox').innerHTML=`<div class="lt">📅 This week's stars</div>`+ks.map(m2=>`<div class="frow"><span class="nm">${esc(m2.name)}</span><span class="fb"><i style="width:${Math.round(m2.weekStars/mx*100)}%;background:${m2.color}"></i></span><span class="v">${m2.weekStars}</span></div>`).join('');
 }
 
-/* ── RENDER: PARENT ── */
-let pTab='redeem';
+/* ── RENDER: PARENT (Referee) ── */
+let pTab='confirm';
 function renderParent(){
   const p=S.members[parentId()];$('parentSub').textContent=p.name;
-  $('parentChip').innerHTML=`<span class="ava" style="background:${p.color}">${p.av}</span> ${p.name}`;
+  $('parentChip').innerHTML=`<span class="ava" style="background:${p.color}">${p.av}</span> ${esc(p.name)}`;
   document.querySelectorAll('.ptab .t').forEach(b=>b.classList.toggle('on',b.dataset.tab===pTab));
   document.querySelectorAll('.ptab-body').forEach(b=>b.classList.remove('on'));$('tab-'+pTab).classList.add('on');
-  if(pTab==='redeem')renderRedeem();else if(pTab==='quests')renderQuests();else if(pTab==='rewards')renderRewards();else renderFamily();
+  if(pTab==='confirm')renderConfirm();else if(pTab==='chores')renderChores();else if(pTab==='rewards')renderRewards();else renderFamily();
 }
-function renderRedeem(){
-  let html='';
-  kids().forEach(id=>{const k=S.members[id];if(k.pending.length){
-    html+=`<div class="sec-t">${k.name}'s rewards to give <span class="c">${k.pending.length}</span></div>`;
-    k.pending.forEach((w,i)=>{html+=`<div class="listrow"><div class="em">${w.icon}</div><div style="flex:1"><div class="lt2">${w.name}</div><div class="lm">${k.name} claimed this</div></div><button class="payBtn" onclick="deliver('${id}',${i})">Mark given</button></div>`;});
+function renderConfirm(){
+  let html=`<div class="refnote"><b>👏 You're the referee</b><small>Your only job: confirm a chore was truly done, or deliver a prize. <b>The game sets every star and every battle result</b> — no one can hand out points or change a score.</small></div>`;
+  // chores to verify
+  let vh='',any=false;
+  kids().forEach(id=>{const k=S.members[id];if(!k.awaiting)k.awaiting=[];if(k.awaiting.length){any=true;
+    vh+=`<div class="sec-t">${esc(k.name)} says done <span class="c">${k.awaiting.length}</span></div>`;
+    k.awaiting.forEach((a,i)=>{const c=choreById(a.id);if(!c)return;
+      vh+=`<div class="verifyrow"><div class="em">${c.icon}</div><div style="flex:1"><div class="vt">${esc(c.name)}</div><div class="vm">Done fully &amp; on time?</div></div><div class="va"><button class="no" onclick="verify('${id}',${i},false)" aria-label="not done">✕</button><button class="yes" onclick="verify('${id}',${i},true)" aria-label="confirm done">✓</button></div></div>`;
+    });
   }});
-  if(!html)html='<div class="empty">No rewards waiting. When kids spend stars in the shop, claims show up here to deliver. 🎁</div>';
-  $('tab-redeem').innerHTML=html;
+  html+= any? vh : `<div class="empty">No chores waiting to confirm. When a champion taps <b>Done ✓</b>, it appears here for your tick. 🧹</div>`;
+  // rewards to deliver
+  let rh='',anyR=false;
+  kids().forEach(id=>{const k=S.members[id];if(k.pending.length){anyR=true;
+    rh+=`<div class="sec-t">${esc(k.name)}'s prizes to give <span class="c">${k.pending.length}</span></div>`;
+    k.pending.forEach((w,i)=>{rh+=`<div class="listrow"><div class="em">${w.icon}</div><div style="flex:1"><div class="lt2">${esc(w.name)}</div><div class="lm">${esc(k.name)} bought this with stars</div></div><button class="payBtn" onclick="deliver('${id}',${i})">Mark given</button></div>`;});
+  }});
+  if(anyR){html+=`<div class="sec-t" style="margin-top:18px">🎁 Prizes to deliver</div>`+rh;}
+  $('tab-confirm').innerHTML=html;
 }
-function deliver(id,i){S.members[id].pending.splice(i,1);save();toast('Reward delivered ✓');renderRedeem();}
+function verify(id,i,ok){
+  const k=S.members[id];const a=k.awaiting[i];if(!a)return;
+  k.awaiting.splice(i,1);
+  if(ok){ applyReward(k,a.id,a.stars,a.dbl); save(); toast(`Confirmed ✓ ${esc(k.name)} banked +${a.stars} ⭐`); }
+  else { if(!heldChores(k).includes(a.id))k.quests.push(a.id); save(); toast('Sent back — not done yet'); }
+  renderConfirm();
+}
+function deliver(id,i){S.members[id].pending.splice(i,1);save();toast('Prize delivered ✓');renderConfirm();}
 
-function renderQuests(){
-  let html=`<div class="addform"><div class="ar"><input class="em" id="qIcon" value="🧹" maxlength="2" aria-label="icon"><input class="nm" id="qName" placeholder="New chore name" maxlength="32" aria-label="chore name"><input class="num" id="qStars" type="number" value="10" min="1" max="99" aria-label="stars"></div><button class="addBtn" onclick="addChore()">+ Add quest to the pool</button></div>`;
-  html+=`<div class="sec-t">Quest pool <span class="c">${S.chores.length}</span></div>`;
-  html+=S.chores.map(c=>`<div class="listrow"><div class="em">${c.icon}</div><div style="flex:1"><div class="lt2">${c.name}</div></div><span class="tag">⭐ ${c.stars}</span><button class="del" onclick="delChore('${c.id}')" aria-label="delete">✕</button></div>`).join('');
-  html+=`<div class="empty" style="border-style:solid;color:var(--ink-soft);margin-top:6px">Kids spin to discover these — they're never assigned. Keep ~6–10 in the pool.</div>`;
-  $('tab-quests').innerHTML=html;
+function renderChores(){
+  let html=`<div class="addform"><div class="ar"><input class="em" id="qIcon" value="🧹" maxlength="2" aria-label="icon"><input class="nm" id="qName" placeholder="New chore name" maxlength="32" aria-label="chore name"><input class="num" id="qStars" type="number" value="10" min="1" max="99" aria-label="stars"></div><button class="addBtn" onclick="addChore()">+ Add chore to the pool</button></div>`;
+  html+=`<div class="sec-t">Chore pool <span class="c">${S.chores.length}</span></div>`;
+  html+=S.chores.map(c=>`<div class="listrow"><div class="em">${c.icon}</div><div style="flex:1"><div class="lt2">${esc(c.name)}</div></div><span class="tag">⭐ ${c.stars}</span><button class="del" onclick="delChore('${c.id}')" aria-label="delete">✕</button></div>`).join('');
+  html+=`<div class="empty" style="border-style:solid;color:var(--ink-soft);margin-top:6px">Champions spin to win these — they're never assigned. The star value is the chore's worth; the game pays it out. Keep ~6–10 in the pool.</div>`;
+  $('tab-chores').innerHTML=html;
 }
-function addChore(){const name=$('qName').value.trim();if(!name){toast('Type a chore name');return;}const stars=Math.max(1,Math.min(99,parseInt($('qStars').value)||10));const icon=($('qIcon').value.trim()||'🧹').slice(0,2);S.chores.push({id:'c'+Date.now(),icon,name,stars});save();toast('Quest added to the pool ✓');renderQuests();}
-function delChore(id){S.chores=S.chores.filter(c=>c.id!==id);kids().forEach(k=>{S.members[k].quests=S.members[k].quests.filter(q=>q!==id);});save();toast('Quest removed');renderQuests();}
+function addChore(){const name=$('qName').value.trim();if(!name){toast('Type a chore name');return;}const stars=Math.max(1,Math.min(99,parseInt($('qStars').value)||10));const icon=($('qIcon').value.trim()||'🧹').slice(0,2);S.chores.push({id:'c'+Date.now(),icon,name,stars});save();toast('Chore added to the pool ✓');renderChores();}
+function delChore(id){S.chores=S.chores.filter(c=>c.id!==id);kids().forEach(k=>{S.members[k].quests=S.members[k].quests.filter(q=>q!==id);S.members[k].awaiting=(S.members[k].awaiting||[]).filter(a=>a.id!==id);});save();toast('Chore removed');renderChores();}
 
 function renderRewards(){
   let html=`<div class="addform"><div class="ar"><input class="em" id="rIcon" value="🎁" maxlength="2" aria-label="icon"><input class="nm" id="rName" placeholder="New reward name" maxlength="32" aria-label="reward name"><input class="num" id="rCost" type="number" value="50" min="1" max="999" aria-label="cost"></div><button class="addBtn" onclick="addReward()">+ Add reward</button></div>`;
   html+=`<div class="sec-t">Rewards (star price) <span class="c">${S.rewards.length}</span></div>`;
-  html+=S.rewards.map(r=>`<div class="listrow"><div class="em">${r.icon}</div><div style="flex:1"><div class="lt2">${r.name}</div></div><span class="tag">⭐ ${r.cost}</span><button class="del" onclick="delReward('${r.id}')" aria-label="delete">✕</button></div>`).join('');
+  html+=S.rewards.map(r=>`<div class="listrow"><div class="em">${r.icon}</div><div style="flex:1"><div class="lt2">${esc(r.name)}</div></div><span class="tag">⭐ ${r.cost}</span><button class="del" onclick="delReward('${r.id}')" aria-label="delete">✕</button></div>`).join('');
   $('tab-rewards').innerHTML=html;
 }
 function addReward(){const name=$('rName').value.trim();if(!name){toast('Type a reward name');return;}const cost=Math.max(1,Math.min(999,parseInt($('rCost').value)||50));const icon=($('rIcon').value.trim()||'🎁').slice(0,2);S.rewards.push({id:'r'+Date.now(),icon,name,cost});save();toast('Reward added ✓');renderRewards();}
@@ -693,43 +1130,76 @@ function renderFamily(){
   const ks=kids().map(id=>S.members[id]);const mx=Math.max(...ks.map(x=>x.weekStars),1);
   const spread=ks.length>1?Math.abs(ks[0].weekStars-ks[ks.length-1].weekStars):0;const bal=spread<=Math.max(8,mx*0.4);
   let html=`<div class="fair"><div class="ft">⚖️ Fairness this week <span class="ok">${bal?'✓ Balanced':'Catching up'}</span></div>`+
-    ks.sort((a,b)=>b.weekStars-a.weekStars).map(k=>`<div class="frow"><span class="nm">${k.name}</span><span class="fb"><i style="width:${Math.round(k.weekStars/mx*100)}%;background:${k.color}"></i></span><span class="v">${k.weekStars}</span></div>`).join('')+
-    `<small>Same wheel, same odds for every kid. No blanks. Steal is capped at once a day. Differences come only from how many chores each kid finishes — never luck stacked against a sibling.</small></div>`;
+    ks.slice().sort((a,b)=>b.weekStars-a.weekStars).map(k=>`<div class="frow"><span class="nm">${esc(k.name)}</span><span class="fb"><i style="width:${Math.round(k.weekStars/mx*100)}%;background:${k.color}"></i></span><span class="v">${k.weekStars}</span></div>`).join('')+
+    `<small>Same wheel, same odds for every champion. No blanks. Battles are luck + a secret pick (never reflex), so an 8-year-old can beat an 18-year-old. Steal is capped once a day. Differences come only from how many chores each kid finishes.</small></div>`;
+  // referee toggle
+  html+=`<div class="toggle-row"><div style="flex:1"><div class="tg">Referee confirmation</div><div class="tgm">${S.refMode?'ON — kids tap Done, you confirm to release stars (integrity mode).':'OFF — kids self-complete (quick play / solo demo).'}</div></div><button class="sw ${S.refMode?'on':''}" onclick="toggleRef()" role="switch" aria-checked="${S.refMode}" aria-label="Referee confirmation"></button></div>`;
+  // online battles (cross-device)
+  html+=`<div class="toggle-row" style="display:block"><div class="tg">🌐 Online battles (two phones)</div><div class="tgm" style="margin-top:4px">Battles work great on this device now (pass-and-play). To battle live across two phones, a parent can connect a free Supabase project — fairness is kept with commit-reveal + an engine-rolled splat. See the README "Online battles" steps. Until then, same-device play is fully on.</div></div>`;
   // family meter
   const m=S.meter,mp=Math.round(m.progress/m.target*100);
-  html+=`<div class="meter"><div class="row">🏆 Family goal <span class="pct">${mp}%</span></div><div class="bar"><i style="width:${mp}%"></i></div><small>Reward when full: <b>${m.reward}</b> · ${m.progress}/${m.target}</small></div>`;
-  // season
+  html+=`<div class="meter"><div class="row">🏆 Family goal <span class="pct">${mp}%</span></div><div class="bar"><i style="width:${mp}%"></i></div><small>Reward when full: <b>${esc(m.reward)}</b> · ${m.progress}/${m.target}</small></div>`;
   const s=S.season,sp=Math.round(s.progress/s.target*100);
-  html+=`<div class="meter"><div class="row">☀️ ${s.name} <span class="pct">${daysUntil(s.endsISO)} days left</span></div><div class="bar"><i style="width:${sp}%"></i></div><small>Limited-time prize: <b>${s.prize}</b> · ${s.progress}/${s.target}</small></div>`;
+  html+=`<div class="meter"><div class="row">☀️ ${esc(s.name)} <span class="pct">${daysUntil(s.endsISO)} days left</span></div><div class="bar"><i style="width:${sp}%"></i></div><small>Limited-time prize: <b>${esc(s.prize)}</b> · ${s.progress}/${s.target}</small></div>`;
   // wheel odds
-  html+=`<div class="sec-t">Wheel odds (identical for every kid)</div>`;
+  html+=`<div class="sec-t">Wheel odds (identical for every champion)</div>`;
   const tot=TILES.reduce((a,t)=>a+t.w,0);
   const seen={};TILES.forEach(t=>{seen[t.key]=(seen[t.key]||0)+t.w;});
   Object.keys(seen).forEach(key=>{const t=TILES.find(x=>x.key===key);const pct=Math.round(seen[key]/tot*100);
     html+=`<div class="odds-row"><span class="swatch" style="background:${t.c}"></span><span class="ot">${t.e} ${key.charAt(0).toUpperCase()+key.slice(1)}</span><span class="od">${pct}%</span></div>`;});
   // per-kid
-  html+=`<div class="sec-t">Hunters</div>`;
-  ks.forEach(k=>{html+=`<div class="kidcard"><div class="kh"><span class="ava" style="background:${k.color}">${k.av}</span> ${k.name}</div><div class="kpills"><span class="kpill">⭐ ${k.stars} stars</span><span class="kpill">🔥 ${k.streak} streak</span><span class="kpill">❄️ ${k.shields} shields</span><span class="kpill">🎁 ${k.pending.length} pending</span></div></div>`;});
+  html+=`<div class="sec-t">Champions</div>`;
+  ks.forEach(k=>{html+=`<div class="kidcard"><div class="kh"><span class="ava" style="background:${k.color}">${k.av}</span> ${esc(k.name)}</div><div class="kpills"><span class="kpill">⭐ ${k.stars} stars</span><span class="kpill">🔥 ${k.streak} streak</span><span class="kpill">⚔️ ${k.battleWins||0} battle wins</span><span class="kpill">❄️ ${k.shields} shields</span><span class="kpill">🎁 ${k.pending.length} pending</span></div></div>`;});
   $('tab-family').innerHTML=html;
 }
+function toggleRef(){S.refMode=!S.refMode;save();renderFamily();}
+
+/* ── PLUS STORE ── */
+const PLUS_FEATURES=[
+  {e:'🦸',t:'Avatar & skin packs',m:'Unlock heroes, crowns and seasonal looks'},
+  {e:'📦',t:'Chore & quest packs',m:'Themed chore sets — chef, garden, pet care'},
+  {e:'🎟️',t:'Extra daily spins',m:'A bigger daily spin cap for busy clans'},
+  {e:'📊',t:'Parent dashboard',m:'Trends, history and weekly insights'},
+  {e:'👨‍👩‍👧‍👦',t:'Bigger families',m:'Add more champions and grandparents'},
+  {e:'🎉',t:'Seasonal content',m:'New limited-time events all year'},
+];
+const PLUS_PACKS=[
+  {e:'👑',n:'Royal skins',p:'Plus'},{e:'🍳',n:'Chef chores',p:'Plus'},{e:'🌴',n:'Summer pack',p:'Plus'},{e:'🐾',n:'Pet care',p:'Plus'},
+];
+function renderPlus(){
+  $('plusBody').innerHTML=`
+    <div class="btop"><div class="bttl">👑 Store</div><button class="bquit" onclick="backFromPlus()">Close</button></div>
+    <div class="pl-hero">
+      <div class="crown">👑</div>
+      <h1>Chore Royale <b>Plus</b></h1>
+      <p>Everything in the free game, plus more ways to play, customise and stay motivated all year.</p>
+    </div>
+    <div class="pl-price"><div class="amt">From <b>$3.99</b></div><div class="per">per month · whole family · cancel anytime</div></div>
+    ${PLUS_FEATURES.map(f=>`<div class="pl-feat"><span class="fe">${f.e}</span><div><div class="ft2">${f.t}</div><div class="fm">${f.m}</div></div></div>`).join('')}
+    <div class="sec-t" style="color:#cdd6ff;margin-top:16px">Cosmetic packs</div>
+    <div class="pl-packs">${PLUS_PACKS.map(p=>`<div class="pl-pack"><div class="pe2">${p.e}</div><div class="pn2">${p.n}</div><div class="pp2">${p.p}</div></div>`).join('')}</div>
+    <button class="pl-cta" onclick="toast('Thanks! We\\'ll let you know when Plus opens 🎉')">Notify me when Plus opens</button>
+    <button class="pl-back" onclick="backFromPlus()">Back to the game</button>
+    <div class="pl-fine">No ads, ever — Chore Royale is built for kids. Plus is an optional family subscription. Cosmetic packs never affect chores, stars or fairness. No payment is taken in this preview.</div>`;
+}
+function backFromPlus(){const m=S.members[S.current];if(m&&m.role==='parent'){show('parent');renderParent();}else{show('kid');renderKid();}}
 
 /* ── ONBOARDING ── */
 let obStep=0, obKids=[{name:'Jakob'},{name:'Dean'}];
 function renderObDots(){[...$('obDots').children].forEach((d,i)=>d.classList.toggle('on',i===obStep));}
 function obShow(n){obStep=n;document.querySelectorAll('.ob-step').forEach((s,i)=>s.classList.toggle('on',i===n));renderObDots();window.scrollTo(0,0);if(n===1)renderKidEdits();if(n===2)renderRwPreview();}
-function obNext(){if(obStep===1){const cn=$('clanName').value.trim();if(cn)S.clan=cn;readKidEdits();if(!obKids.length){toast('Add at least one hunter');return;}}obShow(Math.min(3,obStep+1));}
+function obNext(){if(obStep===1){const cn=$('clanName').value.trim();if(cn)S.clan=cn;readKidEdits();if(!obKids.length){toast('Add at least one champion');return;}}obShow(Math.min(3,obStep+1));}
 function obBack(){obShow(Math.max(0,obStep-1));}
 function renderKidEdits(){
-  $('kidEdits').innerHTML=obKids.map((k,i)=>`<div class="kid-edit"><span class="av" style="background:${COLORS[i%COLORS.length]}">${(k.name[0]||'?').toUpperCase()}</span><input value="${k.name.replace(/"/g,'')}" oninput="obKids[${i}].name=this.value" maxlength="16" aria-label="hunter name">${obKids.length>1?`<button class="rm" onclick="rmKidEdit(${i})" aria-label="remove">✕</button>`:''}</div>`).join('');
+  $('kidEdits').innerHTML=obKids.map((k,i)=>`<div class="kid-edit"><span class="av" style="background:${COLORS[i%COLORS.length]}">${(k.name[0]||'?').toUpperCase()}</span><input value="${esc(k.name)}" oninput="obKids[${i}].name=this.value" maxlength="16" aria-label="champion name">${obKids.length>1?`<button class="rm" onclick="rmKidEdit(${i})" aria-label="remove">✕</button>`:''}</div>`).join('');
 }
 function readKidEdits(){[...$('kidEdits').querySelectorAll('input')].forEach((inp,i)=>{if(obKids[i])obKids[i].name=inp.value.trim()||obKids[i].name;});}
-function addKidEdit(){readKidEdits();if(obKids.length>=5){toast('Up to 5 hunters');return;}obKids.push({name:'Hunter'});renderKidEdits();}
+function addKidEdit(){readKidEdits();if(obKids.length>=5){toast('Up to 5 champions');return;}obKids.push({name:'Champ'});renderKidEdits();}
 function rmKidEdit(i){readKidEdits();obKids.splice(i,1);renderKidEdits();}
-function renderRwPreview(){$('rwPreview').innerHTML=S.rewards.map(r=>`<div class="rw-mini"><span class="em">${r.icon}</span><b>${r.name}</b><span class="cost">⭐ ${r.cost}</span></div>`).join('');}
+function renderRwPreview(){$('rwPreview').innerHTML=S.rewards.map(r=>`<div class="rw-mini"><span class="em">${r.icon}</span><b>${esc(r.name)}</b><span class="cost">⭐ ${r.cost}</span></div>`).join('');}
 function finishOnboard(){
-  // build members from obKids + keep parent
   const newMembers={};
-  obKids.forEach((k,i)=>{const id='k'+(i+1);newMembers[id]={name:k.name||('Hunter '+(i+1)),role:'kid',av:(k.name[0]||'H').toUpperCase(),color:COLORS[i%COLORS.length],stars:i===0?120:i===1?85:0,spins:1,streak:i===0?5:i===1?3:0,lastActive:'',freeSpinDate:'',spinsToday:0,stealDate:'',shields:i===0?1:0,doubleNext:false,skipTokens:0,quests:[],weekStars:i===0?24:i===1?16:0,pending:[]};});
+  obKids.forEach((k,i)=>{newMembers['k'+(i+1)]=mkKid(k.name,i);});
   newMembers['dad']={name:'Dad',role:'parent',av:'D',color:'#A855F7'};
   S.members=newMembers;S.onboarded=true;save();
   show('who');renderWho();
@@ -743,6 +1213,9 @@ $('spinBtn').addEventListener('click',()=>{S.coached=true;doSpin();});
 $('winKeep').addEventListener('click',()=>$('scrim').classList.remove('on'));
 $('scrim').addEventListener('click',e=>{if(e.target===$('scrim'))$('scrim').classList.remove('on');});
 document.querySelectorAll('.ptab .t').forEach(b=>b.addEventListener('click',()=>{pTab=b.dataset.tab;renderParent();}));
+
+/* ── PWA service worker (network-first; purges stale shared-origin caches) ── */
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}
 
 /* ── boot ── */
 buildWheel();
