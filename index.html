@@ -422,7 +422,7 @@ function renderKidsTab(){
   let html=`<div class="fair"><div class="ft">⚖️ Fairness this week <span class="ok">${bal?'✓ Balanced':'Catching up'}</span></div>`+
     `<div class="frow"><span class="nm">Jakob</span><span class="fb"><i style="width:${Math.round(j/mx*100)}%;background:linear-gradient(90deg,#4F7CFF,#6C97FF)"></i></span><span class="v">${j}</span></div>`+
     `<div class="frow"><span class="nm">Dean</span><span class="fb"><i style="width:${Math.round(d/mx*100)}%;background:linear-gradient(90deg,#16A34A,#22C55E)"></i></span><span class="v">${d}</span></div>`+
-    `<small style="display:block;margin-top:9px;font-weight:700;color:var(--ink-soft);font-size:.74rem">Weekly stars earned. The Quest Wheel (next phase) auto-balances the chore load.</small></div>`;
+    `<small style="display:block;margin-top:9px;font-weight:700;color:var(--ink-soft);font-size:.74rem">Weekly stars earned from finished chores. Spread chores evenly to keep both hunters climbing.</small></div>`;
   ['jakob','dean'].forEach(id=>{const k=S.members[id];const fam=k.mode==='family';const val=fam?S.familyJackpot:k.jackpot;
     html+=`<div class="kidcard"><div class="kh"><span class="ava ${k.av}">${k.name[0]}</span> ${k.name}</div>`+
       `<div class="pr">🎯 Big prize: <b>${k.prize}</b> · 💎 ${val}/${JACKPOT_TARGET}</div>`+
