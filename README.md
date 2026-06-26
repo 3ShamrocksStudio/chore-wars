@@ -31,7 +31,10 @@ Spin the Chore Roulette  →  win a chore (bounded daily quota, never unlimited)
 
 - **Chore Roulette** — a 12-tile weighted wheel (no blanks): chores + specials (2×,
   Jackpot, Escape, Trade, Steal, Mystery, Freeze, Summer). Daily free spin + a daily
-  cap, plus a **per-day chore quota** so the wheel never buries a kid.
+  cap, a **per-day chore quota**, and an **anti-repeat cooldown** (a just-landed chore
+  is benched for 3 spins) so the wheel never over-repeats or buries a kid.
+- **Avatars** — pick an emoji avatar + name per champion in onboarding; it follows you
+  everywhere (player picker, header, battles, leaderboard).
 - **Splat Showdown (battles)** — challenge a sibling for a chore. **Pie 🥧 beats
   Spaghetti 🍝 beats Ketchup 🍅 beats Pie** — a hidden-choice triangle. Same-device
   **pass-and-play**: each player picks in secret behind a handoff screen, reveals
@@ -44,10 +47,15 @@ Spin the Chore Roulette  →  win a chore (bounded daily quota, never unlimited)
   and **deliver a prize**. **No human (kid or parent) can set points, alter a battle, or
   hand out stars** — the engine is the sole neutral authority. Stars sit *held* until a
   parent confirms (toggle off for quick/solo play in **Family → Referee confirmation**).
-- **Economy** — earn stars only by finishing real chores (+ modest battle/spin bonuses).
-  Spend them on **power-ups** (extra spin, streak shield, double-up) or **buy off** a
-  chore (**capped once/day, priced 3× the chore** — and the chore recycles into the
-  pool). Claim **real prizes** a parent delivers.
+- **Two-currency economy** — **⭐ Stars** are earned *only* by finishing real,
+  parent-confirmed chores; spend them on **real prizes** (rewards shop) or to **buy off**
+  a chore (**capped once/day, priced 3× the chore**, recycles to the pool). **🪙 Coins**
+  are the play currency — won from the wheel (Jackpot/Mystery), battles, and **time-limit
+  challenges**; spent on **power-ups** (extra spin, shield, double-up). Keeping stars
+  chore-only protects the core promise: *the only way to earn spendable star-value is to
+  do the work.*
+- **⏱️ Time-limit challenge** — tap *Beat the clock* on any chore to start a live
+  countdown; finish it (and get it confirmed) inside the window for a **🪙 speed bonus**.
 - **Gamification** — avatars + wallet, 🔥 streaks with earnable ❄️ shields, a shared
   🏆 **family meter**, a weekly **leaderboard**, and a live **Summer Splash** season event.
 - **Onboarding** — a 4-step game-show intro (name the clan, add champions, confirm
