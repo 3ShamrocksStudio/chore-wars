@@ -1,163 +1,104 @@
-# Chore Wars™ — The Wheel of Fortune Pivot
+# Chore Wars™ — The Wheel of Fortune
 
-**The M Clan, reimagined around one centerpiece: the Wheel.**
-A design-first concept for Dave's approval. © 2026 3Shamrocks Studio. All rights reserved.
+**The M Clan's daily chore game, built around one centerpiece: the Wheel.**
+© 2026 3Shamrocks Studio. All rights reserved. Canonical concept doc.
 
-> **One-line:** *Do your quests → earn spins → spin the Wheel for real loot.* The
-> Wheel is the heart of Chore Wars — the reason a kid opens the app every day.
-
----
-
-## 1. The core insight
-
-A spin-the-wheel is the single most addictive interaction in games — the *variable
-reward*. But a pure-luck wheel is wrong for chores: it decouples effort from reward,
-feels unfair between siblings, and trains kids to gamble, not to work.
-
-**So the Wheel never replaces effort — it amplifies it.** You can't spin until you've
-earned a spin by finishing real chores. Luck decides *which* good thing you get, never
-*whether* you get one. That one rule resolves every trap the old build fell into
-(effort↔reward link, fairness, anti-nag, anti-gambling — see the prior `AUDIT.md`).
+> **One line:** *Spin the Wheel → discover your quest → finish it for ⭐ stars + another spin → trade stars for real rewards Mum & Dad set.* Kids are never *assigned* chores — they **spin to discover** them. The randomness is the fun, and it kills the nagging.
 
 ---
 
-## 2. Two wheels, two moments of the day
+## 1. The core insight — luck amplifies effort, never replaces it
 
-The app has **one centerpiece component — a wheel — used in two modes.** A kid spends
-99% of their time on the Reward Wheel; the Quest Wheel is an optional, delightful way
-to *start* the day.
+A spin-the-wheel is the single most engaging interaction in games: the **variable reward**. But a *pure-luck* wheel is wrong for chores — it decouples effort from reward, feels unfair between siblings, and trains kids to gamble, not to work.
 
-### 🌅 Quest Wheel — "What's my mission today?" (morning, optional)
-Instead of a parent nagging or a flat to-do list, the day's **up-for-grabs chores**
-live on a wheel. A kid taps **Spin** and the Wheel hands them a quest (or a small
-bundle). It turns assignment into a ritual the *kid* initiates.
-
-- **Baseline chores stay fixed** (brush teeth, make bed) — routine needs predictability,
-  not a gamble. The Quest Wheel only ever spins the *extra / shared / bonus* pool.
-- **Fairness engine (not pure random):** the Wheel is weighted so siblings end the week
-  within a balanced band of total effort. A kid who's behind gets slightly kinder odds
-  (a gentle Mario-Kart "catch-up"), so nobody checks out. Parents never see "the app
-  played favorites."
-- Landing on a quest = it's now yours, worth ⭐ stars + (on completion) a **Spin Token**.
-
-### 🎁 Reward Wheel — "I earned a spin!" (the daily hook)
-This is the centerpiece screen and the retention engine. Every **completed, verified**
-chore drops a **Spin Token 🎟️** in the kid's pocket. Tokens spin the Reward Wheel.
-
-- **Segments are 100% parent-curated, real, and good** — screen-time, a treat, "pick
-  dinner", a few coins/allowance, "stay up 15 min", a **Skip-a-Chore** token, and a
-  **Jackpot** slice that fills a meter toward the kid's big saved-for prize.
-- **No blanks, no "lose a turn."** The worst outcome is a small win or a "Spin Again."
-  Anti-frustration by design — a 7-year-old should never feel punished for showing up.
-- **The spin is the dopamine.** Tap → the Wheel accelerates, ticks past slices, the
-  pointer flickers, slows… lands. Confetti / treasure-burst. *That* is why they come
-  back tomorrow — and it's gated entirely behind real work they already did.
+**So the Wheel never replaces effort — it amplifies it.** Luck decides *which* good thing happens and *which* quest you get, but **stars only ever come from finishing real chores.** That one rule resolves every trap: effort↔reward stays linked, siblings stay fair, nagging disappears (the *kid* initiates), and it's anti-gambling by design (**no blanks, ever**).
 
 ---
 
-## 3. The daily loop
+## 2. The locked core loop
 
 ```
-   ┌─────────────────────────────────────────────────────────────┐
-   │  OPEN  →  "You have 2 quests + 1 Spin waiting"               │
-   │    │                                                          │
-   │    ├─▶ (optional) SPIN QUEST WHEEL → claim today's mission   │
-   │    │                                                          │
-   │    ├─▶ DO A CHORE → snap photo proof → submit                │
-   │    │        └─▶ parent verifies → ⭐ stars + 🎟️ Spin Token   │
-   │    │                                                          │
-   │    └─▶ SPIN REWARD WHEEL → win real loot 🎉                  │
-   │             └─▶ Jackpot slice → big-prize meter grows 🌟      │
-   │                                                               │
-   │  STREAK 🔥 ticks up → come back tomorrow to keep it alive    │
-   └─────────────────────────────────────────────────────────────┘
+        ┌─────────────────────────────────────────────┐
+        │   1 FREE SPIN every morning  (the hook)      │
+        └───────────────────────┬─────────────────────┘
+                                 ▼
+                          SPIN THE WHEEL
+                                 │
+                 ┌───────────────┴───────────────┐
+                 ▼                                ▼
+          🧹 QUEST tile                     ✨ SPECIAL tile
+        (a real chore)                  (instant fun effect)
+                 │                                │
+        finish the quest                 Double / Jackpot / Escape
+                 │                       Trade / Steal / Mystery
+                 ▼                       Freeze / Summer
+     ⭐ STARS  +  🎟️ another spin                │
+                 │                                │
+                 └───────────────┬────────────────┘
+                                 ▼
+                 ⭐ stars saved up  →  CLAIM a real reward
+                          (parent delivers it)
+                                 ▼
+                 🔥 streak ticks · 🏆 family meter fills
+                          come back tomorrow
 ```
 
-One screen to live on (My Wheel). Tap to finish a chore. Spin when you've earned it.
-Everything else is chrome.
+Read it in one breath: **spin → quest or surprise → finish → stars → real reward.** A 7-year-old gets it in one spin; a busy parent gets it in one glance.
 
 ---
 
-## 4. The spin economy (how spins are earned & kept fair)
+## 3. The Wheel — quest tiles + special tiles
 
-| Source | Earns | Why it's fair / not naggy |
-|--------|-------|---------------------------|
-| Finish a **verified** chore | **1 Spin Token 🎟️** | You only spin off *your own* completed work — no stealing, no luck-to-earn |
-| **Streak milestone** (e.g. 5-day 🔥) | **1 Golden Spin** (better odds / jackpot-rich wheel) | Rewards *showing up*, the real retention behaviour |
-| **Weekly fairness top-up** | small odds nudge for whoever's behind | Keeps every sibling in the game; parents control the band |
-| Parent bonus ("great week!") | gift a Spin | Manual delight, parent-controlled |
+**12 tiles, no blanks.** Quest tiles are the most common landing (effort is the point); special tiles are the spice.
 
-**Fairness guarantees (the sibling-peace rules):**
-1. Every kid's Reward Wheel has **identical odds** — differences in winnings come *only*
-   from how many chores they did. Effort is the only variable.
-2. The Quest Wheel is **load-balanced weekly**, with a visible parent "fairness meter"
-   so balance is provable, not vibes.
-3. **Jackpot is per-kid by default** (you save toward *your* prize) — with an optional
-   **Family Jackpot** mode where the clan pools spins toward one shared reward (teaches
-   teamwork). *← open question for Dave.*
+| Tile | Art | What it does | Rule / cap |
+|------|-----|--------------|-----------|
+| 🧹 **Quest** ×4 | broom/basket/sponge/books | Hands you a real chore from today's pool. Finish it → ⭐ stars **+ a spin token**. | Most common. If the pool's empty, pays bonus stars instead (never a dead end). |
+| ✨ **Double** | sparkles | Your **next** finished quest pays **2× stars**. | One at a time. |
+| 💎 **Jackpot** | gem | Big bonus stars **+** a jump on the **family meter**. | Rare. |
+| 🎟️ **Escape** | ticket | A **Skip-a-Chore** token — bail on one quest, guilt-free. | Bankable. |
+| 🔄 **Trade** | swap | Hand one of your quests to a sibling. | Needs a pending quest, else a bonus spin. |
+| 🦝 **Steal** | raccoon | Playfully nab a sibling's **un-delivered** reward. | **Capped: once per day.** If none to take → bonus stars. |
+| 🎁 **Mystery** | gift | A surprise: bonus stars, a spin, or a shield. | — |
+| ❄️ **Freeze** | snowflake | A **Streak Shield** — protects your streak if you miss a day. | Bankable, auto-spent. |
+| ☀️ **Summer** | sun | **Limited-time** summer bonus + progress to the summer prize. | Seasonal event only. |
 
-**Anti-pure-luck, anti-naggy, in one sentence each:**
-- *Not luck:* the wheel only ever decides which good thing — the good thing itself is
-  guaranteed and was earned by real, verified work.
-- *Not naggy:* the kid pulls themselves in to spin; the parent stops being the alarm
-  clock. Notifications say "🎟️ You've got spins!" not "you forgot your chores."
+**Fairness statement (shown to parents):** *Same wheel, same odds for every kid. No blanks. Steal is capped and playful. Differences in winnings come only from how many chores each kid finishes — never luck stacked against a sibling.*
 
 ---
 
-## 5. Roles (kept from the AUDIT — clarity wins)
+## 4. Daily-retention design (why they come back) — research-backed
 
-- **Kid (Jakob / Dean):** lives on **My Wheel**. Quests to do, Spins to take, streak to
-  protect, big prize growing. That's the whole app for them.
-- **Parent (Daddy):** a calm **manager** behind a "Who's here?" picker — *Verify* what
-  kids submitted (approve → token drops), *stock the Wheel* (set the real reward slices &
-  odds per kid), *set the big prize*, and glance at the **fairness meter**. Quick in, out.
+Every mechanic below is lifted from proven habit-game research and softened for kids (earnable shields, grace, cooperative goals over rivalry).
 
----
-
-## 6. Brand & visual world (inherits the 3S Design System)
-
-- **Keep Chore Wars™ + The M Clan** (Jakob, Dean, Daddy) — heroic, warm, not grim-war.
-  The "quest / loot / treasure" framing fits the Wheel naturally.
-- **Layer-1 world (existing):** Baloo 2 + Nunito · royal blue `#4F7CFF` · energetic
-  orange `#FF6B35` · treasure gold `#F59E0B` · shamrock green · round corners, bouncy
-  motion. WCAG-AA, 44px targets, status = colour **+ icon + word**, `reduced-motion`
-  disables the spin animation (shows result instantly).
-- **Real logos used as-is** — the shield/broom/duster crest is the Wheel's hub and the
-  header mark. **The 3Shamrocks studio logo is never fabricated** (real `3shamrocks_black.png`
-  on a light footer).
-- **Grok** generated the on-brand arena backdrop + treasure-loot celebration art.
+- **The spin = variable reward.** A variable-ratio schedule produces the highest, most repeat-resistant engagement of any reinforcement schedule (Skinner; the slot-machine effect). So chores earn *spins*, not fixed payouts, and prize tiers are genuinely unpredictable. *(Lumen/SUNY Intro Psych; Yu-kai Chou.)*
+- **One free spin a day = an appointment.** Capping the free action and resetting it each morning is a classic *appointment mechanic* — it manufactures a reason to return tomorrow. Chores earn *extra* spins on top, so effort = more pulls. A daily spin cap keeps it special. *(GameRefinery; Mobile Free To Play.)*
+- **Streaks + Streak-Freeze.** Duolingo users with a 7-day streak retain at ~**2.4×**; the earnable "Streak Freeze" lifted Day-14 retention ~3.3%. The driver is **loss aversion** — you protect a 30-day streak harder than you chase day 31. We give a big streak counter, milestone bonus spins, and an **earnable ❄️ shield** so one missed day doesn't wipe progress. *(trophy.so; Apptitude; JustAnotherPM.)*
+- **Loss aversion (gently).** Losses feel ~**2× as strong** as equal gains (Kahneman & Tversky, λ≈2). Rewards sit **"pending"** until delivered (act so you don't lose them); streaks are framed as *owned and losable*. Stakes stay kid-gentle — shields and grace, never anxiety. *(The Decision Lab; Yu-kai Chou.)*
+- **Family cooperation over rivalry.** Gamified chores can lift completion ~90% in kids 6–12, but ranking siblings breeds stress and reward fatigue. So the default is a **cooperative family meter** (everyone fills one bar → a group reward like pizza night), personal streaks are celebrated individually, and the leaderboard is a gentle weekly "this week's stars," not a permanent ranking. Transparent points = perceived fairness. *(mychoreboard; Sweepy.)*
+- **Seasonal limited-time event.** LTEs spike engagement through urgency + novelty (FOMO on expiring, exclusive prizes). It's summer now, so **☀️ Summer Splash** runs live: a summer-only wheel tile, an exclusive summer prize, a shared summer goal, and a visible countdown. *(Adrian Crook; Udonis.)*
 
 ---
 
-## 7. Why this drives retention (without the old pitfalls)
+## 5. The incentive economy (legible by design)
 
-| Old Chore Wars / Sprout problem | How the Wheel fixes it |
-|---|---|
-| Abstract XP/coins bought nothing | Every spin pays out a **real, parent-set reward** |
-| No reason to return tomorrow | **Earned spins + streak 🔥** = a daily ritual the kid wants |
-| Felt naggy / parent-driven | Kid **pulls themselves in** to spin; parent steps back |
-| Unfair between siblings | **Identical odds + weekly load-balancing + fairness meter** |
-| "Is it a game or a tool?" | **Kid = the Wheel game. Parent = a calm 3-tab manager.** Cleanly split. |
+- **⭐ Stars** — the only currency. Earned **only** by finishing real chores. Spent on parent-defined rewards.
+- **🎟️ Spins** — pulls of the Wheel. One free daily + one per finished quest, up to a daily cap.
+- **🎁 Rewards** — real prizes parents define with a star price (screen time, a treat, movie night, an outing, pocket money). Kid claims → it goes **pending** → parent delivers and marks it given.
+- **🏆 Family meter** — a shared bar everyone fills (quests + jackpots). Full = a **group reward** the whole clan earns together.
+- **🔥 Streak** — consecutive active days; milestones pay bonus spins; ❄️ shields protect it.
 
 ---
 
-## 8. Decisions locked (Dave's greenlight — 2026-06-22)
+## 6. The two sides
 
-1. **Scope — Reward Wheel only (lean MVP).** First build = the *earn spins → Reward
-   Wheel → win real loot* loop + the parent's verify/stock-the-wheel manager. The
-   **Quest Wheel is deferred** to a later pass (concept kept on file in §2).
-2. **Jackpot — both modes.** Parent chooses **per-kid** *or* **family-pooled** jackpot
-   when setting up a kid's big prize.
-3. **Chores — baseline fixed + wheel for extras.** Routine chores are assigned normally
-   and predictably; the wheel layer sits on top. (Moot for the MVP since the Quest Wheel
-   ships later — but it sets the model: the wheel never gambles the daily routine.)
+**Kid (the daily game):** one screen — streak/stars/spins up top, the Wheel front and centre, the free-spin countdown, today's quests to finish, the rewards shop, the family meter, the summer event.
 
-**MVP build surface:** Who's-here picker · Kid = *My Wheel* (quests to finish → spin
-tokens → Reward Wheel → win reveal → jackpot meter + streak) · Parent = Verify · Stock
-the Wheel (slices + odds, per-kid) · Kids/prizes (per-kid vs family jackpot toggle).
-Same single-file vanilla-JS + localStorage standard as the current app; 3S Design System
-Layer-1 (Chore Wars world); WCAG-AA; `reduced-motion` shows results without the spin.
+**Parent (light management):** **Redeem** pending rewards · define **Quests** (the chore pool) · define **Rewards** (prizes + star price) · **Family** view (fairness across kids, the meter, the season). Quick in, quick out.
+
+**Onboarding:** a 4-step first run that teaches the loop in seconds — name the clan, confirm the kids, confirm a few starter rewards, take a guided first spin. Sensible M-Clan defaults pre-filled; no wall of text.
 
 ---
 
-*Design gate passed. Ready to build the MVP on Dave's "go." © 2026 3Shamrocks Studio. All rights reserved.*
+## 7. Design test every screen passes
+*Would a 7-year-old AND a busy parent both understand it instantly, with one obvious thing to do?* If a screen needed instructions, it got cut. Branded to the 3S Design System, accessible (icon+word+colour, focus rings, reduced-motion), mobile-first.

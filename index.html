@@ -5,205 +5,330 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#4F7CFF">
 <title>Chore Wars™ — Wheel of Fortune · The M Clan</title>
-<!-- CSP: single-file app · Google Fonts + data/blob images (photo proof) · no remote script/eval -->
+<!-- CSP: single-file app · Google Fonts + data/blob images · no remote script, no eval -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; base-uri 'none'">
+<link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
     --primary:#4F7CFF; --primary-deep:#3A63E0; --primary-soft:#E8EEFF;
     --accent:#FF6B35; --accent-deep:#E8551F;
     --gold:#F59E0B; --gold-deep:#D97706;
     --green:#16A34A; --green-deep:#0E7A34;
-    --purple:#A855F7;
+    --purple:#A855F7; --sky:#38BDF8; --pink:#EC4899; --teal:#0EA5A0; --red:#EF4444;
     --ink:#1E2533; --ink-soft:#586173; --ink-faint:#8A94A6;
     --bg:#F4F6FB; --card:#FFFFFF; --line:#E7ECF3; --sunken:#EEF1F6;
     --shadow:0 6px 18px rgba(40,60,100,.10);
     --shadow-lg:0 18px 44px rgba(20,30,70,.22);
     --radius:22px; --radius-sm:14px; --radius-pill:999px;
-    --safe-b:env(safe-area-inset-bottom,0px);
+    --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:var(--bg);
     overscroll-behavior-y:none;-webkit-text-size-adjust:100%}
   h1,h2,h3,.dis{font-family:'Baloo 2',system-ui,sans-serif}
   button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  input{font-family:inherit}
   :focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:10px}
   img{max-width:100%}
-  .app{max-width:460px;margin:0 auto;min-height:100dvh;position:relative;background:var(--bg);
-    box-shadow:0 0 60px rgba(20,30,70,.08)}
+  .app{max-width:460px;margin:0 auto;min-height:100dvh;position:relative;background:var(--bg);box-shadow:0 0 60px rgba(20,30,70,.08)}
   .screen{display:none;flex-direction:column;min-height:100dvh}
   .screen.on{display:flex}
+  .body{flex:1;overflow-y:auto;padding:14px 16px calc(26px + var(--safe-b))}
 
-  /* ── WHO'S HERE ─────────────────────────────────────── */
-  #who{background:#171b40 url('assets/arena-bg.png') center/cover no-repeat;color:#fff;
-    align-items:center;justify-content:center;padding:32px 24px;gap:6px}
-  #who .crest{width:78px;height:78px;border-radius:20px;object-fit:cover;box-shadow:var(--shadow-lg);margin-bottom:6px}
+  /* ── DARK HERO SCREENS (onboard / who) ─────────────── */
+  .hero{background:#171b40 url('assets/arena-bg.png') center/cover no-repeat;color:#fff;position:relative}
+  .hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,18,50,.30),rgba(15,18,50,.66))}
+  .hero>*{position:relative;z-index:1}
+  .crestlg{width:74px;height:74px;border-radius:20px;object-fit:cover;box-shadow:var(--shadow-lg)}
+
+  /* ── ONBOARDING ────────────────────────────────────── */
+  #onboard{align-items:center;justify-content:flex-start;padding:calc(34px + var(--safe-t)) 22px calc(22px + var(--safe-b))}
+  .ob-dots{display:flex;gap:7px;margin:16px 0 22px}
+  .ob-dots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);transition:.25s}
+  .ob-dots i.on{background:#FFD16B;width:22px;border-radius:99px}
+  .ob-step{display:none;width:100%;max-width:360px;text-align:center;animation:fade .35s}
+  .ob-step.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .ob-step h1{font-size:1.9rem;line-height:1.1;margin-top:8px}
+  .ob-step h1 b{color:#FFD16B}
+  .ob-step h2{font-size:1.5rem;margin-bottom:4px}
+  .ob-lead{color:#dbe2ff;font-weight:700;font-size:1rem;margin-top:10px;line-height:1.5}
+  .loopline{display:flex;flex-direction:column;gap:8px;margin:22px 0;text-align:left}
+  .loopline .lr{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:12px 14px;backdrop-filter:blur(6px)}
+  .loopline .lr .em{font-size:1.5rem;flex:0 0 auto}
+  .loopline .lr b{font-family:'Baloo 2';font-size:1rem;display:block}
+  .loopline .lr span{font-size:.8rem;color:#cdd6ff;font-weight:700}
+  .ob-card{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);border-radius:18px;padding:16px;margin:18px 0;backdrop-filter:blur(6px);text-align:left}
+  .fld{margin-bottom:12px}
+  .fld label{display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#cdd6ff;margin-bottom:5px}
+  .fld input{width:100%;padding:11px 13px;border-radius:12px;border:none;background:rgba(255,255,255,.92);color:var(--ink);font-weight:800;font-size:.95rem}
+  .kid-edit{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+  .kid-edit .av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:'Baloo 2';flex:0 0 auto;font-size:1rem}
+  .kid-edit input{flex:1;padding:9px 12px;border-radius:11px;border:none;background:rgba(255,255,255,.92);color:var(--ink);font-weight:800}
+  .kid-edit .rm{flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.14);color:#fff;font-size:1.1rem;font-weight:800}
+  .addkid{width:100%;padding:10px;border-radius:12px;border:2px dashed rgba(255,255,255,.32);color:#fff;font-weight:800;font-size:.88rem;background:rgba(255,255,255,.05)}
+  .rw-mini{display:flex;align-items:center;gap:11px;background:rgba(255,255,255,.10);border-radius:13px;padding:10px 13px;margin-bottom:8px}
+  .rw-mini .em{font-size:1.3rem} .rw-mini b{font-family:'Baloo 2';font-size:.96rem;flex:1;text-align:left}
+  .rw-mini .cost{font-weight:800;font-size:.82rem;color:#FFD16B}
+  .ob-btn{width:100%;max-width:360px;background:linear-gradient(120deg,var(--accent),var(--accent-deep));color:#fff;font-family:'Baloo 2';font-size:1.12rem;padding:15px;border-radius:var(--radius-pill);box-shadow:0 10px 22px rgba(232,85,31,.42);margin-top:4px}
+  .ob-btn:active{transform:scale(.98)}
+  .ob-skip{margin-top:14px;color:#cdd6ff;font-weight:800;font-size:.82rem;background:none}
+
+  /* ── WHO'S HERE ────────────────────────────────────── */
+  #who{align-items:center;justify-content:center;padding:32px 24px;gap:6px;text-align:center}
+  #who .crestlg{margin-bottom:8px}
   #who h1{font-size:2.1rem;text-shadow:0 3px 16px rgba(0,0,0,.4)}
   #who h1 b{color:#FFD16B}
-  #who .sub{color:#d6dcff;font-weight:800;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:26px}
-  .pickrow{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
-  .pick{display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.16);border-radius:24px;padding:18px 14px 14px;width:118px;backdrop-filter:blur(6px);transition:transform .12s}
+  #who .sub{color:#dbe2ff;font-weight:800;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;margin:4px 0 26px}
+  .pickrow{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:380px}
+  .pick{display:flex;flex-direction:column;align-items:center;gap:9px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);border-radius:22px;padding:16px 12px 13px;width:112px;backdrop-filter:blur(6px);transition:transform .12s}
   .pick:active{transform:scale(.95)}
-  .pick .ava{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;font-family:'Baloo 2';font-size:2rem;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.3)}
-  .pick .nm{font-family:'Baloo 2';font-size:1.15rem}
-  .pick .rl{font-size:.7rem;font-weight:800;color:#cdd8ff;text-transform:uppercase;letter-spacing:.05em}
-  .ava.j{background:linear-gradient(135deg,#4F7CFF,#6C97FF)}
-  .ava.d{background:linear-gradient(135deg,#16A34A,#22C55E)}
-  .ava.p{background:linear-gradient(135deg,#A855F7,#EC4899)}
+  .pick .ava{width:68px;height:68px;border-radius:50%;display:grid;place-items:center;font-family:'Baloo 2';font-size:1.9rem;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.3)}
+  .pick .nm{font-family:'Baloo 2';font-size:1.1rem}
+  .pick .rl{font-size:.68rem;font-weight:800;color:#cdd6ff;text-transform:uppercase;letter-spacing:.05em}
+  .pick .strk{font-size:.7rem;font-weight:800;color:#FFD16B}
+  .who-reset{margin-top:30px;color:#aeb7e0;font-weight:800;font-size:.76rem;background:none}
 
-  /* ── HEADER ─────────────────────────────────────────── */
-  .head{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;position:sticky;top:0;
-    background:rgba(244,246,251,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:30}
+  /* ── HEADER ────────────────────────────────────────── */
+  .head{display:flex;align-items:center;gap:10px;padding:calc(12px + var(--safe-t)) 16px 10px;position:sticky;top:0;background:rgba(244,246,251,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:30}
   .head .crest{width:36px;height:36px;border-radius:11px;object-fit:cover;box-shadow:var(--shadow)}
   .head .tt b{font-family:'Baloo 2';font-size:1.04rem;display:block;line-height:1}
-  .head .tt span{font-size:.62rem;font-weight:800;color:var(--ink-soft);letter-spacing:.04em}
-  .who-chip{margin-left:auto;display:flex;align-items:center;gap:7px;background:var(--card);
-    border:2px solid var(--line);border-radius:var(--radius-pill);padding:3px 11px 3px 3px;font-weight:800;font-size:.84rem;box-shadow:var(--shadow)}
+  .head .tt span{font-size:.62rem;font-weight:800;color:var(--ink-soft);letter-spacing:.03em}
+  .who-chip{margin-left:auto;display:flex;align-items:center;gap:7px;background:var(--card);border:2px solid var(--line);border-radius:var(--radius-pill);padding:3px 11px 3px 3px;font-weight:800;font-size:.84rem;box-shadow:var(--shadow)}
   .who-chip .ava{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:'Baloo 2';font-size:.82rem}
-  .body{flex:1;overflow-y:auto;padding:14px 16px calc(28px + var(--safe-b))}
 
-  /* ── STATS ──────────────────────────────────────────── */
-  .stats{display:flex;gap:9px;margin-bottom:14px}
-  .stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 8px;text-align:center;box-shadow:var(--shadow)}
-  .stat .n{font-family:'Baloo 2';font-size:1.15rem;line-height:1.05;display:flex;align-items:center;justify-content:center;gap:3px}
-  .stat .k{font-size:.6rem;font-weight:800;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+  /* ── STATS ─────────────────────────────────────────── */
+  .stats{display:flex;gap:9px;margin-bottom:13px}
+  .stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 6px;text-align:center;box-shadow:var(--shadow)}
+  .stat .n{font-family:'Baloo 2';font-size:1.12rem;line-height:1.05;display:flex;align-items:center;justify-content:center;gap:3px}
+  .stat .k{font-size:.58rem;font-weight:800;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
   .stat.star .n{color:var(--primary-deep)} .stat.spin .n{color:var(--accent-deep)} .stat.streak .n{color:var(--gold-deep)}
 
-  /* ── WHEEL ──────────────────────────────────────────── */
-  .wheelcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
-    padding:14px 14px 18px;margin-bottom:14px;display:flex;flex-direction:column;align-items:center}
-  .wheelstage{position:relative;width:300px;max-width:84vw;aspect-ratio:1;margin:4px auto 0}
-  .pointer{position:absolute;top:-4px;left:50%;transform:translateX(-50%);z-index:6;width:0;height:0;
-    border-left:16px solid transparent;border-right:16px solid transparent;border-top:28px solid var(--accent);filter:drop-shadow(0 3px 4px rgba(0,0,0,.28))}
-  .pointer::after{content:"";position:absolute;top:-28px;left:-7px;width:13px;height:13px;background:var(--accent);border-radius:50%;border:3px solid #fff}
+  /* ── SEASON BANNER ─────────────────────────────────── */
+  .season{display:flex;align-items:center;gap:11px;background:linear-gradient(120deg,#FDBA31,#FB923C);color:#fff;border-radius:var(--radius-sm);padding:11px 13px;margin-bottom:13px;box-shadow:0 8px 18px rgba(251,146,60,.35)}
+  .season .se{font-size:1.6rem;flex:0 0 auto;filter:drop-shadow(0 2px 3px rgba(0,0,0,.2))}
+  .season .st{font-family:'Baloo 2';font-size:.96rem;line-height:1.15}
+  .season .sm{font-size:.72rem;font-weight:800;opacity:.95}
+  .season .days{margin-left:auto;flex:0 0 auto;text-align:center;background:rgba(255,255,255,.22);border-radius:12px;padding:5px 9px}
+  .season .days b{font-family:'Baloo 2';font-size:1.1rem;display:block;line-height:1}
+  .season .days span{font-size:.56rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+  .season .barxs{height:6px;border-radius:99px;background:rgba(255,255,255,.3);margin-top:6px;overflow:hidden}
+  .season .barxs i{display:block;height:100%;background:#fff;border-radius:99px}
+
+  /* ── WHEEL ─────────────────────────────────────────── */
+  .wheelcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 14px 18px;margin-bottom:13px;display:flex;flex-direction:column;align-items:center}
+  .wheelstage{position:relative;width:296px;max-width:82vw;aspect-ratio:1;margin:2px auto 0}
+  .pointer{position:absolute;top:-3px;left:50%;transform:translateX(-50%);z-index:6;width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:27px solid var(--accent);filter:drop-shadow(0 3px 4px rgba(0,0,0,.28))}
+  .pointer::after{content:"";position:absolute;top:-27px;left:-7px;width:13px;height:13px;background:var(--accent);border-radius:50%;border:3px solid #fff}
   svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(0 10px 24px rgba(20,30,70,.30))}
-  .seg-emoji{font-size:20px} .seg-label{font-family:'Baloo 2';font-weight:800;fill:#fff;font-size:12px}
-  .hub{position:absolute;top:50%;left:50%;width:66px;height:66px;transform:translate(-50%,-50%);border-radius:50%;
-    background:#fff;box-shadow:0 4px 14px rgba(20,30,70,.3),inset 0 0 0 4px var(--gold);display:grid;place-items:center;z-index:5;overflow:hidden}
+  .seg-emoji{font-size:17px} .seg-label{font-family:'Baloo 2';font-weight:700;fill:#fff;font-size:9.5px}
+  .hub{position:absolute;top:50%;left:50%;width:62px;height:62px;transform:translate(-50%,-50%);border-radius:50%;background:#fff;box-shadow:0 4px 14px rgba(20,30,70,.3),inset 0 0 0 4px var(--gold);display:grid;place-items:center;z-index:5;overflow:hidden}
   .hub img{width:100%;height:100%;object-fit:cover}
-  .spinbtn{margin-top:18px;width:100%;max-width:320px;background:linear-gradient(120deg,var(--accent),var(--accent-deep));color:#fff;
-    font-family:'Baloo 2';font-size:1.15rem;padding:15px;border-radius:var(--radius-pill);box-shadow:0 10px 22px rgba(232,85,31,.42);
-    display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .12s,opacity .2s}
+  .spinbtn{margin-top:16px;width:100%;max-width:320px;background:linear-gradient(120deg,var(--accent),var(--accent-deep));color:#fff;font-family:'Baloo 2';font-size:1.12rem;padding:15px;border-radius:var(--radius-pill);box-shadow:0 10px 22px rgba(232,85,31,.42);display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .12s,opacity .2s}
   .spinbtn:active{transform:scale(.97)}
   .spinbtn:disabled{background:var(--sunken);color:var(--ink-faint);box-shadow:none}
+  .spinbtn.free{background:linear-gradient(120deg,var(--green),var(--green-deep));box-shadow:0 10px 22px rgba(22,163,74,.4)}
+  .spinbtn.coach{animation:coachpulse 1.3s ease-in-out infinite}
+  @keyframes coachpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
   .spinsub{font-size:.76rem;font-weight:800;color:var(--ink-soft);margin-top:9px;text-align:center}
+  .spinsub b{color:var(--green-deep)}
 
-  /* ── JACKPOT ────────────────────────────────────────── */
-  .jackpot{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:13px 15px;box-shadow:var(--shadow);margin-bottom:14px}
-  .jackpot .row{display:flex;align-items:center;gap:8px;font-family:'Baloo 2';font-size:.94rem}
-  .jackpot .pct{margin-left:auto;color:var(--gold-deep);font-size:.84rem}
-  .bar{height:13px;border-radius:99px;background:var(--primary-soft);margin-top:9px;overflow:hidden}
-  .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--accent));transition:width .6s cubic-bezier(.2,.8,.2,1)}
-  .jackpot small{display:block;margin-top:7px;font-weight:700;color:var(--ink-soft);font-size:.74rem}
-  .modepill{margin-left:6px;font-size:.62rem;font-weight:800;background:var(--primary-soft);color:var(--primary-deep);padding:2px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:.04em}
-
-  /* ── SECTIONS / CHORES ──────────────────────────────── */
-  .sec-t{font-family:'Baloo 2';font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);margin:6px 2px 9px;display:flex;align-items:center;gap:7px}
+  /* ── SECTION TITLES / GENERIC CARDS ────────────────── */
+  .sec-t{font-family:'Baloo 2';font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);margin:16px 2px 9px;display:flex;align-items:center;gap:7px}
+  .sec-t:first-child{margin-top:2px}
   .sec-t .c{margin-left:auto;background:var(--card);border:1.5px solid var(--line);padding:2px 9px;border-radius:99px;font-size:.72rem;color:var(--ink-soft)}
-  .qcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px;margin-bottom:9px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px}
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px;margin-bottom:9px;box-shadow:var(--shadow);display:flex;align-items:center;gap:11px}
   .qicon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:1.25rem;flex:0 0 auto;background:var(--primary-soft)}
   .qcard .qt{font-family:'Baloo 2';font-size:1rem;line-height:1.15}
   .qcard .qm{font-size:.74rem;font-weight:800;color:var(--ink-soft);margin-top:2px}
-  .doneBtn{margin-left:auto;flex:0 0 auto;font-family:'Baloo 2';font-size:.82rem;padding:9px 14px;border-radius:99px;background:var(--green);color:#fff;display:flex;align-items:center;gap:6px;transition:transform .12s}
+  .qact{margin-left:auto;display:flex;gap:6px;flex:0 0 auto;align-items:center}
+  .doneBtn{font-family:'Baloo 2';font-size:.82rem;padding:9px 13px;border-radius:99px;background:var(--green);color:#fff;display:flex;align-items:center;gap:5px;transition:transform .12s}
   .doneBtn:active{transform:scale(.95)}
-  .qcard.done{opacity:.62} .qcard.done .qicon{background:#DCFCE7}
-  .doneTag{margin-left:auto;font-family:'Baloo 2';font-size:.8rem;color:var(--green-deep);background:#DCFCE7;padding:7px 12px;border-radius:99px}
+  .skipBtn{font-family:'Baloo 2';font-size:.74rem;padding:9px 11px;border-radius:99px;background:var(--sunken);color:var(--ink-soft)}
+  .empty{text-align:center;color:var(--ink-faint);font-weight:800;font-size:.88rem;padding:22px 12px;background:var(--card);border:1px dashed var(--line);border-radius:var(--radius-sm)}
 
-  /* ── PARENT ─────────────────────────────────────────── */
-  .ptab{display:flex;gap:6px;margin-bottom:14px}
-  .ptab .t{flex:1;text-align:center;font-family:'Baloo 2';font-size:.84rem;padding:9px;border-radius:12px;color:var(--ink-soft);background:var(--card);border:1px solid var(--line)}
+  /* ── REWARDS SHOP ──────────────────────────────────── */
+  .shop{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px 13px;margin-bottom:9px;box-shadow:var(--shadow);display:flex;align-items:center;gap:11px}
+  .shop .re{width:42px;height:42px;border-radius:12px;background:var(--primary-soft);display:grid;place-items:center;font-size:1.25rem;flex:0 0 auto}
+  .shop .rt{font-family:'Baloo 2';font-size:.98rem;line-height:1.15}
+  .shop .rm{font-size:.74rem;font-weight:800;color:var(--gold-deep);margin-top:1px}
+  .claimBtn{margin-left:auto;flex:0 0 auto;font-family:'Baloo 2';font-size:.8rem;padding:9px 14px;border-radius:99px;background:var(--primary);color:#fff;transition:transform .12s}
+  .claimBtn:active{transform:scale(.95)}
+  .claimBtn:disabled{background:var(--sunken);color:var(--ink-faint)}
+
+  /* ── METER / LEADERBOARD ───────────────────────────── */
+  .meter{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:13px 15px;box-shadow:var(--shadow);margin-bottom:9px}
+  .meter .row{display:flex;align-items:center;gap:8px;font-family:'Baloo 2';font-size:.96rem}
+  .meter .pct{margin-left:auto;color:var(--gold-deep);font-size:.84rem}
+  .bar{height:13px;border-radius:99px;background:var(--primary-soft);margin-top:9px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--accent));transition:width .6s cubic-bezier(.2,.8,.2,1)}
+  .meter small{display:block;margin-top:7px;font-weight:700;color:var(--ink-soft);font-size:.74rem}
+  .lead{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:13px 15px;box-shadow:var(--shadow);margin-bottom:9px}
+  .lead .lt{font-family:'Baloo 2';font-size:.96rem;display:flex;align-items:center;gap:7px;margin-bottom:4px}
+  .frow{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .frow .nm{width:54px;font-weight:800;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .frow .fb{flex:1;height:11px;border-radius:99px;background:var(--primary-soft);overflow:hidden}
+  .frow .fb i{display:block;height:100%;border-radius:99px;transition:width .5s}
+  .frow .v{width:30px;text-align:right;font-family:'Baloo 2';font-size:.82rem;color:var(--ink-soft)}
+
+  /* ── PARENT ────────────────────────────────────────── */
+  .ptab{display:flex;gap:5px;margin-bottom:14px;position:sticky;top:0}
+  .ptab .t{flex:1;text-align:center;font-family:'Baloo 2';font-size:.8rem;padding:9px 4px;border-radius:12px;color:var(--ink-soft);background:var(--card);border:1px solid var(--line)}
   .ptab .t.on{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:var(--shadow)}
   .ptab-body{display:none} .ptab-body.on{display:block}
   .fair{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
   .fair .ft{font-family:'Baloo 2';display:flex;align-items:center;gap:7px;font-size:.96rem}
-  .fair .ok{margin-left:auto;font-size:.7rem;background:#DCFCE7;color:var(--green-deep);padding:3px 10px;border-radius:99px;font-weight:800}
-  .frow{display:flex;align-items:center;gap:10px;margin-top:11px}
-  .frow .nm{width:52px;font-weight:800;font-size:.82rem}
-  .frow .fb{flex:1;height:11px;border-radius:99px;background:var(--primary-soft);overflow:hidden}
-  .frow .fb i{display:block;height:100%;border-radius:99px;transition:width .5s}
-  .frow .v{width:34px;text-align:right;font-family:'Baloo 2';font-size:.82rem;color:var(--ink-soft)}
-  .slice-row{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 13px;margin-bottom:8px;box-shadow:var(--shadow)}
-  .swatch{width:15px;height:15px;border-radius:5px;flex:0 0 auto}
-  .slice-row .st{font-family:'Baloo 2';font-size:.94rem}
-  .slice-row .odds{margin-left:auto;font-weight:800;font-size:.78rem;color:var(--ink-soft);background:var(--bg);border:1px solid var(--line);padding:3px 10px;border-radius:99px}
-  .kidcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:15px;margin-bottom:12px;box-shadow:var(--shadow)}
-  .kidcard .kh{display:flex;align-items:center;gap:10px;font-family:'Baloo 2';font-size:1.05rem}
+  .fair .ok{margin-left:auto;font-size:.68rem;background:#DCFCE7;color:var(--green-deep);padding:3px 10px;border-radius:99px;font-weight:800}
+  .fair small{display:block;margin-top:8px;font-weight:700;color:var(--ink-soft);font-size:.76rem;line-height:1.45}
+  .listrow{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;box-shadow:var(--shadow)}
+  .listrow .em{width:38px;height:38px;border-radius:11px;background:var(--sunken);display:grid;place-items:center;font-size:1.2rem;flex:0 0 auto}
+  .listrow .lt2{font-family:'Baloo 2';font-size:.95rem;line-height:1.15}
+  .listrow .lm{font-size:.74rem;font-weight:800;color:var(--ink-soft)}
+  .listrow .tag{margin-left:auto;font-weight:800;font-size:.78rem;color:var(--gold-deep);background:var(--bg);border:1px solid var(--line);padding:3px 10px;border-radius:99px;flex:0 0 auto}
+  .listrow .del{flex:0 0 auto;width:32px;height:32px;border-radius:10px;background:var(--sunken);color:var(--ink-soft);font-size:1.05rem;font-weight:800}
+  .payBtn{margin-left:auto;flex:0 0 auto;font-family:'Baloo 2';font-size:.8rem;padding:8px 13px;border-radius:99px;background:var(--primary);color:#fff}
+  .addform{background:var(--card);border:1px dashed var(--line);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px;box-shadow:var(--shadow)}
+  .addform .ar{display:flex;gap:7px;margin-bottom:8px}
+  .addform input{padding:10px 11px;border-radius:11px;border:1.5px solid var(--line);background:var(--bg);font-weight:800;font-size:.9rem;color:var(--ink);min-width:0}
+  .addform input.em{width:50px;text-align:center} .addform input.nm{flex:1} .addform input.num{width:70px}
+  .addform .addBtn{width:100%;font-family:'Baloo 2';font-size:.9rem;padding:11px;border-radius:12px;background:var(--green);color:#fff}
+  .odds-row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:7px;box-shadow:var(--shadow)}
+  .swatch{width:14px;height:14px;border-radius:5px;flex:0 0 auto}
+  .odds-row .ot{font-family:'Baloo 2';font-size:.92rem;flex:1}
+  .odds-row .od{font-weight:800;font-size:.76rem;color:var(--ink-soft);background:var(--bg);border:1px solid var(--line);padding:3px 9px;border-radius:99px}
+  .kidcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+  .kidcard .kh{display:flex;align-items:center;gap:10px;font-family:'Baloo 2';font-size:1.04rem}
   .kidcard .kh .ava{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:'Baloo 2'}
-  .kidcard .pr{margin-top:11px;font-weight:800;font-size:.88rem;color:var(--ink-soft)}
-  .seg{display:inline-flex;background:var(--sunken);border-radius:99px;padding:3px;margin-top:9px}
-  .seg button{font-family:'Baloo 2';font-size:.78rem;padding:6px 13px;border-radius:99px;color:var(--ink-soft)}
-  .seg button.on{background:var(--card);color:var(--primary-deep);box-shadow:var(--shadow)}
-  .redeem{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px 13px;margin-bottom:9px;box-shadow:var(--shadow)}
-  .redeem .re{width:40px;height:40px;border-radius:11px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:1.2rem;flex:0 0 auto}
-  .redeem .rt{font-family:'Baloo 2';font-size:.96rem} .redeem .rm{font-size:.74rem;font-weight:800;color:var(--ink-soft)}
-  .payBtn{margin-left:auto;font-family:'Baloo 2';font-size:.8rem;padding:8px 13px;border-radius:99px;background:var(--primary);color:#fff}
-  .empty{text-align:center;color:var(--ink-faint);font-weight:800;font-size:.9rem;padding:26px 10px}
+  .kidcard .kpills{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .kpill{font-weight:800;font-size:.74rem;background:var(--bg);border:1px solid var(--line);padding:5px 10px;border-radius:99px;color:var(--ink-soft)}
+  .switchBtn{width:100%;margin-top:4px;font-family:'Baloo 2';font-size:.92rem;padding:13px;border-radius:var(--radius-pill);background:var(--card);border:2px solid var(--line);color:var(--ink-soft);box-shadow:var(--shadow)}
 
-  .switchBtn{width:100%;margin-top:6px;font-family:'Baloo 2';font-size:.92rem;padding:13px;border-radius:var(--radius-pill);background:var(--card);border:2px solid var(--line);color:var(--ink-soft);box-shadow:var(--shadow)}
-
-  /* ── WIN MODAL ──────────────────────────────────────── */
+  /* ── RESULT / WIN MODAL ────────────────────────────── */
   .scrim{position:fixed;inset:0;background:rgba(13,18,50,.62);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:80;padding:24px}
   .scrim.on{display:flex}
   .winbox{background:linear-gradient(165deg,#243089,#3A63E0 60%,#4F7CFF);border-radius:28px;padding:22px;max-width:360px;width:100%;text-align:center;position:relative;overflow:hidden;box-shadow:var(--shadow-lg);animation:pop .35s cubic-bezier(.2,1.3,.4,1)}
-  @keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+  @keyframes pop{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
   .winbox::before{content:"";position:absolute;inset:-40% -10% auto;height:120%;background:radial-gradient(circle at 50% 28%,rgba(255,209,107,.45),transparent 60%)}
-  .winbox .burst{width:190px;position:relative;z-index:2;filter:drop-shadow(0 12px 26px rgba(0,0,0,.4))}
-  .winbox h2{color:#fff;font-size:1rem;letter-spacing:.16em;text-transform:uppercase;position:relative;z-index:2;opacity:.92;margin-top:-6px}
-  .prize{position:relative;z-index:2;background:#fff;border-radius:var(--radius);padding:16px 22px;margin-top:12px;box-shadow:var(--shadow-lg)}
-  .prize .pe{font-size:2.5rem} .prize .pt{font-family:'Baloo 2';font-size:1.5rem;color:var(--ink);margin-top:2px}
-  .prize .pm{font-weight:800;color:var(--ink-soft);font-size:.82rem;margin-top:3px}
-  .winbox .cta{position:relative;z-index:2;margin-top:20px}
-  .winbox .keep{background:#fff;color:var(--primary-deep);font-family:'Baloo 2';font-size:1.05rem;padding:13px 30px;border-radius:99px;box-shadow:var(--shadow)}
-  .winbox .toks{position:relative;z-index:2;color:#cdd8ff;font-weight:800;font-size:.8rem;margin-top:14px}
+  .winbox .burst{width:150px;position:relative;z-index:2;filter:drop-shadow(0 12px 26px rgba(0,0,0,.4));margin-bottom:-2px}
+  .winbox h2{color:#fff;font-size:1rem;letter-spacing:.14em;text-transform:uppercase;position:relative;z-index:2;opacity:.95}
+  .prize{position:relative;z-index:2;background:#fff;border-radius:var(--radius);padding:15px 20px;margin-top:12px;box-shadow:var(--shadow-lg)}
+  .prize .pe{font-size:2.4rem} .prize .pt{font-family:'Baloo 2';font-size:1.4rem;color:var(--ink);margin-top:2px;line-height:1.15} .prize .pm{font-weight:800;color:var(--ink-soft);font-size:.82rem;margin-top:4px}
+  .winbox .keep{background:#fff;color:var(--primary-deep);font-family:'Baloo 2';font-size:1.05rem;padding:13px 30px;border-radius:99px;box-shadow:var(--shadow);position:relative;z-index:2;margin-top:18px}
+  .winbox .note{position:relative;z-index:2;color:#cdd8ff;font-weight:800;font-size:.78rem;margin-top:13px}
 
-  /* ── FOOTER (Shomer standard — least focus) ─────────── */
-  .studio-credit{display:flex;align-items:center;justify-content:center;gap:9px;padding:18px 16px calc(14px + var(--safe-b));direction:ltr;flex-wrap:wrap}
+  /* ── FOOTER ────────────────────────────────────────── */
+  .studio-credit{display:flex;align-items:center;justify-content:center;gap:9px;padding:16px 16px calc(14px + var(--safe-b));flex-wrap:wrap}
   .studio-credit .sc-badge{display:inline-flex;align-items:center;background:var(--sunken);border:1px solid var(--line);border-radius:7px;padding:4px 8px}
-  .studio-credit .sc-badge img{height:15px;width:auto;display:block;opacity:.92}
+  .studio-credit .sc-badge img{height:14px;width:auto;display:block;opacity:.92}
   .studio-credit .cr{font-size:10.5px;color:var(--ink-faint);letter-spacing:.3px;line-height:1.4}
   .studio-credit .cr b{color:var(--ink-soft);font-weight:700}
+  .hero .studio-credit .sc-badge{background:rgba(255,255,255,.92);border-color:transparent}
+  .hero .studio-credit .cr{color:#cdd6ff} .hero .studio-credit .cr b{color:#fff}
 
-  .toast{position:fixed;left:50%;bottom:calc(26px + var(--safe-b));transform:translateX(-50%) translateY(12px);background:#1E2533;color:#fff;
-    font-weight:800;font-size:.86rem;padding:11px 18px;border-radius:99px;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:.25s;z-index:90;max-width:90%}
+  .toast{position:fixed;left:50%;bottom:calc(26px + var(--safe-b));transform:translateX(-50%) translateY(12px);background:#1E2533;color:#fff;font-weight:800;font-size:.86rem;padding:11px 18px;border-radius:99px;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:.25s;z-index:90;max-width:90%;text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  @media (prefers-reduced-motion:reduce){svg.wheel{transition:none !important}.winbox{animation:none}}
+
+  /* confetti */
+  .confetti{position:fixed;inset:0;pointer-events:none;z-index:85;overflow:hidden}
+  .confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.9}}
+  @media (prefers-reduced-motion:reduce){svg.wheel{transition:none !important}.winbox,.ob-step{animation:none}.spinbtn.coach{animation:none}.confetti{display:none}}
 </style>
 </head>
 <body>
 <div class="app">
 
+  <!-- ONBOARDING -->
+  <section class="screen on hero" id="onboard">
+    <img class="crestlg" src="assets/crest.jpg" alt="Chore Wars crest">
+    <div class="ob-dots" id="obDots"><i class="on"></i><i></i><i></i><i></i></div>
+
+    <div class="ob-step on" id="ob0">
+      <h1>Chore <b>Wars</b></h1>
+      <div class="ob-lead">The chore game where you <b>spin to discover your quest</b> — no more nagging.</div>
+      <div class="loopline">
+        <div class="lr"><span class="em">🎡</span><div><b>Spin the Wheel</b><span>One free spin every day</span></div></div>
+        <div class="lr"><span class="em">🧹</span><div><b>Finish your quest</b><span>Earn ⭐ stars + another spin</span></div></div>
+        <div class="lr"><span class="em">🎁</span><div><b>Trade stars for rewards</b><span>Real prizes Mum & Dad set</span></div></div>
+      </div>
+      <button class="ob-btn" onclick="obNext()">Let's set up the clan →</button>
+    </div>
+
+    <div class="ob-step" id="ob1">
+      <h2>Your clan</h2>
+      <div class="ob-lead" style="margin-top:4px">Who's playing? Name your hunters.</div>
+      <div class="ob-card">
+        <div class="fld"><label>Clan name</label><input id="clanName" value="The M Clan" maxlength="24"></div>
+        <label style="display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#cdd6ff;margin-bottom:7px">Hunters</label>
+        <div id="kidEdits"></div>
+        <button class="addkid" onclick="addKidEdit()">+ Add a hunter</button>
+      </div>
+      <button class="ob-btn" onclick="obNext()">Next →</button>
+      <div><button class="ob-skip" onclick="obBack()">← Back</button></div>
+    </div>
+
+    <div class="ob-step" id="ob2">
+      <h2>Starter rewards</h2>
+      <div class="ob-lead" style="margin-top:4px">Stars buy these real prizes. You can change them anytime.</div>
+      <div class="ob-card" id="rwPreview"></div>
+      <button class="ob-btn" onclick="obNext()">Looks good →</button>
+      <div><button class="ob-skip" onclick="obBack()">← Back</button></div>
+    </div>
+
+    <div class="ob-step" id="ob3">
+      <h2>You're ready! 🎉</h2>
+      <div class="ob-lead">Pick a hunter and take your <b>first free spin</b>. Finish the quest it lands on to earn your first stars.</div>
+      <div class="loopline" style="margin-bottom:8px">
+        <div class="lr"><span class="em">🔥</span><div><b>Build a streak</b><span>Play daily — shields protect it</span></div></div>
+        <div class="lr"><span class="em">🏆</span><div><b>Fill the family meter</b><span>A goal the whole clan earns together</span></div></div>
+        <div class="lr"><span class="em">☀️</span><div><b>Summer Splash is live</b><span>Limited-time tiles & a summer prize</span></div></div>
+      </div>
+      <button class="ob-btn" onclick="finishOnboard()">Start playing →</button>
+    </div>
+    <footer class="studio-credit" style="margin-top:auto">
+      <span class="sc-badge"><img src="assets/3shamrocks_black.png" alt="3Shamrocks Studio" width="96" height="14"></span>
+      <span class="cr">© 2026 <b>3Shamrocks Studio</b></span>
+    </footer>
+  </section>
+
   <!-- WHO'S HERE -->
-  <section class="screen on" id="who">
-    <img class="crest" src="assets/crest.jpg" alt="Chore Wars crest">
+  <section class="screen hero" id="who">
+    <img class="crestlg" src="assets/crest.jpg" alt="Chore Wars crest">
     <h1>Chore <b>Wars</b></h1>
-    <div class="sub">⚔️ The M Clan · Who's here?</div>
+    <div class="sub" id="whoSub">⚔️ The M Clan · Who's here?</div>
     <div class="pickrow" id="pickrow"></div>
+    <button class="who-reset" onclick="resetAll()">Start over (clear data)</button>
   </section>
 
   <!-- KID -->
   <section class="screen" id="kid">
     <div class="head">
       <img class="crest" src="assets/crest.jpg" alt="crest">
-      <div class="tt"><b>My Wheel</b><span id="kidSpinsLbl">0 spins ready</span></div>
-      <button class="who-chip" id="kidChip" onclick="goWho()"></button>
+      <div class="tt"><b>My Wheel</b><span id="kidSpinsLbl">Ready to spin</span></div>
+      <button class="who-chip" id="kidChip" onclick="goWho()" aria-label="Switch player"></button>
     </div>
     <div class="body">
       <div class="stats" id="kidStats"></div>
+      <div class="season" id="seasonBox"></div>
       <div class="wheelcard">
         <div class="wheelstage">
           <div class="pointer"></div>
-          <svg class="wheel" id="wheel" viewBox="0 0 300 300" aria-label="Reward wheel"></svg>
+          <svg class="wheel" id="wheel" viewBox="0 0 300 300" aria-label="Quest wheel"></svg>
           <div class="hub"><img src="assets/crest.jpg" alt=""></div>
         </div>
-        <button class="spinbtn" id="spinBtn">SPIN THE WHEEL · 🎟️ <span id="spinCount">0</span></button>
-        <div class="spinsub">Finish a chore to earn a spin 🎟️</div>
+        <button class="spinbtn" id="spinBtn">SPIN</button>
+        <div class="spinsub" id="spinSub"></div>
       </div>
-      <div class="jackpot" id="jackpotBox"></div>
-      <div class="sec-t">Today's chores <span class="c" id="choreCount">0</span></div>
-      <div id="choreList"></div>
+      <div class="sec-t">My quests <span class="c" id="questCount">0</span></div>
+      <div id="questList"></div>
+      <div class="sec-t">Rewards shop <span class="c" id="shopHint"></span></div>
+      <div id="shopList"></div>
+      <div class="sec-t">Family goal</div>
+      <div class="meter" id="meterBox"></div>
+      <div class="lead" id="leadBox"></div>
     </div>
   </section>
 
@@ -211,33 +336,35 @@
   <section class="screen" id="parent">
     <div class="head">
       <img class="crest" src="assets/crest.jpg" alt="crest">
-      <div class="tt"><b>Manage</b><span>Daddy</span></div>
-      <button class="who-chip" id="parentChip" onclick="goWho()"></button>
+      <div class="tt"><b>Manage</b><span id="parentSub">Parent</span></div>
+      <button class="who-chip" id="parentChip" onclick="goWho()" aria-label="Switch player"></button>
     </div>
     <div class="body">
       <div class="ptab">
         <button class="t on" data-tab="redeem">Redeem</button>
-        <button class="t" data-tab="wheel">The Wheel</button>
-        <button class="t" data-tab="kids">Kids</button>
+        <button class="t" data-tab="quests">Quests</button>
+        <button class="t" data-tab="rewards">Rewards</button>
+        <button class="t" data-tab="family">Family</button>
       </div>
       <div class="ptab-body on" id="tab-redeem"></div>
-      <div class="ptab-body" id="tab-wheel"></div>
-      <div class="ptab-body" id="tab-kids"></div>
+      <div class="ptab-body" id="tab-quests"></div>
+      <div class="ptab-body" id="tab-rewards"></div>
+      <div class="ptab-body" id="tab-family"></div>
     </div>
   </section>
 
-  <!-- WIN MODAL -->
-  <div class="scrim" id="winScrim">
+  <!-- RESULT / WIN MODAL -->
+  <div class="scrim" id="scrim">
     <div class="winbox">
-      <img class="burst" src="assets/loot-burst.png" alt="treasure burst">
+      <img class="burst" id="winBurst" src="assets/loot-burst.png" alt="">
       <h2 id="winTitle">Winner!</h2>
       <div class="prize">
         <div class="pe" id="winEmoji">🎉</div>
         <div class="pt" id="winPrize">Reward</div>
         <div class="pm" id="winMsg"></div>
       </div>
-      <div class="cta"><button class="keep" id="winKeep">Keep it 🎉</button></div>
-      <div class="toks">No blanks, ever — every spin pays out something real</div>
+      <button class="keep" id="winKeep">Got it 🎉</button>
+      <div class="note">No blanks, ever — every spin gives you something good</div>
     </div>
   </div>
 
@@ -251,196 +378,377 @@
 
 <script>
 "use strict";
-const KEY='chorewars_wheel_v1';
+const KEY='chorewars_v2';
+const MAX_SPINS=8;            // daily spin cap (appointment mechanic)
+const COLORS=['#4F7CFF','#16A34A','#A855F7','#FF6B35','#0EA5A0','#EC4899','#F59E0B'];
 
-// Reward wheel — identical odds for every kid (fairness). No blanks.
-const SLICES=[
-  {id:'screen', e:'🕹️', t:'30 min',   c:'#4F7CFF', w:3, kind:'reward', label:'30 min screen time'},
-  {id:'treat',  e:'🍪', t:'Treat',    c:'#16A34A', w:3, kind:'reward', label:'A treat'},
-  {id:'dinner', e:'🍽️', t:'Dinner',   c:'#FF6B35', w:2, kind:'reward', label:'Pick tonight’s dinner'},
-  {id:'coins',  e:'🪙', t:'+5 stars', c:'#3A63E0', w:3, kind:'stars',  amount:5, label:'+5 bonus stars'},
-  {id:'stayup', e:'🌙', t:'Stay up',  c:'#22C55E', w:2, kind:'reward', label:'Stay up 15 min'},
-  {id:'skip',   e:'⏭️', t:'Skip job', c:'#A855F7', w:1, kind:'reward', label:'Skip-a-chore token'},
-  {id:'respin', e:'🎟️', t:'Spin x2',  c:'#E8551F', w:2, kind:'respin', label:'Spin again!'},
-  {id:'jackpot',e:'💎', t:'JACKPOT',  c:'#F59E0B', w:1, kind:'jackpot', amount:25, label:'JACKPOT!'},
+/* ── date helpers (browser Date is fine here) ── */
+const today=()=>new Date().toISOString().slice(0,10);
+function daysBetween(a,b){return Math.round((Date.parse(b)-Date.parse(a))/86400000);}
+function daysUntil(iso){return Math.max(0,Math.ceil((Date.parse(iso)-Date.now())/86400000));}
+
+/* ── wheel tiles: quests are common (effort), specials are spice; no blanks ── */
+const TILES=[
+  {key:'quest',  e:'🧹', t:'Quest',    c:'#4F7CFF', w:3},
+  {key:'double', e:'✨', t:'2× Stars', c:'#F59E0B', w:2},
+  {key:'quest',  e:'🧺', t:'Quest',    c:'#16A34A', w:3},
+  {key:'jackpot',e:'💎', t:'Jackpot',  c:'#A855F7', w:1},
+  {key:'quest',  e:'🧽', t:'Quest',    c:'#22C55E', w:3},
+  {key:'escape', e:'🎟️', t:'Escape',   c:'#0EA5A0', w:2},
+  {key:'quest',  e:'📚', t:'Quest',    c:'#3A63E0', w:3},
+  {key:'mystery',e:'🎁', t:'Mystery',  c:'#EC4899', w:2},
+  {key:'steal',  e:'🦝', t:'Steal',    c:'#FF6B35', w:1},
+  {key:'freeze', e:'❄️', t:'Freeze',   c:'#38BDF8', w:2},
+  {key:'summer', e:'☀️', t:'Summer',   c:'#FBBF24', w:2},
+  {key:'trade',  e:'🔄', t:'Trade',    c:'#EF4444', w:1},
 ];
-const N=SLICES.length, STEP=360/N;
-const JACKPOT_TARGET=100;
+const N=TILES.length, STEP=360/N;
+const TILE_INFO={
+  quest:'Land a real chore. Finish it for ⭐ stars + another spin.',
+  double:'Your next finished quest pays double stars.',
+  jackpot:'Big bonus stars + a jump on the family meter.',
+  escape:'A Skip-a-Chore token — bail on one quest.',
+  mystery:'A surprise: bonus stars, a spin, or a shield.',
+  steal:'Playfully nab a sibling’s un-delivered reward. Once a day.',
+  freeze:'A Streak Shield — protects your streak if you miss a day.',
+  summer:'Limited-time summer bonus + progress to the summer prize.',
+  trade:'Hand one of your quests to a sibling.',
+};
 
+/* ── seed ── */
 function seed(){
   return {
-    view:'who', current:null, familyJackpot:0,
+    onboarded:false, view:'onboard', current:null, clan:'The M Clan', kidSeq:2,
+    meter:{progress:40, target:100, reward:'Family pizza & movie night 🍕'},
+    season:{name:'Summer Splash', emoji:'☀️', progress:25, target:60, prize:'Water-park day out 🏖️', endsISO:'2026-08-31'},
     members:{
-      jakob:{name:'Jakob', role:'kid', av:'j', stars:240, spins:2, streak:5,
-        jackpot:55, mode:'kid', prize:'the LEGO set', won:[], weekStars:12},
-      dean:{name:'Dean', role:'kid', av:'d', stars:175, spins:1, streak:3,
-        jackpot:30, mode:'kid', prize:'a new scooter', won:[], weekStars:10},
-      daddy:{name:'Dad', role:'parent', av:'p'}
+      jakob:{name:'Jakob', role:'kid', av:'J', color:'#4F7CFF', stars:120, spins:1, streak:5, lastActive:'', freeSpinDate:'', spinsToday:0, stealDate:'', shields:1, doubleNext:false, skipTokens:0, quests:[], weekStars:24, pending:[]},
+      dean:{name:'Dean', role:'kid', av:'D', color:'#16A34A', stars:85, spins:1, streak:3, lastActive:'', freeSpinDate:'', spinsToday:0, stealDate:'', shields:0, doubleNext:false, skipTokens:0, quests:[], weekStars:16, pending:[]},
+      dad:{name:'Dad', role:'parent', av:'D', color:'#A855F7'}
     },
     chores:[
-      {id:'c1', who:'jakob', icon:'🛏️', name:'Make your bed', meta:'Daily', done:true},
-      {id:'c2', who:'jakob', icon:'🗑️', name:'Take out trash', meta:'Daily', done:false},
-      {id:'c3', who:'jakob', icon:'🍽️', name:'Clear the table', meta:'One-off', done:false},
-      {id:'c4', who:'dean',  icon:'🧦', name:'Sort the laundry', meta:'Daily', done:false},
-      {id:'c5', who:'dean',  icon:'🪥', name:'Brush teeth', meta:'Daily', done:true},
-      {id:'c6', who:'dean',  icon:'📚', name:'Tidy your books', meta:'One-off', done:false},
-    ]
+      {id:'c1', icon:'🛏️', name:'Make your bed', stars:10},
+      {id:'c2', icon:'🗑️', name:'Take out the trash', stars:15},
+      {id:'c3', icon:'🧺', name:'Sort the laundry', stars:15},
+      {id:'c4', icon:'🍽️', name:'Clear the table', stars:10},
+      {id:'c5', icon:'🧽', name:'Wipe the counters', stars:10},
+      {id:'c6', icon:'📚', name:'Tidy your books', stars:10},
+      {id:'c7', icon:'🐕', name:'Walk the dog', stars:20},
+      {id:'c8', icon:'🪴', name:'Water the plants', stars:10},
+    ],
+    rewards:[
+      {id:'r1', icon:'🕹️', name:'30 min screen time', cost:40},
+      {id:'r2', icon:'🍪', name:'A treat', cost:30},
+      {id:'r3', icon:'🎬', name:'Movie night pick', cost:60},
+      {id:'r4', icon:'🍦', name:'Ice-cream trip', cost:80},
+      {id:'r5', icon:'🌙', name:'Stay up 15 min', cost:50},
+    ],
   };
 }
 let S=load();
-function load(){ try{const j=JSON.parse(localStorage.getItem(KEY));return j&&j.members?j:seed();}catch(e){return seed();} }
-function save(){ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
+function load(){ try{const j=JSON.parse(localStorage.getItem(KEY)); return (j&&j.members&&j.version!==undefined)?j:migrate(j);}catch(e){return seed();} }
+function migrate(j){ const s=seed(); return s; } // any old/missing shape → fresh v2 seed
+S.version=2;
+function save(){ try{S.version=2;localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
 
-// ── helpers ──
+/* ── tiny helpers ── */
 const $=id=>document.getElementById(id);
-function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2300);}
-function avHtml(av){return `<span class="ava ${av}">${av==='j'?'J':'D'}</span>`;}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400);}
 function show(v){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(v).classList.add('on');S.view=v;window.scrollTo(0,0);}
-function goWho(){S.current=null;save();show('who');renderWho();}
+function cur(){return S.members[S.current];}
+function kids(){return Object.keys(S.members).filter(id=>S.members[id].role==='kid');}
+function parentId(){return Object.keys(S.members).find(id=>S.members[id].role==='parent');}
+function parentName(){const p=S.members[parentId()];return p?p.name:'a parent';}
+function siblings(id){return kids().filter(k=>k!==id);}
+function choreById(id){return S.chores.find(c=>c.id===id);}
+function rewardById(id){return S.rewards.find(r=>r.id===id);}
+function escapeAttr(s){return String(s).replace(/'/g,"\\'");}
 
-// ── WHEEL SVG ──
+/* ── streak / daily roll ── */
+function markActive(k){
+  const t=today();
+  if(k.lastActive===t) return;
+  if(k.lastActive){
+    const d=daysBetween(k.lastActive,t);
+    if(d===1){ k.streak+=1; const ms=[3,7,14,30]; if(ms.includes(k.streak)){k.spins+=2;setTimeout(()=>toast(`🔥 ${k.streak}-day streak! +2 bonus spins`),300);} }
+    else if(d>1){ if(k.shields>0){k.shields-=1;} else {k.streak=1;} }
+  }
+  k.lastActive=t; k.spinsToday=0;
+}
+function freeAvail(k){return k.freeSpinDate!==today();}
+function canSpin(k){return k.spinsToday<MAX_SPINS && (freeAvail(k)||k.spins>0);}
+
+/* ── build wheel SVG ── */
 function buildWheel(){
   const cx=150,cy=150,r=143;
   let h=`<circle cx="${cx}" cy="${cy}" r="${r+4}" fill="#fff"/>`;
-  SLICES.forEach((s,i)=>{
+  TILES.forEach((s,i)=>{
     const a0=(i*STEP-90-STEP/2)*Math.PI/180, a1=a0+STEP*Math.PI/180;
     const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
     h+=`<path d="M${cx},${cy} L${x0.toFixed(1)},${y0.toFixed(1)} A${r},${r} 0 0 1 ${x1.toFixed(1)},${y1.toFixed(1)} Z" fill="${s.c}" stroke="#fff" stroke-width="2.5"/>`;
-    const am=(i*STEP-90)*Math.PI/180, lr=r*0.64, lx=cx+lr*Math.cos(am), ly=cy+lr*Math.sin(am), deg=(i*STEP);
-    h+=`<g transform="translate(${lx.toFixed(1)},${ly.toFixed(1)}) rotate(${deg})"><text class="seg-emoji" text-anchor="middle" y="-5">${s.e}</text><text class="seg-label" text-anchor="middle" y="13">${s.t}</text></g>`;
+    const am=(i*STEP-90)*Math.PI/180, lr=r*0.66, lx=cx+lr*Math.cos(am), ly=cy+lr*Math.sin(am), deg=(i*STEP);
+    h+=`<g transform="translate(${lx.toFixed(1)},${ly.toFixed(1)}) rotate(${deg})"><text class="seg-emoji" text-anchor="middle" y="-4">${s.e}</text><text class="seg-label" text-anchor="middle" y="11">${s.t}</text></g>`;
   });
   h+=`<circle cx="${cx}" cy="${cy}" r="${r+4}" fill="none" stroke="#F59E0B" stroke-width="6"/>`;
-  for(let i=0;i<N*2;i++){const a=(i*180/N-90)*Math.PI/180,sx=cx+(r+4)*Math.cos(a),sy=cy+(r+4)*Math.sin(a);h+=`<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="3.2" fill="#FFE7A8" stroke="#D97706" stroke-width="1"/>`;}
+  for(let i=0;i<N*2;i++){const a=(i*180/N-90)*Math.PI/180,sx=cx+(r+4)*Math.cos(a),sy=cy+(r+4)*Math.sin(a);h+=`<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="3.1" fill="#FFE7A8" stroke="#D97706" stroke-width="1"/>`;}
   $('wheel').innerHTML=h;
 }
 let curRot=0, spinning=false;
-function weightedPick(){const tot=SLICES.reduce((a,s)=>a+s.w,0);let r=Math.random()*tot;for(let i=0;i<N;i++){r-=SLICES[i].w;if(r<=0)return i;}return N-1;}
+function weightedPick(){const tot=TILES.reduce((a,s)=>a+s.w,0);let r=Math.random()*tot;for(let i=0;i<N;i++){r-=TILES[i].w;if(r<=0)return i;}return N-1;}
 
+/* ── spin ── */
 function doSpin(){
-  const k=S.members[S.current]; if(spinning||!k||k.spins<1)return;
-  spinning=true; k.spins--; save(); renderKid();
-  const idx=weightedPick(), seg=SLICES[idx];
+  const k=cur(); if(spinning||!k||!canSpin(k))return;
+  markActive(k);
+  if(freeAvail(k)) k.freeSpinDate=today(); else k.spins--;
+  k.spinsToday++; spinning=true; save(); renderKid();
+  const idx=weightedPick(), tile=TILES[idx];
   const jitter=Math.random()*30-15;
-  const base=((curRot % 360)+360)%360;
-  const target=curRot - base + 360*5 - idx*STEP + jitter;
-  curRot=target;
+  const base=((curRot%360)+360)%360;
+  curRot=curRot-base+360*5-idx*STEP+jitter;
   const wheel=$('wheel');
   const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
   wheel.style.transition=reduce?'none':'transform 4.6s cubic-bezier(.15,.85,.18,1)';
-  requestAnimationFrame(()=>{wheel.style.transform=`rotate(${target}deg)`;});
+  requestAnimationFrame(()=>{wheel.style.transform=`rotate(${curRot}deg)`;});
   let done=false;
-  const finish=()=>{ if(done)return; done=true; wheel.removeEventListener('transitionend',finish); award(seg); spinning=false; };
-  if(reduce){award(seg);spinning=false;} else {wheel.addEventListener('transitionend',finish);setTimeout(finish,5200);}
+  const finish=()=>{if(done)return;done=true;wheel.removeEventListener('transitionend',finish);const r=resolveTile(tile);spinning=false;showResult(r);renderKid();};
+  if(reduce){const r=resolveTile(tile);spinning=false;showResult(r);renderKid();}
+  else{wheel.addEventListener('transitionend',finish);setTimeout(finish,5200);}
 }
 
-function award(seg){
-  const k=S.members[S.current];
-  let emoji=seg.e, prize=seg.label, msg='Added to your rewards · tell Dad to redeem', title='Winner!';
-  if(seg.kind==='stars'){ k.stars+=seg.amount; k.weekStars+=seg.amount; msg='Bonus stars added to your total ⭐'; }
-  else if(seg.kind==='respin'){ k.spins++; msg='You earned your spin back — go again! 🎟️'; title='Lucky!'; }
-  else if(seg.kind==='jackpot'){
-    title='JACKPOT! 💎';
-    if(k.mode==='family'){ S.familyJackpot=Math.min(JACKPOT_TARGET,S.familyJackpot+seg.amount); msg='Added to the FAMILY jackpot 💎'; }
-    else { k.jackpot=Math.min(JACKPOT_TARGET,k.jackpot+seg.amount); msg='Your big-prize meter jumped! 💎'; }
+/* ── meter / season / week ── */
+function bumpMeter(n){S.meter.progress=Math.min(S.meter.target,S.meter.progress+n);}
+function bumpSeason(n){S.season.progress=Math.min(S.season.target,S.season.progress+n);}
+function addWeek(k,n){k.weekStars+=n;}
+function pickQuest(k){const avail=S.chores.filter(c=>!k.quests.includes(c.id));if(!avail.length)return null;return avail[Math.floor(Math.random()*avail.length)];}
+
+/* ── resolve a landed tile → returns {emoji,title,prize,msg,confetti} ── */
+function resolveTile(tile){
+  const k=cur(); let r={emoji:tile.e,title:'',prize:'',msg:'',confetti:false};
+  switch(tile.key){
+    case 'quest':{
+      const ch=pickQuest(k);
+      if(!ch){const b=8;k.stars+=b;addWeek(k,b);r={...r,emoji:'⭐',title:'All quests done!',prize:`+${b} ⭐ bonus`,msg:'Your chore pool is clear — here are bonus stars.'};}
+      else{k.quests.push(ch.id);const val=k.doubleNext?ch.stars*2:ch.stars;r={...r,emoji:ch.icon,title:'New Quest!',prize:ch.name,msg:`Finish it for +${val} ⭐ and another spin 🎟️`};}
+      break;}
+    case 'double':k.doubleNext=true;r={...r,title:'Double Up!',prize:'2× Stars armed',msg:'Your next finished quest pays double ⭐.'};break;
+    case 'jackpot':{const b=20;k.stars+=b;addWeek(k,b);bumpMeter(15);r={...r,title:'JACKPOT! 💎',prize:`+${b} ⭐ + family meter`,msg:'Huge! Bonus stars and a big jump on the family goal.',confetti:true};break;}
+    case 'escape':k.skipTokens++;r={...r,title:'Escape!',prize:'Skip-a-Chore token',msg:'Use it on a quest to bail out, guilt-free.'};break;
+    case 'trade':{
+      const sibs=siblings(S.current);
+      if(k.quests.length&&sibs.length){const cid=k.quests.shift();const sib=S.members[sibs[Math.floor(Math.random()*sibs.length)]];sib.quests.push(cid);r={...r,title:'Traded!',prize:choreById(cid).name,msg:`Handed to ${sib.name} 🔄`};}
+      else{k.spins++;r={...r,title:'Nothing to trade',prize:'+1 spin 🎟️',msg:'No quest to hand off — have a bonus spin.'};}
+      break;}
+    case 'steal':{
+      const t=today(),sibs=siblings(S.current);
+      if(k.stealDate===t){const b=6;k.stars+=b;addWeek(k,b);r={...r,title:'Already stole today',prize:`+${b} ⭐`,msg:'Steal is once a day — bonus stars instead.'};}
+      else{const withPend=sibs.map(s=>S.members[s]).filter(m=>m.pending.length);
+        if(withPend.length){const victim=withPend[Math.floor(Math.random()*withPend.length)];const taken=victim.pending.shift();k.pending.push(taken);k.stealDate=t;r={...r,title:'Steal! 🦝',prize:taken.name,msg:`Nabbed from ${victim.name} — cheeky!`};}
+        else{const b=6;k.stars+=b;addWeek(k,b);r={...r,title:'Nothing to steal',prize:`+${b} ⭐`,msg:'Nobody has a pending reward — bonus stars instead.'};}}
+      break;}
+    case 'mystery':{const roll=Math.floor(Math.random()*3);
+      if(roll===0){const b=12;k.stars+=b;addWeek(k,b);r={...r,title:'Mystery! 🎁',prize:`+${b} ⭐`,msg:'Lucky surprise — bonus stars!'};}
+      else if(roll===1){k.spins++;r={...r,title:'Mystery! 🎁',prize:'+1 spin 🎟️',msg:'A surprise extra spin!'};}
+      else{k.shields++;r={...r,title:'Mystery! 🎁',prize:'❄️ Streak Shield',msg:'A shield to protect your streak.'};}
+      break;}
+    case 'freeze':k.shields++;r={...r,title:'Freeze!',prize:'❄️ Streak Shield',msg:'Protects your streak if you miss a day.'};break;
+    case 'summer':{const b=10;k.stars+=b;addWeek(k,b);bumpSeason(10);r={...r,title:'Summer Splash! ☀️',prize:`+${b} ⭐ + summer goal`,msg:'Limited-time! Closer to the summer prize.',confetti:true};break;}
   }
-  else { k.won.push({label:seg.label, e:seg.e, t:Date.now()}); }
-  save();
-  $('winTitle').textContent=title; $('winEmoji').textContent=emoji; $('winPrize').textContent=prize; $('winMsg').textContent=msg;
-  $('winScrim').classList.add('on');
-  renderKid();
+  save(); return r;
 }
 
-// ── RENDER: WHO ──
+/* ── result modal ── */
+function showResult(r){
+  $('winBurst').style.display=r.confetti?'inline-block':'none';
+  $('winTitle').textContent=r.title; $('winEmoji').textContent=r.emoji;
+  $('winPrize').textContent=r.prize; $('winMsg').textContent=r.msg;
+  $('scrim').classList.add('on');
+  if(r.confetti) confetti();
+}
+function confetti(){
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  const wrap=document.createElement('div');wrap.className='confetti';
+  const cols=['#4F7CFF','#16A34A','#F59E0B','#FF6B35','#A855F7','#EC4899'];
+  for(let i=0;i<70;i++){const s=document.createElement('i');s.style.left=Math.random()*100+'%';s.style.background=cols[i%cols.length];s.style.animationDuration=(1.6+Math.random()*1.4)+'s';s.style.animationDelay=(Math.random()*.3)+'s';s.style.transform=`rotate(${Math.random()*360}deg)`;wrap.appendChild(s);}
+  document.body.appendChild(wrap);setTimeout(()=>wrap.remove(),3400);
+}
+
+/* ── quest actions ── */
+function completeQuest(cid){
+  const k=cur();const i=k.quests.indexOf(cid);if(i<0)return;
+  const ch=choreById(cid);let st=ch.stars,dbl=false;
+  if(k.doubleNext){st*=2;k.doubleNext=false;dbl=true;}
+  k.quests.splice(i,1);k.stars+=st;addWeek(k,st);k.spins=Math.min(99,k.spins+1);bumpMeter(5);markActive(k);
+  save();toast(`Quest done! +${st} ⭐${dbl?' (2×!)':''} · +1 spin 🎟️`);renderKid();
+}
+function skipQuest(cid){
+  const k=cur();if(k.skipTokens<1){toast('No Escape tokens — land 🎟️ Escape on the wheel');return;}
+  const i=k.quests.indexOf(cid);if(i<0)return;k.skipTokens--;k.quests.splice(i,1);save();toast('Quest skipped with an Escape token 🎟️');renderKid();
+}
+
+/* ── reward shop ── */
+function claimReward(rid){
+  const k=cur();const rw=rewardById(rid);if(!rw)return;
+  if(k.stars<rw.cost){toast(`Need ${rw.cost-k.stars} more ⭐ for ${rw.name}`);return;}
+  k.stars-=rw.cost;k.pending.push({uid:'p'+Date.now()+Math.floor(Math.random()*999),icon:rw.icon,name:rw.name});
+  save();toast(`Claimed ${rw.name}! Ask ${parentName()} to deliver 🎁`);renderKid();
+}
+
+/* ── RENDER: WHO ── */
 function renderWho(){
-  $('pickrow').innerHTML=Object.entries(S.members).map(([id,m])=>
-    `<button class="pick" onclick="enter('${id}')"><span class="ava ${m.av}">${m.name[0]}</span><span class="nm">${m.name}</span><span class="rl">${m.role==='parent'?'Parent':'Hunter'}</span></button>`
-  ).join('');
+  $('whoSub').textContent=`⚔️ ${S.clan} · Who's here?`;
+  $('pickrow').innerHTML=Object.entries(S.members).map(([id,m])=>{
+    const extra=m.role==='kid'?`<span class="strk">🔥 ${m.streak}</span>`:`<span class="rl">Parent</span>`;
+    return `<button class="pick" onclick="enter('${id}')"><span class="ava" style="background:${m.color}">${m.av}</span><span class="nm">${m.name}</span>${m.role==='kid'?`<span class="rl">Hunter</span>${extra}`:extra}</button>`;
+  }).join('');
 }
-function enter(id){ S.current=id; save(); const m=S.members[id]; if(m.role==='parent'){show('parent');renderParent();} else {show('kid');renderKid();} }
+function enter(id){S.current=id;save();const m=S.members[id];if(m.role==='parent'){show('parent');renderParent();}else{show('kid');renderKid();}}
+function goWho(){S.current=null;save();show('who');renderWho();}
 
-// ── RENDER: KID ──
+/* ── RENDER: KID ── */
 function renderKid(){
-  const k=S.members[S.current]; if(!k)return;
-  $('kidChip').innerHTML=`${avHtml(k.av)} ${k.name}`;
-  $('kidSpinsLbl').textContent=`${k.spins} spin${k.spins===1?'':'s'} ready`;
+  const k=cur();if(!k)return;
+  $('kidChip').innerHTML=`<span class="ava" style="background:${k.color}">${k.av}</span> ${k.name}`;
+  const free=freeAvail(k);
+  $('kidSpinsLbl').textContent= free?'Free spin ready!':(k.spins>0?`${k.spins} spin${k.spins===1?'':'s'} ready`:'No spins left');
   $('kidStats').innerHTML=
     `<div class="stat star"><div class="n">⭐ ${k.stars}</div><div class="k">Stars</div></div>`+
     `<div class="stat spin"><div class="n">🎟️ ${k.spins}</div><div class="k">Spins</div></div>`+
-    `<div class="stat streak"><div class="n">🔥 ${k.streak}</div><div class="k">Day streak</div></div>`;
-  $('spinCount').textContent=k.spins;
-  $('spinBtn').disabled=k.spins<1||spinning;
-  const fam=k.mode==='family';
-  const val=fam?S.familyJackpot:k.jackpot, pct=Math.round(val/JACKPOT_TARGET*100);
-  $('jackpotBox').innerHTML=
-    `<div class="row">💎 ${fam?'Family Jackpot':'Jackpot'} — ${fam?'one big clan reward':'saving for '+k.prize}<span class="modepill">${fam?'Family':'Per-kid'}</span><span class="pct">${pct}%</span></div>`+
-    `<div class="bar"><i style="width:${pct}%"></i></div>`+
-    `<small>Land the 💎 slice to fill faster · ${val} / ${JACKPOT_TARGET} 💎${pct>=100?' — PRIZE UNLOCKED! 🎉 tell Dad':''}</small>`;
-  const mine=S.chores.filter(c=>c.who===S.current);
-  const left=mine.filter(c=>!c.done).length;
-  $('choreCount').textContent=`${left} left`;
-  $('choreList').innerHTML=mine.map(c=>
-    `<div class="qcard ${c.done?'done':''}"><div class="qicon">${c.icon}</div>`+
-    `<div><div class="qt">${c.name}</div><div class="qm">${c.meta} · earns 🎟️ +⭐</div></div>`+
-    (c.done?`<span class="doneTag">Done ✓</span>`:`<button class="doneBtn" onclick="finishChore('${c.id}')">Finish ✓</button>`)+
-    `</div>`).join('');
-}
-function finishChore(id){
-  const c=S.chores.find(x=>x.id===id); if(!c||c.done)return;
-  c.done=true; const k=S.members[S.current]; k.spins++; k.stars+=10; k.weekStars+=10; save();
-  toast('Chore done! +🎟️ spin · +10 ⭐'); renderKid();
+    `<div class="stat streak"><div class="n">🔥 ${k.streak}</div><div class="k">Streak</div></div>`+
+    `<div class="stat"><div class="n">❄️ ${k.shields}</div><div class="k">Shields</div></div>`;
+  // season
+  const s=S.season,sp=Math.round(s.progress/s.target*100),dleft=daysUntil(s.endsISO);
+  $('seasonBox').innerHTML=`<span class="se">${s.emoji}</span><div><div class="st">${s.name}</div><div class="sm">Win the ${s.prize}</div><div class="barxs"><i style="width:${sp}%"></i></div></div><div class="days"><b>${dleft}</b><span>days left</span></div>`;
+  // spin button
+  const can=canSpin(k);const btn=$('spinBtn');
+  btn.className='spinbtn'+(free?' free':'')+((free&&!S.coached)?' coach':'');
+  btn.disabled=!can||spinning;
+  btn.textContent= free?'🎡 FREE DAILY SPIN' : (k.spins>0?`SPIN · 🎟️ ${k.spins}`:'NO SPINS LEFT');
+  if(k.spinsToday>=MAX_SPINS) btn.textContent='DAILY SPINS DONE';
+  $('spinSub').innerHTML= free?'Your <b>free spin</b> is waiting — tap to start!' : (k.spins>0?'Finish quests to earn more spins 🎟️':(k.spinsToday>=MAX_SPINS?'Come back tomorrow for more spins ☀️':'Finish a quest to earn a spin 🎟️'));
+  // quests
+  const qs=k.quests.map(choreById).filter(Boolean);
+  $('questCount').textContent=`${qs.length} to do`;
+  $('questList').innerHTML= qs.length? qs.map(c=>{
+    const val=k.doubleNext?c.stars*2:c.stars;
+    return `<div class="qcard"><div class="qicon">${c.icon}</div><div style="flex:1"><div class="qt">${c.name}</div><div class="qm">+${val} ⭐${k.doubleNext?' (2×!)':''} · +1 spin</div></div><div class="qact">`+
+      (k.skipTokens>0?`<button class="skipBtn" onclick="skipQuest('${c.id}')">Skip 🎟️</button>`:``)+
+      `<button class="doneBtn" onclick="completeQuest('${c.id}')">Finish ✓</button></div></div>`;
+  }).join('') : `<div class="empty">No quests yet — spin the Wheel to discover one! 🎡</div>`;
+  // shop
+  $('shopHint').textContent=`⭐ ${k.stars}`;
+  $('shopList').innerHTML=S.rewards.map(r=>{
+    const afford=k.stars>=r.cost;
+    return `<div class="shop"><div class="re">${r.icon}</div><div style="flex:1"><div class="rt">${r.name}</div><div class="rm">⭐ ${r.cost}</div></div><button class="claimBtn" ${afford?'':'disabled'} onclick="claimReward('${r.id}')">${afford?'Claim':'Locked'}</button></div>`;
+  }).join('');
+  if(k.pending.length){$('shopList').innerHTML+=`<div class="empty" style="border-style:solid;color:var(--ink-soft)">🎁 ${k.pending.length} reward${k.pending.length===1?'':'s'} waiting for ${parentName()} to deliver</div>`;}
+  // family meter
+  const m=S.meter,mp=Math.round(m.progress/m.target*100);
+  $('meterBox').innerHTML=`<div class="row">🏆 Family goal <span class="pct">${mp}%</span></div><div class="bar"><i style="width:${mp}%"></i></div><small>Everyone fills this together → <b>${m.reward}</b> · ${m.progress}/${m.target}${mp>=100?' — UNLOCKED! 🎉 tell '+parentName():''}</small>`;
+  // leaderboard
+  const ks=kids().map(id=>S.members[id]).sort((a,b)=>b.weekStars-a.weekStars);const mx=Math.max(...ks.map(x=>x.weekStars),1);
+  $('leadBox').innerHTML=`<div class="lt">📅 This week's stars</div>`+ks.map(m2=>`<div class="frow"><span class="nm">${m2.name}</span><span class="fb"><i style="width:${Math.round(m2.weekStars/mx*100)}%;background:${m2.color}"></i></span><span class="v">${m2.weekStars}</span></div>`).join('');
 }
 
-// ── RENDER: PARENT ──
+/* ── RENDER: PARENT ── */
 let pTab='redeem';
 function renderParent(){
-  $('parentChip').innerHTML=`${avHtml('p')} Dad`;
+  const p=S.members[parentId()];$('parentSub').textContent=p.name;
+  $('parentChip').innerHTML=`<span class="ava" style="background:${p.color}">${p.av}</span> ${p.name}`;
   document.querySelectorAll('.ptab .t').forEach(b=>b.classList.toggle('on',b.dataset.tab===pTab));
-  document.querySelectorAll('.ptab-body').forEach(b=>b.classList.remove('on'));
-  $('tab-'+pTab).classList.add('on');
-  if(pTab==='redeem')renderRedeem(); else if(pTab==='wheel')renderWheelTab(); else renderKidsTab();
+  document.querySelectorAll('.ptab-body').forEach(b=>b.classList.remove('on'));$('tab-'+pTab).classList.add('on');
+  if(pTab==='redeem')renderRedeem();else if(pTab==='quests')renderQuests();else if(pTab==='rewards')renderRewards();else renderFamily();
 }
 function renderRedeem(){
-  const kids=['jakob','dean']; let html='';
-  kids.forEach(id=>{const k=S.members[id];
-    if(k.won.length){ html+=`<div class="sec-t">${k.name}'s rewards to give <span class="c">${k.won.length}</span></div>`;
-      k.won.forEach((w,i)=>{html+=`<div class="redeem"><div class="re">${w.e}</div><div><div class="rt">${w.label}</div><div class="rm">${k.name} won this</div></div><button class="payBtn" onclick="payOut('${id}',${i})">Mark given</button></div>`;});
-    }
-  });
-  if(!html)html='<div class="empty">No rewards waiting. When the kids spin and win, they show up here to pay out. 🎁</div>';
+  let html='';
+  kids().forEach(id=>{const k=S.members[id];if(k.pending.length){
+    html+=`<div class="sec-t">${k.name}'s rewards to give <span class="c">${k.pending.length}</span></div>`;
+    k.pending.forEach((w,i)=>{html+=`<div class="listrow"><div class="em">${w.icon}</div><div style="flex:1"><div class="lt2">${w.name}</div><div class="lm">${k.name} claimed this</div></div><button class="payBtn" onclick="deliver('${id}',${i})">Mark given</button></div>`;});
+  }});
+  if(!html)html='<div class="empty">No rewards waiting. When kids spend stars in the shop, claims show up here to deliver. 🎁</div>';
   $('tab-redeem').innerHTML=html;
 }
-function payOut(id,i){ S.members[id].won.splice(i,1); save(); toast('Reward marked as given ✓'); renderRedeem(); }
-function renderWheelTab(){
-  let html=`<div class="fair"><div class="ft">🎯 Same wheel, same odds for both kids</div><small style="display:block;margin-top:8px;font-weight:700;color:var(--ink-soft);font-size:.78rem">No blanks. Differences in winnings come only from how many chores each kid finishes — never luck stacked against a sibling.</small></div>`;
-  html+=`<div class="sec-t">Reward slices <span class="c">${N}</span></div>`;
-  SLICES.forEach(s=>{html+=`<div class="slice-row"><span class="swatch" style="background:${s.c}"></span><span class="st">${s.e} ${s.label}</span><span class="odds">${s.w}×</span></div>`;});
-  $('tab-wheel').innerHTML=html;
-}
-function renderKidsTab(){
-  const j=S.members.jakob.weekStars, d=S.members.dean.weekStars, mx=Math.max(j,d,1);
-  const bal=Math.abs(j-d)<=Math.max(6,mx*0.35);
-  let html=`<div class="fair"><div class="ft">⚖️ Fairness this week <span class="ok">${bal?'✓ Balanced':'Catching up'}</span></div>`+
-    `<div class="frow"><span class="nm">Jakob</span><span class="fb"><i style="width:${Math.round(j/mx*100)}%;background:linear-gradient(90deg,#4F7CFF,#6C97FF)"></i></span><span class="v">${j}</span></div>`+
-    `<div class="frow"><span class="nm">Dean</span><span class="fb"><i style="width:${Math.round(d/mx*100)}%;background:linear-gradient(90deg,#16A34A,#22C55E)"></i></span><span class="v">${d}</span></div>`+
-    `<small style="display:block;margin-top:9px;font-weight:700;color:var(--ink-soft);font-size:.74rem">Weekly stars earned from finished chores. Spread chores evenly to keep both hunters climbing.</small></div>`;
-  ['jakob','dean'].forEach(id=>{const k=S.members[id];const fam=k.mode==='family';const val=fam?S.familyJackpot:k.jackpot;
-    html+=`<div class="kidcard"><div class="kh"><span class="ava ${k.av}">${k.name[0]}</span> ${k.name}</div>`+
-      `<div class="pr">🎯 Big prize: <b>${k.prize}</b> · 💎 ${val}/${JACKPOT_TARGET}</div>`+
-      `<div class="seg"><button class="${!fam?'on':''}" onclick="setMode('${id}','kid')">Per-kid jackpot</button><button class="${fam?'on':''}" onclick="setMode('${id}','family')">Family jackpot</button></div></div>`;});
-  $('tab-kids').innerHTML=html;
-}
-function setMode(id,m){ S.members.jakob.mode=m; S.members.dean.mode=m; save(); toast(m==='family'?'Switched to one shared family jackpot 👨‍👦‍👦':'Each kid saves toward their own prize'); renderKidsTab(); }
+function deliver(id,i){S.members[id].pending.splice(i,1);save();toast('Reward delivered ✓');renderRedeem();}
 
-// ── events ──
-$('spinBtn').addEventListener('click',doSpin);
-$('winKeep').addEventListener('click',()=>$('winScrim').classList.remove('on'));
-$('winScrim').addEventListener('click',e=>{if(e.target===$('winScrim'))$('winScrim').classList.remove('on');});
+function renderQuests(){
+  let html=`<div class="addform"><div class="ar"><input class="em" id="qIcon" value="🧹" maxlength="2" aria-label="icon"><input class="nm" id="qName" placeholder="New chore name" maxlength="32" aria-label="chore name"><input class="num" id="qStars" type="number" value="10" min="1" max="99" aria-label="stars"></div><button class="addBtn" onclick="addChore()">+ Add quest to the pool</button></div>`;
+  html+=`<div class="sec-t">Quest pool <span class="c">${S.chores.length}</span></div>`;
+  html+=S.chores.map(c=>`<div class="listrow"><div class="em">${c.icon}</div><div style="flex:1"><div class="lt2">${c.name}</div></div><span class="tag">⭐ ${c.stars}</span><button class="del" onclick="delChore('${c.id}')" aria-label="delete">✕</button></div>`).join('');
+  html+=`<div class="empty" style="border-style:solid;color:var(--ink-soft);margin-top:6px">Kids spin to discover these — they're never assigned. Keep ~6–10 in the pool.</div>`;
+  $('tab-quests').innerHTML=html;
+}
+function addChore(){const name=$('qName').value.trim();if(!name){toast('Type a chore name');return;}const stars=Math.max(1,Math.min(99,parseInt($('qStars').value)||10));const icon=($('qIcon').value.trim()||'🧹').slice(0,2);S.chores.push({id:'c'+Date.now(),icon,name,stars});save();toast('Quest added to the pool ✓');renderQuests();}
+function delChore(id){S.chores=S.chores.filter(c=>c.id!==id);kids().forEach(k=>{S.members[k].quests=S.members[k].quests.filter(q=>q!==id);});save();toast('Quest removed');renderQuests();}
+
+function renderRewards(){
+  let html=`<div class="addform"><div class="ar"><input class="em" id="rIcon" value="🎁" maxlength="2" aria-label="icon"><input class="nm" id="rName" placeholder="New reward name" maxlength="32" aria-label="reward name"><input class="num" id="rCost" type="number" value="50" min="1" max="999" aria-label="cost"></div><button class="addBtn" onclick="addReward()">+ Add reward</button></div>`;
+  html+=`<div class="sec-t">Rewards (star price) <span class="c">${S.rewards.length}</span></div>`;
+  html+=S.rewards.map(r=>`<div class="listrow"><div class="em">${r.icon}</div><div style="flex:1"><div class="lt2">${r.name}</div></div><span class="tag">⭐ ${r.cost}</span><button class="del" onclick="delReward('${r.id}')" aria-label="delete">✕</button></div>`).join('');
+  $('tab-rewards').innerHTML=html;
+}
+function addReward(){const name=$('rName').value.trim();if(!name){toast('Type a reward name');return;}const cost=Math.max(1,Math.min(999,parseInt($('rCost').value)||50));const icon=($('rIcon').value.trim()||'🎁').slice(0,2);S.rewards.push({id:'r'+Date.now(),icon,name,cost});save();toast('Reward added ✓');renderRewards();}
+function delReward(id){S.rewards=S.rewards.filter(r=>r.id!==id);save();toast('Reward removed');renderRewards();}
+
+function renderFamily(){
+  const ks=kids().map(id=>S.members[id]);const mx=Math.max(...ks.map(x=>x.weekStars),1);
+  const spread=ks.length>1?Math.abs(ks[0].weekStars-ks[ks.length-1].weekStars):0;const bal=spread<=Math.max(8,mx*0.4);
+  let html=`<div class="fair"><div class="ft">⚖️ Fairness this week <span class="ok">${bal?'✓ Balanced':'Catching up'}</span></div>`+
+    ks.sort((a,b)=>b.weekStars-a.weekStars).map(k=>`<div class="frow"><span class="nm">${k.name}</span><span class="fb"><i style="width:${Math.round(k.weekStars/mx*100)}%;background:${k.color}"></i></span><span class="v">${k.weekStars}</span></div>`).join('')+
+    `<small>Same wheel, same odds for every kid. No blanks. Steal is capped at once a day. Differences come only from how many chores each kid finishes — never luck stacked against a sibling.</small></div>`;
+  // family meter
+  const m=S.meter,mp=Math.round(m.progress/m.target*100);
+  html+=`<div class="meter"><div class="row">🏆 Family goal <span class="pct">${mp}%</span></div><div class="bar"><i style="width:${mp}%"></i></div><small>Reward when full: <b>${m.reward}</b> · ${m.progress}/${m.target}</small></div>`;
+  // season
+  const s=S.season,sp=Math.round(s.progress/s.target*100);
+  html+=`<div class="meter"><div class="row">☀️ ${s.name} <span class="pct">${daysUntil(s.endsISO)} days left</span></div><div class="bar"><i style="width:${sp}%"></i></div><small>Limited-time prize: <b>${s.prize}</b> · ${s.progress}/${s.target}</small></div>`;
+  // wheel odds
+  html+=`<div class="sec-t">Wheel odds (identical for every kid)</div>`;
+  const tot=TILES.reduce((a,t)=>a+t.w,0);
+  const seen={};TILES.forEach(t=>{seen[t.key]=(seen[t.key]||0)+t.w;});
+  Object.keys(seen).forEach(key=>{const t=TILES.find(x=>x.key===key);const pct=Math.round(seen[key]/tot*100);
+    html+=`<div class="odds-row"><span class="swatch" style="background:${t.c}"></span><span class="ot">${t.e} ${key.charAt(0).toUpperCase()+key.slice(1)}</span><span class="od">${pct}%</span></div>`;});
+  // per-kid
+  html+=`<div class="sec-t">Hunters</div>`;
+  ks.forEach(k=>{html+=`<div class="kidcard"><div class="kh"><span class="ava" style="background:${k.color}">${k.av}</span> ${k.name}</div><div class="kpills"><span class="kpill">⭐ ${k.stars} stars</span><span class="kpill">🔥 ${k.streak} streak</span><span class="kpill">❄️ ${k.shields} shields</span><span class="kpill">🎁 ${k.pending.length} pending</span></div></div>`;});
+  $('tab-family').innerHTML=html;
+}
+
+/* ── ONBOARDING ── */
+let obStep=0, obKids=[{name:'Jakob'},{name:'Dean'}];
+function renderObDots(){[...$('obDots').children].forEach((d,i)=>d.classList.toggle('on',i===obStep));}
+function obShow(n){obStep=n;document.querySelectorAll('.ob-step').forEach((s,i)=>s.classList.toggle('on',i===n));renderObDots();window.scrollTo(0,0);if(n===1)renderKidEdits();if(n===2)renderRwPreview();}
+function obNext(){if(obStep===1){const cn=$('clanName').value.trim();if(cn)S.clan=cn;readKidEdits();if(!obKids.length){toast('Add at least one hunter');return;}}obShow(Math.min(3,obStep+1));}
+function obBack(){obShow(Math.max(0,obStep-1));}
+function renderKidEdits(){
+  $('kidEdits').innerHTML=obKids.map((k,i)=>`<div class="kid-edit"><span class="av" style="background:${COLORS[i%COLORS.length]}">${(k.name[0]||'?').toUpperCase()}</span><input value="${k.name.replace(/"/g,'')}" oninput="obKids[${i}].name=this.value" maxlength="16" aria-label="hunter name">${obKids.length>1?`<button class="rm" onclick="rmKidEdit(${i})" aria-label="remove">✕</button>`:''}</div>`).join('');
+}
+function readKidEdits(){[...$('kidEdits').querySelectorAll('input')].forEach((inp,i)=>{if(obKids[i])obKids[i].name=inp.value.trim()||obKids[i].name;});}
+function addKidEdit(){readKidEdits();if(obKids.length>=5){toast('Up to 5 hunters');return;}obKids.push({name:'Hunter'});renderKidEdits();}
+function rmKidEdit(i){readKidEdits();obKids.splice(i,1);renderKidEdits();}
+function renderRwPreview(){$('rwPreview').innerHTML=S.rewards.map(r=>`<div class="rw-mini"><span class="em">${r.icon}</span><b>${r.name}</b><span class="cost">⭐ ${r.cost}</span></div>`).join('');}
+function finishOnboard(){
+  // build members from obKids + keep parent
+  const newMembers={};
+  obKids.forEach((k,i)=>{const id='k'+(i+1);newMembers[id]={name:k.name||('Hunter '+(i+1)),role:'kid',av:(k.name[0]||'H').toUpperCase(),color:COLORS[i%COLORS.length],stars:i===0?120:i===1?85:0,spins:1,streak:i===0?5:i===1?3:0,lastActive:'',freeSpinDate:'',spinsToday:0,stealDate:'',shields:i===0?1:0,doubleNext:false,skipTokens:0,quests:[],weekStars:i===0?24:i===1?16:0,pending:[]};});
+  newMembers['dad']={name:'Dad',role:'parent',av:'D',color:'#A855F7'};
+  S.members=newMembers;S.onboarded=true;save();
+  show('who');renderWho();
+}
+
+/* ── reset ── */
+function resetAll(){try{localStorage.removeItem(KEY);}catch(e){}S=seed();save();obStep=0;obKids=[{name:'Jakob'},{name:'Dean'}];buildWheel();show('onboard');obShow(0);}
+
+/* ── events ── */
+$('spinBtn').addEventListener('click',()=>{S.coached=true;doSpin();});
+$('winKeep').addEventListener('click',()=>$('scrim').classList.remove('on'));
+$('scrim').addEventListener('click',e=>{if(e.target===$('scrim'))$('scrim').classList.remove('on');});
 document.querySelectorAll('.ptab .t').forEach(b=>b.addEventListener('click',()=>{pTab=b.dataset.tab;renderParent();}));
 
-// ── boot ──
+/* ── boot ── */
 buildWheel();
-if(S.current&&S.members[S.current]){ const m=S.members[S.current]; if(m.role==='parent'){show('parent');renderParent();}else{show('kid');renderKid();} }
-else { show('who'); renderWho(); }
+if(!S.onboarded){show('onboard');obShow(0);}
+else if(S.current&&S.members[S.current]){const m=S.members[S.current];if(m.role==='parent'){show('parent');renderParent();}else{show('kid');renderKid();}}
+else{show('who');renderWho();}
 </script>
 </body>
 </html>
