@@ -690,7 +690,8 @@ svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-l
 .bghost{width:100%;background:var(--glass);border:1px solid var(--glass-line);color:var(--on-hero);font-family:var(--font-display);font-size:var(--text-base);padding:13px;border-radius:var(--radius-pill);margin-top:9px;min-height:44px}
 .handoff{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;flex:1;padding:24px 8px}
 .handoff .hbig{font-size:4.4rem;animation:pop var(--dur-slow) var(--ease-spring)}
-.handoff .hav{width:78px;height:78px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-size:var(--text-2xl);box-shadow:var(--shadow-lg)}
+.hav{border-radius:50%;display:grid;place-items:center;color:#fff;font-family:var(--font-display);overflow:hidden}
+.handoff .hav{width:78px;height:78px;font-size:var(--text-2xl);box-shadow:var(--shadow-lg)}
 .handoff h2{font-size:var(--text-4xl);color:var(--on-hero)}
 .handoff .hlead{color:var(--on-hero-dim);font-weight:var(--weight-bold);font-size:var(--text-base);line-height:1.45;max-width:300px}
 .throwgrid{display:flex;flex-direction:column;gap:12px;margin-top:6px}
@@ -914,6 +915,24 @@ svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-l
     <div class="pluswrap" id="plusBody"></div>
   </section>
 
+  <!-- ARENA / LOBBY (cross-device) -->
+  <section class="screen hero" id="arena">
+    <div class="bwrap" id="arenaBody"></div>
+  </section>
+
+  <!-- INCOMING CHALLENGE -->
+  <div class="scrim" id="inviteScrim">
+    <div class="winbox">
+      <div style="font-size:3rem;position:relative;z-index:2">⚔️</div>
+      <h2 id="inviteTitle">Challenge!</h2>
+      <div class="prize"><div class="pm" id="inviteMsg"></div></div>
+      <div style="display:flex;gap:10px;position:relative;z-index:2;margin-top:16px">
+        <button class="keep" style="flex:1" onclick="acceptChallenge()">Accept ⚔️</button>
+        <button class="keep" style="flex:1;background:transparent;color:#fff;border:1.5px solid var(--glass-line)" onclick="declineChallenge()">Decline</button>
+      </div>
+    </div>
+  </div>
+
   <!-- RESULT / WIN MODAL -->
   <div class="scrim" id="scrim">
     <div class="winbox">
@@ -939,7 +958,9 @@ svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-l
 
 <script>
 "use strict";
-const KEY='choreroyale_v1';
+/* per-device storage namespace — ?dev=A / ?dev=B simulate two phones in two tabs */
+const DEVSFX=new URLSearchParams(location.search).get('dev');
+const KEY='choreroyale_v1'+(DEVSFX?'_'+DEVSFX:'');
 const MAX_SPINS=8;            // daily spin cap (appointment mechanic)
 const DAILY_QUEST_CAP=4;     // bounded daily chores — the roulette won't bury you
 const BUYOFF_MULT=3;         // buy-off priced high vs the chore's stars
@@ -984,7 +1005,7 @@ function mkKid(name,i,avatar){
 }
 function seed(){
   return {
-    onboarded:false, view:'onboard', current:null, clan:'The M Clan', refMode:true, coached:false, mode:'light',
+    onboarded:false, view:'onboard', current:null, deviceChampion:null, familyCode:'MCLAN', clan:'The M Clan', refMode:true, coached:false, mode:'light',
     meter:{progress:40, target:100, reward:'Family pizza & movie night 🍕'},
     season:{name:'Summer Splash', emoji:'☀️', progress:25, target:60, prize:'Water-park day out 🏖️', endsISO:'2026-08-31'},
     members:{
@@ -1027,7 +1048,7 @@ const POWERUPS=[
 /* ── tiny helpers ── */
 const $=id=>document.getElementById(id);
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400);}
-function show(v){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(v).classList.add('on');S.view=v;window.scrollTo(0,0);}
+function show(v){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(v).classList.add('on');S.view=v;window.scrollTo(0,0);const tb=$('themeBtn');if(tb)tb.style.display=['battle','arena','plus'].includes(v)?'none':'';}
 function cur(){return S.members[S.current];}
 function kids(){return Object.keys(S.members).filter(id=>S.members[id].role==='kid');}
 function parentId(){return Object.keys(S.members).find(id=>S.members[id].role==='parent');}
@@ -1446,7 +1467,7 @@ function renderWho(){
     return `<button class="pick" onclick="enter('${id}')"><span class="ava" style="background:${m.color}">${m.av}</span><span class="nm">${esc(m.name)}</span>${m.role==='kid'?`<span class="rl">Champion</span>${extra}`:extra}</button>`;
   }).join('');
 }
-function enter(id){S.current=id;save();const m=S.members[id];if(m.role==='parent'){show('parent');renderParent();}else{show('kid');renderKid();}}
+function enter(id){S.current=id;S.deviceChampion=id;save();joinFamily();const m=S.members[id];if(m.role==='parent'){show('parent');renderParent();}else{show('kid');renderKid();}}
 function goWho(){S.current=null;B=null;save();show('who');renderWho();}
 
 /* ── RENDER: KID ── */
@@ -1494,15 +1515,16 @@ function renderKid(){
   $('questList').innerHTML=qh;
   if(chOn) runChTicker();
 
-  // battle zone
+  // battle zone — ONLINE arena is the headline; practice (same device) is secondary
   const sibs=siblings(S.current);
-  $('battleZone').innerHTML = sibs.length ? `
-    <div class="sec-t">Splat Showdown</div>
+  const onlineCount=NET.online().filter(p=>p.id!==S.deviceChampion&&p.role==='kid').length;
+  $('battleZone').innerHTML = `
+    <div class="sec-t">Arena · live 1v1 <span class="c">${onlineCount} online</span></div>
     <div class="arena">
-      <div class="at">⚔️ Battle a sibling</div>
-      <div class="am">Challenge ${esc(nm(sibs[0]))}${sibs.length>1?' &amp; co':''} to dodge a chore. Secret picks, best of 3 — pure luck &amp; nerve.</div>
-      <div class="ab"><button class="go" onclick="enterBattle()">Start a battle</button></div>
-    </div>` : '';
+      <div class="at">⚔️ Battle across devices</div>
+      <div class="am">Challenge a sibling on <b>their own phone</b> to a live Splat Showdown for a chore — secret picks, best of 3, fair over the network.</div>
+      <div class="ab"><button class="go" onclick="openArena()">Enter the Arena</button>${sibs.length?`<button onclick="enterBattle()">Practice here</button>`:''}</div>
+    </div>`;
 
   // power-ups (bought with 🪙 coins)
   $('powerRow').innerHTML=POWERUPS.map(p=>{const can2=(k.coins||0)>=p.cost;return `<div class="pwr"><div class="pe">${p.e}</div><div class="pn">${p.n}</div><div class="pd">${p.d}</div><button ${can2?'':'disabled'} onclick="buyPowerup('${p.id}')">🪙 ${p.cost}</button></div>`;}).join('');
@@ -1667,6 +1689,236 @@ $('winKeep').addEventListener('click',()=>$('scrim').classList.remove('on'));
 $('scrim').addEventListener('click',e=>{if(e.target===$('scrim'))$('scrim').classList.remove('on');});
 document.querySelectorAll('.ptab .t').forEach(b=>b.addEventListener('click',()=>{pTab=b.dataset.tab;renderParent();}));
 
+/* ════════════════════ CROSS-DEVICE MULTIPLAYER (free-tier, no spend) ════════════════════
+   Each player runs the app on their OWN device, joins a shared FAMILY channel, sees who's
+   online, and plays live 1-on-1 Splat Showdown across two devices.
+
+   Transport is abstracted:
+     • DEFAULT — BroadcastChannel: same-origin family channel. Works live across tabs / PWA
+       windows on a device + same machine (used here to verify two independent clients).
+     • PRODUCTION — Supabase Realtime: set window.CHORE_ROYALE_NET={url,anonKey} (a parent's
+       FREE project) and it routes presence + battle over the internet between real phones.
+
+   FAIRNESS is transport-independent and needs no trusted server:
+     • commit-reveal — each device sends SHA-256(pick+nonce+round) BEFORE anyone reveals, so
+       no one can peek and a slow phone/connection gets no edge (you can't change your throw
+       after seeing theirs).
+     • engine-rolled splat — the random splat size is derived from BOTH players' nonces
+       (sorted, hashed); identical on both devices, controllable by neither. */
+async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+function randHex(){const a=new Uint8Array(10);crypto.getRandomValues(a);return [...a].map(x=>x.toString(16).padStart(2,'0')).join('');}
+async function splatFrom(n1,n2){const h=await sha([n1,n2].sort().join('|'));return 1+(parseInt(h.slice(0,8),16)%5);}
+
+const NET=(()=>{
+  let bc=null, sb=null, sbchan=null, fam=null, prof=null, kind='local';
+  const alive={}, subs={}; let hb=null;
+  function deliver(m){
+    if(!m||m.fam!==fam) return;
+    if(prof&&m.from===prof.id) return;                 // ignore our own echo
+    if(m.type==='hello'||m.type==='hb'){ alive[m.from]={prof:m.payload.prof,seen:Date.now()}; if(m.type==='hello')raw('hb',{prof}); pres(); return; }
+    if(m.type==='bye'){ delete alive[m.from]; pres(); return; }
+    if(subs[m.type]) subs[m.type](m);
+  }
+  function raw(type,payload){ const m={fam,from:prof?prof.id:'?',type,payload,ts:Date.now()};
+    if(kind==='supabase'&&sbchan){ sbchan.send({type:'broadcast',event:'m',payload:m}); }
+    else if(bc){ bc.postMessage(m); } }
+  function pres(){ const t=Date.now(); Object.keys(alive).forEach(id=>{if(t-alive[id].seen>70000)delete alive[id];}); if(subs.__pres)subs.__pres(); }   // lenient: bg tabs throttle heartbeats (Supabase uses server presence)
+  function tick(){ raw('hb',{prof}); pres(); }
+  function join(familyCode, profile){
+    leave(); fam=familyCode; prof=profile;
+    if(window.CHORE_ROYALE_NET&&window.supabase){
+      kind='supabase';
+      sb=window.supabase.createClient(window.CHORE_ROYALE_NET.url,window.CHORE_ROYALE_NET.anonKey);
+      sbchan=sb.channel('cr:'+fam,{config:{broadcast:{self:false}}});
+      sbchan.on('broadcast',{event:'m'},({payload})=>deliver(payload)).subscribe(st=>{ if(st==='SUBSCRIBED'){raw('hello',{prof});} });
+    } else {
+      kind='local';
+      try{ bc=new BroadcastChannel('choreroyale:'+fam); bc.onmessage=e=>deliver(e.data); raw('hello',{prof}); }catch(e){ kind='offline'; }
+    }
+    clearInterval(hb); hb=setInterval(tick,2500); pres();
+  }
+  function leave(){ try{raw('bye',{});}catch(e){} clearInterval(hb); if(bc){bc.close();bc=null;} if(sbchan){try{sbchan.unsubscribe();}catch(e){}sbchan=null;} Object.keys(alive).forEach(k=>delete alive[k]); }
+  return { join, leave, send:(t,p)=>raw(t,p), on:(t,cb)=>{subs[t]=cb;}, online:()=>Object.values(alive).map(a=>a.prof), kind:()=>kind };
+})();
+
+let netReady=false;
+function myProf(){ const k=S.members[S.deviceChampion]; return k?{id:S.deviceChampion,name:k.name,av:k.av,color:k.color,role:k.role,clan:S.clan}:null; }
+function familyCode(){ return (S.familyCode||'MCLAN').toUpperCase(); }
+function joinFamily(){
+  const p=myProf(); if(!p)return;
+  if(!netReady){
+    NET.on('__pres',()=>{ if(S.view==='arena')renderArena(); });
+    NET.on('challenge',onNetChallenge); NET.on('accept',onNetAccept); NET.on('decline',onNetDecline);
+    NET.on('commit',onNetCommit); NET.on('reveal',onNetReveal); NET.on('quit',onNetQuit);
+    netReady=true;
+  }
+  NET.join(familyCode(),p);
+}
+
+/* ── ARENA / LOBBY ── */
+function openArena(){ show('arena'); renderArena(); }
+function renderArena(){
+  const meId=S.deviceChampion, me=S.members[meId];
+  const others=NET.online().filter(p=>p.id!==meId);
+  const players=others.filter(p=>p.role==='kid');
+  const kindLbl = NET.kind()==='supabase'?'🌐 Online (Supabase)':(NET.kind()==='local'?'🔗 Family channel':'offline');
+  let html=`<div class="btop"><div class="bttl">⚔️ Arena</div><button class="bquit" onclick="show('kid');renderKid()">Close</button></div>
+    <div class="bcard">
+      <div style="display:flex;align-items:center;gap:11px">
+        <span class="hav" style="width:48px;height:48px;font-size:1.4rem;background:${me?me.color:'#888'}">${me?me.av:'?'}</span>
+        <div><div class="ot" style="font-size:1.05rem">You are <b>${esc(me?me.name:'?')}</b> on this device</div>
+        <div class="om">Family <b>${esc(familyCode())}</b> · ${kindLbl}</div></div>
+      </div>
+    </div>
+    <div class="bcard" style="margin-top:10px">
+      <h2 style="font-size:1.2rem">Who's in the arena</h2>
+      <div class="blead">Challenge a sibling who's online to a live 1-on-1 battle for one of your chores.</div>
+      <div class="opts">`;
+  if(!players.length){
+    html+=`<div style="text-align:center;padding:14px 6px;color:var(--on-hero-dim);font-weight:800">⏳ Waiting for another champion to come online…<br><span style="font-size:.8rem">Open the app on their device (same family) — they'll appear here.</span></div>`;
+  } else {
+    players.forEach(p=>{
+      html+=`<div class="opt"><span class="hav" style="width:34px;height:34px;font-size:1rem;background:${p.color}">${p.av}</span><div style="flex:1"><div class="ot">${esc(p.name)}</div><div class="om">🟢 online &amp; ready</div></div><button class="bghost" style="width:auto;margin:0;padding:8px 14px" onclick="pickStakeFor('${p.id}')">Challenge ⚔️</button></div>`;
+    });
+  }
+  html+=`</div></div>`;
+  // my chores to stake
+  html+=`<div class="bcard" style="margin-top:10px"><h2 style="font-size:1.1rem">Your chores</h2><div class="blead">${me&&me.quests&&me.quests.length?'Pick one to put on the line when you challenge.':'No chores yet — spin the Roulette on your wheel first. 🎡'}</div></div>`;
+  html+=`<button class="bghost" onclick="show('kid');renderKid()">← Back to my wheel</button>`;
+  $('arenaBody').innerHTML=html;
+}
+let pendingOpp=null;
+function pickStakeFor(oppId){
+  const me=S.members[S.deviceChampion];
+  if(!me.quests||!me.quests.length){ toast('Spin to win a chore first, then challenge ⚔️'); return; }
+  pendingOpp=oppId;
+  const rows=me.quests.map(cid=>{const c=choreById(cid);return c?`<button class="opt" onclick="startOnlineChallenge('${oppId}','${cid}')"><span class="oe">${c.icon}</span><div><div class="ot">${esc(c.name)}</div><div class="om">Loser does this chore</div></div></button>`:'';}).join('');
+  $('arenaBody').innerHTML=`<div class="btop"><div class="bttl">⚔️ Stake a chore</div><button class="bquit" onclick="renderArena()">Back</button></div>
+    <div class="bcard"><h2 style="font-size:1.2rem">What's on the line vs ${esc(S.members[oppId]?S.members[oppId].name:'?')}?</h2><div class="opts" style="margin-top:10px">${rows}</div></div>`;
+}
+
+/* ── ONLINE 1v1 BATTLE (commit-reveal over the family channel) ── */
+let OB=null;
+function startOnlineChallenge(oppId, stake){
+  const bid='b'+randHex();
+  OB={battleId:bid, role:'challenger', me:S.deviceChampion, opp:oppId, stake, round:1, wins:{}, splatAcc:{}, phase:'await', commits:{}, reveals:{}, myPick:null, myNonce:null, revealedSelf:false};
+  OB.wins[OB.me]=0; OB.wins[oppId]=0;
+  NET.send('challenge',{to:oppId, stake, battleId:bid, prof:myProf()});
+  show('battle'); renderOB();
+}
+function onNetChallenge(m){
+  if(m.payload.to!==S.deviceChampion) return;
+  if(OB&&OB.phase!=='done'){ NET.send('decline',{to:m.from,battleId:m.payload.battleId}); return; } // busy
+  OB={battleId:m.payload.battleId, role:'opponent', me:S.deviceChampion, opp:m.from, stake:m.payload.stake, round:1, wins:{}, splatAcc:{}, phase:'invite', inviter:m.payload.prof, commits:{}, reveals:{}, myPick:null, myNonce:null, revealedSelf:false};
+  OB.wins[OB.me]=0; OB.wins[m.from]=0;
+  showInvite();
+}
+function showInvite(){
+  const ch=choreById(OB.stake);
+  $('inviteTitle').textContent=`${OB.inviter?OB.inviter.name:'A sibling'} challenges you!`;
+  $('inviteMsg').innerHTML=`Live Splat Showdown — best of 3.<br>On the line: <b>${ch?esc(ch.name):'a chore'}</b> (loser does it).`;
+  $('inviteScrim').classList.add('on');
+}
+function closeInvite(){ $('inviteScrim').classList.remove('on'); }
+function acceptChallenge(){ closeInvite(); NET.send('accept',{to:OB.opp, battleId:OB.battleId, prof:myProf()}); beginOBRound(1); }
+function declineChallenge(){ closeInvite(); NET.send('decline',{to:OB.opp, battleId:OB.battleId}); OB=null; }
+function onNetAccept(m){ if(!OB||m.payload.battleId!==OB.battleId)return; beginOBRound(1); }
+function onNetDecline(m){ if(!OB||m.payload.battleId!==OB.battleId)return; toast('Challenge declined'); OB=null; show('kid'); renderKid(); }
+function onNetQuit(m){ if(!OB||m.payload.battleId!==OB.battleId)return; toast(`${S.members[OB.opp]?S.members[OB.opp].name:'Opponent'} left the arena`); OB=null; show('arena'); renderArena(); }
+function obQuit(){ if(OB){NET.send('quit',{to:OB.opp,battleId:OB.battleId});} OB=null; openArena(); }
+function beginOBRound(r){ OB.round=r; OB.phase='pick'; OB.myPick=null; OB.myNonce=null; OB.commits={}; OB.reveals={}; OB.revealedSelf=false; OB.tie=false; OB.roundWinner=null; show('battle'); renderOB(); }
+
+async function obChoose(pick){
+  if(OB.phase!=='pick')return;
+  OB.myPick=pick; OB.myNonce=randHex();
+  OB.commits[OB.me]={hash:await sha(pick+':'+OB.myNonce+':'+OB.round)};
+  OB.phase='committed'; renderOB();
+  NET.send('commit',{to:OB.opp, battleId:OB.battleId, round:OB.round, hash:OB.commits[OB.me].hash});
+  maybeReveal();
+}
+function onNetCommit(m){ if(!OB||m.payload.battleId!==OB.battleId||m.payload.round!==OB.round)return; OB.commits[OB.opp]={hash:m.payload.hash}; maybeReveal(); if(OB.phase==='committed')renderOB(); }
+function maybeReveal(){
+  if(OB.myPick&&OB.commits[OB.me]&&OB.commits[OB.opp]&&!OB.revealedSelf){
+    OB.revealedSelf=true;
+    OB.reveals[OB.me]={pick:OB.myPick,nonce:OB.myNonce};
+    NET.send('reveal',{to:OB.opp, battleId:OB.battleId, round:OB.round, pick:OB.myPick, nonce:OB.myNonce});
+    tryResolve();
+  }
+}
+async function onNetReveal(m){
+  if(!OB||m.payload.battleId!==OB.battleId||m.payload.round!==OB.round)return;
+  const ok = OB.commits[OB.opp] && (await sha(m.payload.pick+':'+m.payload.nonce+':'+OB.round))===OB.commits[OB.opp].hash;
+  if(!ok){ toast('⚠️ Opponent pick failed commit-check — round void'); return; }
+  OB.reveals[OB.opp]={pick:m.payload.pick,nonce:m.payload.nonce};
+  tryResolve();
+}
+async function tryResolve(){
+  if(OB.phase==='reveal'||OB.phase==='done')return;
+  if(!(OB.reveals[OB.me]&&OB.reveals[OB.opp]))return;
+  const mine=OB.reveals[OB.me], theirs=OB.reveals[OB.opp];
+  OB.lastReveal={mine:mine.pick,theirs:theirs.pick};
+  if(mine.pick===theirs.pick){ OB.tie=true; OB.phase='reveal'; renderOB(); return; }
+  const iWin=THROWS[mine.pick].beats===theirs.pick;
+  const winner=iWin?OB.me:OB.opp;
+  const splat=await splatFrom(mine.nonce,theirs.nonce);   // identical on both devices
+  OB.wins[winner]++; OB.splatAcc[winner]=(OB.splatAcc[winner]||0)+splat; OB.splatSize=splat; OB.roundWinner=winner; OB.tie=false;
+  OB.phase='reveal'; renderOB();
+}
+function obAdvance(){
+  if(OB.tie){ beginOBRound(OB.round); return; }
+  if(OB.wins[OB.me]>=2||OB.wins[OB.opp]>=2){ finishOnline(); }
+  else { beginOBRound(OB.round+1); }
+}
+function finishOnline(){
+  const winner=OB.wins[OB.me]>OB.wins[OB.opp]?OB.me:OB.opp;
+  const iLost=winner!==OB.me;
+  const me=S.members[S.deviceChampion];
+  if(OB.stake){
+    if(iLost){ if(!heldChores(me).includes(OB.stake))me.quests.push(OB.stake); }   // loser's plate updates on THIS device
+    else { const i=me.quests.indexOf(OB.stake); if(i>=0)me.quests.splice(i,1); }
+  }
+  let bonus=0;
+  if(!iLost){ bonus=Math.min(BATTLE_COIN_CAP,OB.splatAcc[OB.me]||0); me.coins=(me.coins||0)+bonus; me.battleWins=(me.battleWins||0)+1; }
+  markActive(me); save();
+  OB.finalWinner=winner; OB.myBonus=bonus; OB.phase='done'; renderOB();
+}
+
+function renderOB(){
+  const el=$('battleBody'); if(!OB){show('kid');return;}
+  const meId=OB.me, me=S.members[meId], opp=S.members[OB.opp];
+  const score=`<div class="bscore">
+    <div class="sc"><div class="av" style="background:${me.color}">${me.av}</div><div class="nm">${esc(me.name)} (you)</div><div class="pts">${OB.wins[meId]||0}</div></div>
+    <div class="vsmid">vs</div>
+    <div class="sc"><div class="av" style="background:${opp?opp.color:'#888'}">${opp?opp.av:'?'}</div><div class="nm">${esc(opp?opp.name:'?')}</div><div class="pts">${OB.wins[OB.opp]||0}</div></div></div>`;
+  const top=`<div class="btop"><div class="bttl">⚔️ Arena · ${OB.phase==='await'||OB.phase==='invite'?'1v1':'Round '+OB.round+' of 3'}</div><button class="bquit" onclick="obQuit()">Quit</button></div>`;
+  if(OB.phase==='await'){
+    el.innerHTML=top+score+`<div class="handoff"><div class="hbig">📡</div><h2>Challenge sent</h2><div class="hlead">Waiting for <b>${esc(opp?opp.name:'them')}</b> to accept on their device…</div></div>`; return;
+  }
+  if(OB.phase==='pick'){
+    const rows=Object.keys(THROWS).map(key=>{const t=THROWS[key];return `<button class="throw" onclick="obChoose('${key}')"><span class="te">${t.e}</span><div><div class="tn">${t.n}</div><div class="tb">beats ${THROWS[t.beats].n} ${THROWS[t.beats].e}</div></div></button>`;}).join('');
+    el.innerHTML=top+score+`<div class="bcard"><h2 style="font-size:1.3rem">Pick in secret 🤫</h2><div class="blead">Your throw is locked &amp; hashed before ${esc(opp?opp.name:'they')} can see it. No peeking, no lag advantage.</div><div class="throwgrid">${rows}</div></div><div class="secret-note">Pie 🥧 → Spaghetti 🍝 → Ketchup 🍅 → Pie</div>`; return;
+  }
+  if(OB.phase==='committed'){
+    el.innerHTML=top+score+`<div class="handoff"><div class="hbig">🔒</div><h2>Locked in!</h2><div class="hlead">Your pick is committed. ${OB.commits[OB.opp]?`${esc(opp.name)} has locked in too — revealing…`:`Waiting for ${esc(opp?opp.name:'them')} to lock in…`}</div></div>`; return;
+  }
+  if(OB.phase==='reveal'){
+    const a=THROWS[OB.lastReveal.mine], b=THROWS[OB.lastReveal.theirs];
+    let banner,splat='';
+    if(OB.tie){ banner=`<div class="rwin">😮 Same throw — replay round ${OB.round}!</div>`; }
+    else { const win=OB.roundWinner===meId?(me.name+' (you)'):opp.name; splat=`<div class="splat">${esc(OB.roundWinner===meId?'You':opp.name)} land${OB.roundWinner===meId?'':'s'} a splat!<br><span class="sz" style="--sz:${OB.splatSize}">💥</span><br><span style="font-size:.8rem;color:var(--on-hero-dim)">engine-rolled ${OB.splatSize}/5 · from both nonces</span></div>`; banner=`<div class="rwin">${esc(win)} takes round ${OB.round}! 🎉</div>`; }
+    const over=OB.wins[meId]>=2||OB.wins[OB.opp]>=2;
+    el.innerHTML=top+score+`<div class="bcard"><div class="vsbox"><div class="side"><div class="pe">${a.e}</div><div class="pn">You<br>${a.n}</div></div><div class="vmid">VS</div><div class="side"><div class="pe">${b.e}</div><div class="pn">${esc(opp.name)}<br>${b.n}</div></div></div>${splat}${banner}</div><button class="bprimary" onclick="obAdvance()">${OB.tie?'Replay round →':(over?'See the result 🏆':'Next round →')}</button>`; return;
+  }
+  if(OB.phase==='done'){
+    const won=OB.finalWinner===meId;
+    const ch=choreById(OB.stake);
+    el.innerHTML=top+`<div class="handoff"><div class="hbig">${won?'🏆':'🫡'}</div><h2>${won?'You win!':esc(opp.name)+' wins'}</h2>
+      <div class="hlead">${OB.stake?(won?`You dodged "${esc(ch?ch.name:'the chore')}" — it's on ${esc(opp.name)}'s plate now ♻️`:`"${esc(ch?ch.name:'the chore')}" landed on your plate — still earns its ⭐ when you do it.`):'Friendly — bragging rights!'}${won&&OB.myBonus?`<br><b style="color:var(--signature-400)">+${OB.myBonus} 🪙 splat bonus</b>`:''}</div>
+      <div class="blead" style="max-width:300px">Result synced to both devices. A parent confirms the chore for ⭐.</div>
+      <button class="bprimary" style="max-width:280px" onclick="OB=null;openArena()">Back to the arena →</button></div>`; return;
+  }
+}
+
 /* ── light / dark mode (3SDS data-mode contract) ── */
 function applyMode(m){
   document.documentElement.setAttribute('data-mode',m);
@@ -1682,12 +1934,24 @@ function toggleTheme(){applyMode(S.mode==='dark'?'light':'dark');save();}
 /* ── PWA service worker (network-first; purges stale shared-origin caches) ── */
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}
 
+/* ── load Supabase Realtime adapter only when a parent has configured a project ── */
+function loadNetThen(cb){
+  if(window.supabase || !window.CHORE_ROYALE_NET){cb();return;}
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+  s.onload=cb; s.onerror=cb; document.head.appendChild(s);
+}
+
 /* ── boot ── */
 applyMode(S.mode || (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
 buildWheel();
+loadNetThen(()=>{
+  if(S.deviceChampion && S.members[S.deviceChampion]) joinFamily();   // rejoin the family channel on return
+});
 if(!S.onboarded){show('onboard');obShow(0);}
 else if(S.current&&S.members[S.current]){const m=S.members[S.current];if(m.role==='parent'){show('parent');renderParent();}else{show('kid');renderKid();}}
 else{show('who');renderWho();}
+window.addEventListener('beforeunload',()=>{try{NET.leave();}catch(e){}});
 </script>
 </body>
 </html>
