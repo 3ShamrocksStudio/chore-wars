@@ -8,6 +8,8 @@
 <!-- Self-contained PWA. Online battles (opt-in) load supabase-js from jsdelivr + talk to *.supabase.co only when a parent enables it. No eval. -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'none'">
 <link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -455,10 +457,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(62% 42% at 50% 0%, color-mix(in srgb,var(--signature-400) 12%, transparent), transparent 72%)}
 .hero>*{position:relative;z-index:1}
 .crestlg{width:74px;height:74px;border-radius:var(--radius-md);object-fit:cover;box-shadow:var(--shadow-xl)}
-/* neutral logo placeholder — holds the space cleanly until a real brand mark is set (no AI art) */
-.logo-ph{box-shadow:none;object-fit:unset}
-.crestlg.logo-ph{background:var(--glass);border:1px solid var(--glass-line)}         /* on dark hero — subtle glass tile */
-.crest.logo-ph{background:var(--accent-soft);border:1px solid var(--border)}          /* on light header — subtle tile */
+.crestlg{background:transparent}
 
 /* ── ONBOARDING ── */
 #onboard{align-items:center;justify-content:flex-start;padding:calc(16px + var(--safe-t)) var(--space-5) calc(12px + var(--safe-b))}
@@ -783,7 +782,7 @@ svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-l
 
   <!-- ONBOARDING -->
   <section class="screen on hero" id="onboard">
-    <div class="crestlg logo-ph" role="img" aria-label="Chore Royale — logo coming soon"></div>
+    <img class="crestlg" src="assets/logo.png" alt="Chore Royale" width="74" height="74">
     <div class="ob-dots" id="obDots"><i class="on"></i><i></i><i></i><i></i></div>
 
     <div class="ob-step on" id="ob0">
@@ -838,7 +837,7 @@ svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-l
 
   <!-- WHO'S HERE -->
   <section class="screen hero" id="who">
-    <div class="crestlg logo-ph" role="img" aria-label="Chore Royale — logo coming soon"></div>
+    <img class="crestlg" src="assets/logo.png" alt="Chore Royale" width="74" height="74">
     <h1>Chore <b>Royale</b></h1>
     <div class="sub" id="whoSub">👑 The M Clan · Who's here?</div>
     <div class="pickrow" id="pickrow"></div>
@@ -848,7 +847,7 @@ svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-l
   <!-- KID -->
   <section class="screen" id="kid">
     <div class="head">
-      <div class="crest logo-ph" role="img" aria-label="Chore Royale"></div>
+      <img class="crest" src="assets/logo.png" alt="Chore Royale" width="36" height="36">
       <div class="tt"><b>My Wheel</b><span id="kidSpinsLbl">Ready to spin</span></div>
       <button class="who-chip" id="kidChip" onclick="goWho()" aria-label="Switch player"></button>
     </div>
@@ -859,7 +858,7 @@ svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-l
         <div class="wheelstage">
           <div class="pointer"></div>
           <svg class="wheel" id="wheel" viewBox="0 0 300 300" aria-label="Chore roulette wheel"></svg>
-          <div class="hub" aria-hidden="true"></div>
+          <div class="hub" aria-hidden="true"><img src="assets/logo.png" alt=""></div>
         </div>
         <button class="spinbtn" id="spinBtn">SPIN</button>
         <div class="spinsub" id="spinSub"></div>
@@ -895,7 +894,7 @@ svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-l
   <!-- PARENT -->
   <section class="screen" id="parent">
     <div class="head">
-      <div class="crest logo-ph" role="img" aria-label="Chore Royale"></div>
+      <img class="crest" src="assets/logo.png" alt="Chore Royale" width="36" height="36">
       <div class="tt"><b>Referee</b><span id="parentSub">Parent</span></div>
       <button class="who-chip" id="parentChip" onclick="goWho()" aria-label="Switch player"></button>
     </div>

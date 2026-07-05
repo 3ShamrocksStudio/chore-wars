@@ -7,13 +7,15 @@
 // (a) uses network-first for navigations so a stale shell can never trap the
 // user, and (b) deletes every cache it does not own on activate.
 
-const CACHE_NAME = 'choreroyale-v1-cache';
+const CACHE_NAME = 'choreroyale-v2-cache';
 const urlsToCache = [
   './',
   'index.html',
   'manifest.json',
-  'icon.svg',
-  '3shamrocks_black.png'
+  'assets/logo.png',
+  'assets/apple-touch-icon.png',
+  'assets/3shamrocks_black.png',
+  'assets/3shamrocks.png'
 ];
 
 self.addEventListener('install', event => {
