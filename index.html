@@ -462,8 +462,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 /* ── ONBOARDING ── */
 #onboard{align-items:center;justify-content:flex-start;padding:calc(16px + var(--safe-t)) var(--space-5) calc(12px + var(--safe-b))}
 #onboard .crestlg{width:54px;height:54px}
-/* onboarding has its own footer — hide the redundant global one so step 1 fits above the fold (no scroll) */
-.app:has(#onboard.on) > .studio-credit{display:none}
+/* every screen carries its own © credit at its natural bottom (3S QA gate §5) */
 .ob-dots{display:flex;gap:7px;margin:9px 0 12px}
 .ob-dots i{width:8px;height:8px;border-radius:var(--radius-pill);background:color-mix(in srgb,#fff 30%,transparent);transition:var(--dur-base) var(--ease)}
 .ob-dots i.on{background:var(--signature-400);width:22px}
@@ -842,6 +841,10 @@ svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-l
     <div class="sub" id="whoSub">👑 The M Clan · Who's here?</div>
     <div class="pickrow" id="pickrow"></div>
     <button class="who-reset" onclick="resetAll()">Start over (clear data)</button>
+    <footer class="studio-credit" style="margin-top:auto">
+      <img class="studio-logo on-dark" src="assets/3shamrocks.png" alt="3Shamrocks Studio" height="14">
+      <span class="cr">© 2026 <b>3Shamrocks Studio</b>. All rights reserved.</span>
+    </footer>
   </section>
 
   <!-- KID -->
@@ -888,6 +891,10 @@ svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-l
         </div>
         <button class="pgo" onclick="show('plus');renderPlus()">See Plus</button>
       </div>
+      <footer class="studio-credit">
+        <img class="studio-logo" src="assets/3shamrocks_black.png" alt="3Shamrocks Studio" height="14">
+        <span class="cr">© 2026 <b>3Shamrocks Studio</b>. All rights reserved.</span>
+      </footer>
     </div>
   </section>
 
@@ -909,22 +916,38 @@ svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-l
       <div class="ptab-body" id="tab-chores"></div>
       <div class="ptab-body" id="tab-rewards"></div>
       <div class="ptab-body" id="tab-family"></div>
+      <footer class="studio-credit">
+        <img class="studio-logo" src="assets/3shamrocks_black.png" alt="3Shamrocks Studio" height="14">
+        <span class="cr">© 2026 <b>3Shamrocks Studio</b>. All rights reserved.</span>
+      </footer>
     </div>
   </section>
 
   <!-- BATTLE -->
   <section class="screen hero" id="battle">
     <div class="bwrap" id="battleBody"></div>
+    <footer class="studio-credit" style="margin-top:auto">
+      <img class="studio-logo on-dark" src="assets/3shamrocks.png" alt="3Shamrocks Studio" height="14">
+      <span class="cr">© 2026 <b>3Shamrocks Studio</b>. All rights reserved.</span>
+    </footer>
   </section>
 
   <!-- PLUS STORE -->
   <section class="screen hero" id="plus">
     <div class="pluswrap" id="plusBody"></div>
+    <footer class="studio-credit" style="margin-top:auto">
+      <img class="studio-logo on-dark" src="assets/3shamrocks.png" alt="3Shamrocks Studio" height="14">
+      <span class="cr">© 2026 <b>3Shamrocks Studio</b>. All rights reserved.</span>
+    </footer>
   </section>
 
   <!-- ARENA / LOBBY (cross-device) -->
   <section class="screen hero" id="arena">
     <div class="bwrap" id="arenaBody"></div>
+    <footer class="studio-credit" style="margin-top:auto">
+      <img class="studio-logo on-dark" src="assets/3shamrocks.png" alt="3Shamrocks Studio" height="14">
+      <span class="cr">© 2026 <b>3Shamrocks Studio</b>. All rights reserved.</span>
+    </footer>
   </section>
 
   <!-- INCOMING CHALLENGE -->
@@ -955,10 +978,6 @@ svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-l
     </div>
   </div>
 
-  <footer class="studio-credit">
-    <img class="studio-logo" src="assets/3shamrocks_black.png" alt="3Shamrocks Studio" height="14">
-    <span class="cr">© 2026 <b>3Shamrocks Studio</b>. All rights reserved.</span>
-  </footer>
 
   <div class="toast" id="toast"></div>
 </div>
@@ -1719,7 +1738,7 @@ async function splatFrom(n1,n2){const h=await sha([n1,n2].sort().join('|'));retu
 const NET=(()=>{
   let bc=null, sb=null, sbchan=null, fam=null, prof=null, kind='local';
   const alive={}, subs={}; let hb=null;
-  function deliver(m){
+  function routeMsg(m){
     if(!m||m.fam!==fam) return;
     if(prof&&m.from===prof.id) return;                 // ignore our own echo
     if(m.type==='hello'||m.type==='hb'){ alive[m.from]={prof:m.payload.prof,seen:Date.now()}; if(m.type==='hello')raw('hb',{prof}); pres(); return; }
@@ -1737,10 +1756,10 @@ const NET=(()=>{
       kind='supabase';
       sb=window.supabase.createClient(window.CHORE_ROYALE_NET.url,window.CHORE_ROYALE_NET.anonKey);
       sbchan=sb.channel('cr:'+fam,{config:{broadcast:{self:false}}});
-      sbchan.on('broadcast',{event:'m'},({payload})=>deliver(payload)).subscribe(st=>{ if(st==='SUBSCRIBED'){raw('hello',{prof});} });
+      sbchan.on('broadcast',{event:'m'},({payload})=>routeMsg(payload)).subscribe(st=>{ if(st==='SUBSCRIBED'){raw('hello',{prof});} });
     } else {
       kind='local';
-      try{ bc=new BroadcastChannel('choreroyale:'+fam); bc.onmessage=e=>deliver(e.data); raw('hello',{prof}); }catch(e){ kind='offline'; }
+      try{ bc=new BroadcastChannel('choreroyale:'+fam); bc.onmessage=e=>routeMsg(e.data); raw('hello',{prof}); }catch(e){ kind='offline'; }
     }
     clearInterval(hb); hb=setInterval(tick,2500); pres();
   }
