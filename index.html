@@ -406,7 +406,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none}
       <div class="streak-badge">
         <span class="streak-fire">🔥</span>
         <div>
-          <div class="streak-num">7</div>
+          <div class="streak-num" id="clan-streak">7</div>
           <div class="streak-lbl">Day Streak</div>
         </div>
       </div>
@@ -415,19 +415,19 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none}
       <div class="warrior w-j" onclick="showProfile('jakob')">
         <div class="warrior-av">⚔️</div>
         <div class="warrior-name">Jakob</div>
-        <div class="warrior-xp">2,840</div>
+        <div class="warrior-xp" id="xp-jakob">2,840</div>
         <div class="xp-bar"><div class="xp-fill" style="width:72%;background:var(--jakob)"></div></div>
       </div>
       <div class="warrior w-d" onclick="showProfile('dean')">
         <div class="warrior-av">🛡️</div>
         <div class="warrior-name">Dean</div>
-        <div class="warrior-xp">1,920</div>
+        <div class="warrior-xp" id="xp-dean">1,920</div>
         <div class="xp-bar"><div class="xp-fill" style="width:48%;background:var(--dean)"></div></div>
       </div>
       <div class="warrior w-v" onclick="showProfile('dave')">
         <div class="warrior-av">👑</div>
         <div class="warrior-name">Daddy</div>
-        <div class="warrior-xp">4,100</div>
+        <div class="warrior-xp" id="xp-dave">4,100</div>
         <div class="xp-bar"><div class="xp-fill" style="width:90%;background:var(--dave)"></div></div>
       </div>
     </div>
@@ -681,6 +681,58 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none}
 </div>
 
 <script>
+/* ── PERSISTENCE ─────────────────────────────────────────── */
+var SAVE_KEY = 'choreroyal_v1';
+
+function defaultState() {
+  return {
+    warriors: {
+      jakob: { xp: 2840, streak: 8, lastChoreDate: '', totalChores: 23 },
+      dean:  { xp: 1920, streak: 5, lastChoreDate: '', totalChores: 11 },
+      dave:  { xp: 4100, streak: 12, lastChoreDate: '', totalChores: 41 }
+    },
+    boss: { hp: 68 },
+    lastSpinDate: '',
+    spinUsedToday: false,
+    quests: {}
+  };
+}
+
+function loadState() {
+  try {
+    var raw = localStorage.getItem(SAVE_KEY);
+    if (raw) {
+      var s = JSON.parse(raw);
+      // Merge with defaults so new fields always exist
+      var def = defaultState();
+      return Object.assign(def, s, {
+        warriors: Object.assign(def.warriors, s.warriors || {})
+      });
+    }
+  } catch(e) {}
+  return defaultState();
+}
+
+function saveState() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(STATE)); } catch(e) {}
+}
+
+function todayStr() {
+  return new Date().toISOString().slice(0,10);
+}
+
+function checkDailyReset() {
+  var today = todayStr();
+  if (STATE.lastSpinDate !== today) {
+    STATE.spinUsedToday = false;
+    // Reset daily quests
+    STATE.quests = {};
+  }
+}
+
+var STATE = loadState();
+checkDailyReset();
+
 /* ── STATE ─────────────────────────────────────────────── */
 var currentScreen = 's-home';
 var history = [];
@@ -701,6 +753,48 @@ var currentChore = CHORES[0];
 var rerollsLeft = 1;
 
 /* ── NAVIGATION ─────────────────────────────────────────── */
+
+function awardXP(warrior, amount) {
+  if (!STATE.warriors[warrior]) return;
+  STATE.warriors[warrior].xp += amount;
+  var today = todayStr();
+  if (STATE.warriors[warrior].lastChoreDate !== today) {
+    STATE.warriors[warrior].streak++;
+    STATE.warriors[warrior].lastChoreDate = today;
+    STATE.warriors[warrior].totalChores++;
+  }
+  STATE.lastSpinDate = today;
+  STATE.spinUsedToday = true;
+  // Update boss HP
+  STATE.boss.hp = Math.min(100, (STATE.boss.hp || 68) + 3);
+  saveState();
+  refreshWarriorDisplay();
+}
+
+function refreshWarriorDisplay() {
+  var w = STATE.warriors;
+  var jEl = document.getElementById('xp-jakob');
+  var dEl = document.getElementById('xp-dean');
+  var vEl = document.getElementById('xp-dave');
+  var sEl = document.getElementById('clan-streak');
+  var bf = document.getElementById('boss-fill');
+  if(jEl) jEl.textContent = w.jakob.xp.toLocaleString();
+  if(dEl) dEl.textContent = w.dean.xp.toLocaleString();
+  if(vEl) vEl.textContent = w.dave.xp.toLocaleString();
+  // Best streak of clan
+  var best = Math.max(w.jakob.streak, w.dean.streak, w.dave.streak);
+  if(sEl) sEl.textContent = best;
+  // Boss bar
+  if(bf) { bf.style.transition='width .8s'; bf.style.width = STATE.boss.hp + '%'; }
+  // Spin button — disable if used today
+  var spinBtn = document.getElementById('spin-btn');
+  if(spinBtn && STATE.spinUsedToday) {
+    var tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+    spinBtn.textContent = '🌅 Come back tomorrow!';
+    spinBtn.disabled = true;
+  }
+}
+
 function goTo(id) {
   var from = document.getElementById(currentScreen);
   var to = document.getElementById(id);
@@ -860,14 +954,21 @@ function takeFakePhoto() {
 }
 
 function submitProof() {
-  document.getElementById('reward-chore').textContent = currentChore.name;
   var xp = currentChore.xp + (photoTaken ? currentChore.bonus : 0);
+  // Award to Jakob by default (active warrior)
+  awardXP('jakob', xp);
+  document.getElementById('reward-chore').textContent = currentChore.name;
   document.getElementById('reward-xp').textContent = '+' + xp;
+  // Update reward screen stats from STATE
+  var w = STATE.warriors;
+  var rXP = document.getElementById('reward-xp');
+  if(rXP) rXP.textContent = '+' + xp;
   goTo('s-reward');
 }
 
 function skipPhoto() {
   photoTaken = false;
+  awardXP('jakob', currentChore.xp);
   document.getElementById('reward-chore').textContent = currentChore.name;
   document.getElementById('reward-xp').textContent = '+' + currentChore.xp;
   goTo('s-reward');
@@ -914,6 +1015,11 @@ function showTab(tab) {
   else if (tab === 'home') goTo('s-home');
 }
 function showProfile(name) {}
+
+// Init — refresh display from saved state on load
+(function initDisplay(){
+  refreshWarriorDisplay();
+})();
 </script>
 </body>
 </html>
