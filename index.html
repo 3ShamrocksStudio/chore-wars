@@ -393,6 +393,27 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none}
   transition:opacity .2s;
 }
 .transition-overlay.flash{opacity:1}
+
+/* ═══ SCREEN 7: PARENT VERIFY ════════════════════════════════ */
+#s-parent{background:var(--bg)}
+.pin-zone{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--s4)}
+.pin-title{font-size:22px;font-weight:900;color:var(--tx0);margin-bottom:var(--s1);text-align:center}
+.pin-sub{font-size:14px;font-weight:400;color:var(--tx2);margin-bottom:var(--s5);text-align:center;max-width:28ch}
+.pin-dots{display:flex;gap:var(--s2);margin-bottom:var(--s4)}
+.pin-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);transition:background .15s,border-color .15s}
+.pin-dot.filled{background:var(--jakob);border-color:var(--jakob)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:min(280px,82vw)}
+.pin-key{height:64px;border-radius:50px;background:var(--bg2);border:1px solid var(--border);
+  color:var(--tx0);font-size:24px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .12s,transform .1s;font-family:var(--mono)}
+.pin-key:active{transform:scale(.93);background:var(--bg3)}
+.pin-key.del{font-size:18px}
+.pin-result{margin-top:var(--s4);font-size:14px;font-weight:700;min-height:20px;text-align:center}
+.pin-result.ok{color:#4ade80}
+.pin-result.err{color:#ef4444}
+.pin-hint{margin-top:var(--s3);font-size:11px;color:var(--tx3);cursor:pointer;text-decoration:underline;text-align:center}
+
 </style>
 </head>
 <body>
@@ -563,7 +584,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none}
     </div>
     <div class="proof-note">📸 Photo proof earns +15 bonus XP and helps Daddy verify your work.</div>
     <div class="proof-actions">
-      <button class="btn btn-orange" id="submit-proof-btn" onclick="submitProof()">📤 Submit for Review</button>
+      <button class="btn btn-orange" id="submit-proof-btn" onclick="goToParentVerify()">📤 Submit for Parent Review</button>
       <button class="btn btn-ghost" onclick="skipPhoto()">Skip photo — No bonus XP</button>
     </div>
   </div>
@@ -958,6 +979,19 @@ function takeFakePhoto() {
   sublbl.textContent = 'Tap to retake';
 }
 
+function goToParentVerify() {
+  // If photo was taken, go to parent verify for bonus XP; else skip straight to reward
+  if (photoTaken) {
+    pinEntry = '';
+    updatePinDots && updatePinDots();
+    var wEl = document.getElementById('pin-warrior-name');
+    if (wEl) wEl.textContent = 'Jakob';
+    goTo('s-parent');
+  } else {
+    submitProof();
+  }
+}
+
 function submitProof() {
   var xp = currentChore.xp + (photoTaken ? currentChore.bonus : 0);
   // Award to Jakob by default (active warrior)
@@ -1025,6 +1059,112 @@ function showProfile(name) {}
 (function initDisplay(){
   refreshWarriorDisplay();
 })();
+
+/* ── PARENT PIN ──────────────────────────────────────────────── */
+var DEFAULT_PIN = '1234';
+var pinEntry = '';
+
+function getParentPIN() {
+  return STATE.parentPIN || DEFAULT_PIN;
+}
+
+function pinKey(n) {
+  if (!n || pinEntry.length >= 4) return;
+  pinEntry += n;
+  updatePinDots();
+  if (pinEntry.length === 4) {
+    setTimeout(checkPIN, 120);
+  }
+}
+
+function pinDel() {
+  pinEntry = pinEntry.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pin-result').textContent = '';
+  document.getElementById('pin-result').className = 'pin-result';
+}
+
+function updatePinDots() {
+  for (var i = 0; i < 4; i++) {
+    var dot = document.getElementById('pd' + i);
+    if (dot) dot.classList.toggle('filled', i < pinEntry.length);
+  }
+}
+
+function checkPIN() {
+  var res = document.getElementById('pin-result');
+  if (pinEntry === getParentPIN()) {
+    res.textContent = '✓ Verified!';
+    res.className = 'pin-result ok';
+    // Award bonus XP
+    awardXP('jakob', 15);
+    setTimeout(function() {
+      pinEntry = '';
+      updatePinDots();
+      res.textContent = '';
+      res.className = 'pin-result';
+      goTo('s-reward');
+    }, 800);
+  } else {
+    res.textContent = 'Wrong PIN — try again';
+    res.className = 'pin-result err';
+    setTimeout(function() {
+      pinEntry = '';
+      updatePinDots();
+      res.textContent = '';
+      res.className = 'pin-result';
+    }, 1200);
+  }
+}
+
+function showPinHelp() {
+  var pin = prompt('To change the parent PIN, enter a new 4-digit PIN:');
+  if (pin && /^\d{4}$/.test(pin)) {
+    STATE.parentPIN = pin;
+    saveState();
+    alert('PIN updated! New PIN: ' + pin);
+  } else if (pin) {
+    alert('PIN must be exactly 4 digits.');
+  }
+}
+
 </script>
+
+<!-- ═══ SCREEN 7: PARENT VERIFY ═══════════════════════════════ -->
+<div class="screen hidden" id="s-parent">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="topbar-title">Parent Verify</div>
+    <div style="width:38px"></div>
+  </div>
+  <div class="pin-zone">
+    <div style="font-size:40px;margin-bottom:var(--s2)">👑</div>
+    <div class="pin-title">Parent PIN</div>
+    <div class="pin-sub">Verify <span id="pin-warrior-name">Jakob</span>'s chore to award +15 bonus XP</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key" onclick="pinKey('')">⠀</button>
+      <button class="pin-key" onclick="pinKey('0')">0</button>
+      <button class="pin-key del" onclick="pinDel()">⌫</button>
+    </div>
+    <div class="pin-result" id="pin-result"></div>
+    <div class="pin-hint" onclick="showPinHelp()">Forgot PIN? First-time setup?</div>
+  </div>
+</div>
+
 </body>
 </html>
