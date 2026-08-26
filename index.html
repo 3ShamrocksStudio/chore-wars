@@ -414,6 +414,21 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none}
 .pin-result.err{color:#ef4444}
 .pin-hint{margin-top:var(--s3);font-size:11px;color:var(--tx3);cursor:pointer;text-decoration:underline;text-align:center}
 
+
+/* Warrior playing indicator */
+.active-warrior-bar{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.2);
+  border-radius:12px;padding:10px 14px;margin-bottom:var(--s3);
+}
+.aw-label{font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.08em}
+.aw-select{
+  flex:1;background:none;border:none;color:var(--jakob);
+  font-family:var(--font);font-size:14px;font-weight:800;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+}
+.aw-select option{background:var(--bg2);color:var(--tx0)}
+
 </style>
 </head>
 <body>
@@ -460,6 +475,16 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none}
   </div>
 
   <div class="body">
+
+    <!-- ACTIVE WARRIOR SELECTOR -->
+    <div class="active-warrior-bar">
+      <span class="aw-label">🎮 עכשיו משחק</span>
+      <select class="aw-select" id="warrior-select" onchange="setActiveWarrior(this.value)">
+        <option value="jakob">⚔️ Jakob</option>
+        <option value="dean">🛡️ Dean</option>
+        <option value="dave">👑 Daddy</option>
+      </select>
+    </div>
     <!-- SPIN CTA -->
     <div class="spin-zone">
       <div class="spin-hint">🎡 Your daily chore awaits</div>
@@ -757,6 +782,7 @@ function checkDailyReset() {
 }
 
 var STATE = loadState();
+var activeWarrior = 'jakob'; // tracks who is currently playing
 checkDailyReset();
 
 /* ── STATE ─────────────────────────────────────────────── */
@@ -819,6 +845,27 @@ function refreshWarriorDisplay() {
     spinBtn.textContent = '🌅 Come back tomorrow!';
     spinBtn.disabled = true;
   }
+}
+
+
+function setActiveWarrior(name) {
+  activeWarrior = name;
+  // Update visual emphasis on warrior cards
+  document.querySelectorAll('.warrior').forEach(function(w) {
+    w.style.opacity = '1';
+  });
+  // Highlight selected warrior's card
+  var colors = {jakob: 'rgba(255,107,53,.4)', dean: 'rgba(78,205,196,.4)', dave: 'rgba(123,104,238,.4)'};
+  var card = document.querySelector('.w-' + (name === 'dave' ? 'v' : name.charAt(0)));
+  if (card) card.style.borderColor = colors[name] || '';
+  // Update chore warrior label
+  var wl = document.getElementById('chore-warrior');
+  var labels = {jakob: '⚔️ JAKOB'S QUEST', dean: '🛡️ DEAN'S QUEST', dave: '👑 DADDY'S QUEST'};
+  if (wl) wl.textContent = labels[name] || labels.jakob;
+  // Update pin warrior name
+  var pn = document.getElementById('pin-warrior-name');
+  var pnames = {jakob: 'Jakob', dean: 'Dean', dave: 'Daddy'};
+  if (pn) pn.textContent = pnames[name] || 'Jakob';
 }
 
 function goTo(id) {
@@ -995,7 +1042,7 @@ function goToParentVerify() {
 function submitProof() {
   var xp = currentChore.xp + (photoTaken ? currentChore.bonus : 0);
   // Award to Jakob by default (active warrior)
-  awardXP('jakob', xp);
+  awardXP(activeWarrior, xp);
   document.getElementById('reward-chore').textContent = currentChore.name;
   document.getElementById('reward-xp').textContent = '+' + xp;
   // Update reward screen stats from STATE
@@ -1007,7 +1054,7 @@ function submitProof() {
 
 function skipPhoto() {
   photoTaken = false;
-  awardXP('jakob', currentChore.xp);
+  awardXP(activeWarrior, currentChore.xp);
   document.getElementById('reward-chore').textContent = currentChore.name;
   document.getElementById('reward-xp').textContent = '+' + currentChore.xp;
   goTo('s-reward');
@@ -1057,6 +1104,10 @@ function showProfile(name) {}
 
 // Init — refresh display from saved state on load
 (function initDisplay(){
+  // Restore warrior select if state exists
+  var ws = document.getElementById('warrior-select');
+  if (ws && activeWarrior) ws.value = activeWarrior;
+  setActiveWarrior(activeWarrior);
   refreshWarriorDisplay();
 })();
 
@@ -1097,7 +1148,7 @@ function checkPIN() {
     res.textContent = '✓ Verified!';
     res.className = 'pin-result ok';
     // Award bonus XP
-    awardXP('jakob', 15);
+    awardXP(activeWarrior, 15);
     setTimeout(function() {
       pinEntry = '';
       updatePinDots();
