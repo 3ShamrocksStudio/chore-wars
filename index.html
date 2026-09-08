@@ -14,7 +14,7 @@
   <meta property="og:type" content="website">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1A0F2E">
-<title>Chore Royale</title>
+<title>Chore Royale — Make Chores Epic</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ─────────────────────────────────────────────── */
@@ -434,6 +434,84 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none}
 }
 .aw-select option{background:var(--bg2);color:var(--tx0)}
 
+
+/* ── PREMIUM SYSTEM ──────────────────────────────────────────────── */
+.premium-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:linear-gradient(135deg,#FFD700,#FFA500);
+  color:#1A0F2E;font-size:10px;font-weight:800;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:3px 8px;border-radius:50px;
+}
+.locked-overlay{
+  position:absolute;inset:0;
+  background:rgba(26,15,46,.85);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-radius:inherit;z-index:5;gap:6px;
+  cursor:pointer;
+}
+.locked-overlay .lock-icon{font-size:28px}
+.locked-overlay .lock-txt{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase}
+.upgrade-banner{
+  background:linear-gradient(135deg,#7B68EE,#4ECDC4);
+  border-radius:var(--r);padding:16px;margin:var(--s3) 0;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  cursor:pointer;
+}
+.ub-text{font-size:13px;font-weight:700;color:#fff;line-height:1.4}
+.ub-price{font-size:11px;color:rgba(255,255,255,.75);margin-top:2px;font-weight:400}
+.ub-btn{
+  background:#FFD700;color:#1A0F2E;font-size:12px;font-weight:800;
+  padding:8px 16px;border-radius:50px;white-space:nowrap;
+  letter-spacing:.04em;
+}
+/* Premium unlock modal */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.modal-bg.hidden{display:none}
+.modal-box{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r);padding:var(--s4);width:100%;max-width:340px;
+  text-align:center;
+}
+.modal-title{font-size:20px;font-weight:800;color:var(--tx0);margin-bottom:8px}
+.modal-sub{font-size:13px;color:var(--tx1);line-height:1.6;margin-bottom:20px}
+.modal-price{
+  font-size:32px;font-weight:900;color:var(--gold);
+  margin-bottom:4px;letter-spacing:-.02em;
+}
+.modal-price-sub{font-size:12px;color:var(--tx2);margin-bottom:20px}
+.modal-features{text-align:right;margin-bottom:24px;list-style:none;display:flex;flex-direction:column;gap:8px}
+.modal-features li{font-size:13px;color:var(--tx1);display:flex;align-items:center;gap:8px}
+.modal-features li::before{content:'✦';color:var(--gold);font-size:10px;flex-shrink:0}
+.modal-wa-btn{
+  width:100%;height:52px;
+  background:linear-gradient(135deg,#25D366,#128C7E);
+  color:#fff;border:none;border-radius:50px;
+  font-size:15px;font-weight:800;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:12px;
+}
+.modal-code-row{display:flex;gap:8px;margin-bottom:8px}
+.modal-code-input{
+  flex:1;height:48px;padding:0 14px;
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--tx0);font-family:var(--mono);font-size:18px;
+  letter-spacing:.2em;text-align:center;border-radius:12px;
+}
+.modal-code-btn{
+  height:48px;padding:0 18px;
+  background:var(--gold);color:#1A0F2E;
+  font-weight:800;border:none;border-radius:12px;cursor:pointer;
+}
+.modal-close{font-size:12px;color:var(--tx2);cursor:pointer;text-decoration:underline}
+.modal-result{font-size:13px;font-weight:700;min-height:18px;text-align:center;margin-bottom:8px}
+.modal-result.ok{color:#4ade80}
+.modal-result.err{color:#ef4444}
+.premium-star{color:var(--gold)}
+
 </style>
 </head>
 <body>
@@ -464,13 +542,13 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none}
         <div class="warrior-xp" id="xp-jakob">2,840</div>
         <div class="xp-bar"><div class="xp-fill" style="width:72%;background:var(--jakob)"></div></div>
       </div>
-      <div class="warrior w-d" onclick="showProfile('dean')">
+      <div class="warrior w-d" onclick="if(!isPremium()){openPremiumModal();return;}" style="position:relative" onclick="showProfile('dean')">
         <div class="warrior-av">🛡️</div>
         <div class="warrior-name">Dean</div>
         <div class="warrior-xp" id="xp-dean">1,920</div>
         <div class="xp-bar"><div class="xp-fill" style="width:48%;background:var(--dean)"></div></div>
       </div>
-      <div class="warrior w-v" onclick="showProfile('dave')">
+      <div class="warrior w-v" onclick="if(!isPremium()){openPremiumModal();return;}" style="position:relative" onclick="showProfile('dave')">
         <div class="warrior-av">👑</div>
         <div class="warrior-name">Daddy</div>
         <div class="warrior-xp" id="xp-dave">4,100</div>
@@ -481,6 +559,15 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none}
 
   <div class="body">
 
+
+    <!-- UPGRADE BANNER (hidden for premium users) -->
+    <div class="upgrade-banner" id="upgrade-banner" onclick="openPremiumModal()" style="display:none">
+      <div>
+        <div class="ub-text">🏆 שדרג ל-Premium</div>
+        <div class="ub-price">3 לוחמים · XP כפול · ₪29.90/חודש</div>
+      </div>
+      <div class="ub-btn">שדרג</div>
+    </div>
     <!-- ACTIVE WARRIOR SELECTOR -->
     <div class="active-warrior-bar">
       <span class="aw-label">🎮 עכשיו משחק</span>
@@ -1109,6 +1196,18 @@ function showProfile(name) {}
 
 // Init — refresh display from saved state on load
 (function initDisplay(){
+
+  // Apply premium UI state
+  var banner = document.getElementById('upgrade-banner');
+  if(banner) banner.style.display = isPremium() ? 'none' : 'flex';
+  if(isPremium()) {
+    var premBadge = document.createElement('span');
+    premBadge.className = 'premium-badge';
+    premBadge.textContent = '★ PREMIUM';
+    var clanTitle = document.querySelector('.clan-title');
+    if(clanTitle) clanTitle.appendChild(premBadge);
+  }
+
   // Restore warrior select if state exists
   var ws = document.getElementById('warrior-select');
   if (ws && activeWarrior) ws.value = activeWarrior;
@@ -1184,6 +1283,74 @@ function showPinHelp() {
   }
 }
 
+
+/* ── PREMIUM SYSTEM ──────────────────────────────────────────────── */
+var PREMIUM_CODES = ['247819','583021','914672','306158','751294'];
+var PRICE_TEXT = '₪29.90 / חודש';
+var WA_PHONE = '972XXXXXXXXX'; // Dave: replace with your number digits
+
+function isPremium() {
+  try { return localStorage.getItem('cr_premium') === 'true'; } catch(e){ return false; }
+}
+
+function unlockPremium() {
+  try {
+    localStorage.setItem('cr_premium','true');
+    document.getElementById('premium-modal').classList.add('hidden');
+    // Unlock all warriors
+    document.querySelectorAll('.warrior').forEach(function(w){ w.style.opacity='1'; w.style.pointerEvents='auto'; });
+    // Show all chores
+    STATE.premiumUnlocked = true;
+    saveState();
+    // Celebrate
+    setTimeout(function(){ showPremiumCelebration(); }, 200);
+  } catch(e){}
+}
+
+function showPremiumCelebration() {
+  var s = document.createElement('div');
+  s.style.cssText='position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);flex-direction:column;gap:12px;';
+  s.innerHTML='<div style="font-size:64px">🏆</div><div style="font-family:var(--font);font-size:24px;font-weight:800;color:#FFD700;text-align:center">Premium Unlocked!<br><span style="font-size:14px;color:rgba(255,255,255,.7);font-weight:400">All warriors, all chores, 2x XP</span></div>';
+  document.body.appendChild(s);
+  setTimeout(function(){ document.body.removeChild(s); }, 2200);
+}
+
+function checkPremiumCode() {
+  var code = (document.getElementById('premium-code-input').value||'').trim();
+  var res = document.getElementById('premium-result');
+  if (PREMIUM_CODES.indexOf(code) !== -1) {
+    res.textContent = '✓ קוד תקין!';
+    res.className = 'modal-result ok';
+    setTimeout(unlockPremium, 700);
+  } else {
+    res.textContent = 'קוד שגוי — נסה/י שוב';
+    res.className = 'modal-result err';
+    document.getElementById('premium-code-input').value = '';
+  }
+}
+
+function openPremiumModal() {
+  document.getElementById('premium-modal').classList.remove('hidden');
+}
+
+function closePremiumModal() {
+  document.getElementById('premium-modal').classList.add('hidden');
+}
+
+function sendPremiumWA() {
+  var txt = encodeURIComponent('היי דייב! אני רוצה לשדרג ל-Chore Royale Premium ('+PRICE_TEXT+'). אשמח לקבל קוד הפעלה 🏆');
+  window.open('https://wa.me/'+WA_PHONE+'?text='+txt,'_blank');
+}
+
+// Apply premium state on load
+(function applyPremiumState(){
+  if(!isPremium()) return;
+  try {
+    STATE.premiumUnlocked = true;
+    // Will be applied in initDisplay
+  } catch(e){}
+})();
+
 </script>
 
 <!-- ═══ SCREEN 7: PARENT VERIFY ═══════════════════════════════ -->
@@ -1223,5 +1390,38 @@ function showPinHelp() {
 </div>
 
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/chore-wars/sw.js').catch(()=>{});</script>
+
+<!-- ── PREMIUM MODAL ───────────────────────────────────────────── -->
+<div class="modal-bg hidden" id="premium-modal" onclick="if(event.target===this)closePremiumModal()">
+  <div class="modal-box">
+    <div style="font-size:36px;margin-bottom:8px">🏆</div>
+    <div class="modal-title">Chore Royale Premium</div>
+    <div class="modal-price">₪29.90</div>
+    <div class="modal-price-sub">לחודש · ביטול בכל עת</div>
+    <ul class="modal-features">
+      <li>3 לוחמים — ג׳ייקוב, דין ודדי</li>
+      <li>כל המשימות ללא הגבלה</li>
+      <li>XP כפול על כל משימה</li>
+      <li>אימות הורה + בונוס 15 XP</li>
+      <li>ראיד בוס שבועי</li>
+      <li>ריצות שיא ותגמולים מיוחדים</li>
+    </ul>
+    <button class="modal-wa-btn" onclick="sendPremiumWA()">
+      💬 שלח הודעה לקבלת קוד
+    </button>
+    <div style="font-size:11px;color:var(--tx2);margin-bottom:14px">
+      שלח הודעת WhatsApp ← קבל קוד הפעלה ← הכנס כאן
+    </div>
+    <div class="modal-result" id="premium-result"></div>
+    <div class="modal-code-row">
+      <input class="modal-code-input" id="premium-code-input" type="tel"
+        placeholder="000000" maxlength="6"
+        oninput="this.value=this.value.replace(/\D/g,'')">
+      <button class="modal-code-btn" onclick="checkPremiumCode()">✓</button>
+    </div>
+    <div class="modal-close" onclick="closePremiumModal()">סגור</div>
+  </div>
+</div>
+
 </body>
 </html>
