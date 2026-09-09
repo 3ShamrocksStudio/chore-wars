@@ -1,236 +1,834 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#1A0F2E">
-<title>Chore Royale — הפכו את המטלות לאפי</title>
-<meta name="description" content="סובבו את הגלגל, קבלו מטלה, הוכיחו שעשיתם אותה, קבלו XP. המשחק המשפחתי שגורם למטלות לקרות. חינם!">
-<meta property="og:title" content="Chore Royale — הפכו את המטלות לאפי">
-<meta property="og:description" content="המשחק המשפחתי שגורם למטלות לקרות. סובבו · הוכיחו · קבלו XP">
-<meta property="og:image" content="https://3shamrocksstudio.github.io/chore-wars/">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0F0A1E">
+<title>Chore Royale — The family game that actually works</title>
+<meta name="description" content="Spin the wheel. Get the chore. Prove it with a photo. Earn XP. The family game that ends the argument before it starts. Free to play.">
+<meta property="og:title" content="Chore Royale">
+<meta property="og:description" content="The family game that makes chores happen. No nagging. No arguments. Just spin, prove, and earn.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{background:#1A0F2E;color:#fff;font-family:'Nunito',system-ui,sans-serif;-webkit-font-smoothing:antialiased;direction:rtl}
-a{color:inherit;text-decoration:none}
+/* ── TOKENS ──────────────────────────────────────────────────────── */
+:root {
+  --bg:      #0F0A1E;
+  --bg2:     #1A1030;
+  --bg3:     #251845;
+  --border:  rgba(255,255,255,.08);
+  --orange:  #FF6535;
+  --gold:    #FFB800;
+  --teal:    #3DD8C4;
+  --lavender:#9B8FFF;
+  --text:    #F5F0FF;
+  --text2:   rgba(245,240,255,.55);
+  --text3:   rgba(245,240,255,.28);
+  --serif:   'Fraunces', Georgia, serif;
+  --sans:    'DM Sans', system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { overflow-x: hidden; scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
 
-/* NAV */
-nav{position:fixed;inset-inline:0;top:0;z-index:100;height:60px;
-  background:rgba(26,15,46,.9);backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(255,255,255,.08);
-  display:flex;align-items:center;padding:0 24px;
-  justify-content:space-between}
-.nav-logo{font-size:18px;font-weight:900;color:#FFD700}
-.nav-cta{height:40px;padding:0 20px;background:linear-gradient(135deg,#FF6B35,#FF8C42);
-  color:#fff;font-weight:800;font-size:14px;border-radius:50px;
-  display:flex;align-items:center;
-  box-shadow:0 4px 20px -4px rgba(255,107,53,.6)}
+/* ── NAV ─────────────────────────────────────────────────────────── */
+nav {
+  position: fixed; inset-inline: 0; top: 0; z-index: 100;
+  height: 58px;
+  background: rgba(15,10,30,.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 clamp(20px,4vw,48px);
+  justify-content: space-between;
+}
+.nav-mark {
+  font-family: var(--serif);
+  font-size: 18px; font-weight: 700;
+  letter-spacing: -.01em; color: var(--text);
+}
+.nav-mark b { color: var(--gold); font-weight: 700; }
+.nav-play {
+  height: 38px; padding: 0 20px;
+  background: var(--orange); color: #fff;
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  border-radius: 50px; display: flex; align-items: center; gap: 6px;
+  transition: filter .18s;
+}
+.nav-play:hover { filter: brightness(1.1); }
 
-/* HERO */
-.hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;text-align:center;padding:80px 24px 60px;
-  background:radial-gradient(ellipse 80% 60% at 50% 20%,rgba(123,104,238,.25),transparent)}
-.hero-tag{display:inline-flex;align-items:center;gap:6px;
-  background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);
-  color:#FFD700;font-size:11px;font-weight:800;letter-spacing:.1em;
-  text-transform:uppercase;padding:6px 14px;border-radius:50px;margin-bottom:24px}
-.hero h1{font-size:clamp(44px,12vw,88px);font-weight:900;line-height:.95;
-  letter-spacing:-.02em;margin-bottom:20px}
-.hero h1 .o{color:#FF6B35}
-.hero h1 .g{color:#4ECDC4}
-.hero-sub{font-size:clamp(16px,3vw,20px);font-weight:400;
-  color:rgba(255,255,255,.7);line-height:1.7;max-width:38ch;
-  margin:0 auto 36px}
-.hero-ctas{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-bottom:48px}
-.btn-primary{height:58px;padding:0 36px;
-  background:linear-gradient(135deg,#FF6B35,#FF8C42);
-  color:#fff;font-weight:900;font-size:17px;border-radius:50px;
-  display:flex;align-items:center;gap:10px;
-  box-shadow:0 16px 40px -8px rgba(255,107,53,.6);
-  transition:transform .15s,filter .15s}
-.btn-primary:hover{transform:translateY(-2px);filter:brightness(1.08)}
-.btn-secondary{height:58px;padding:0 28px;
-  border:2px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);
-  font-weight:700;font-size:16px;border-radius:50px;
-  display:flex;align-items:center;gap:8px;transition:border-color .2s}
-.btn-secondary:hover{border-color:rgba(255,255,255,.5)}
-.hero-screens{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;max-width:640px;margin:0 auto}
-.screen-pill{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
-  padding:8px 16px;border-radius:50px;font-size:13px;font-weight:700}
+/* ── HERO ────────────────────────────────────────────────────────── */
+.hero {
+  padding-top: 58px;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(40px,5vw,80px);
+  align-items: center;
+  padding-inline: clamp(24px,5vw,80px);
+  padding-block: clamp(48px,6vw,80px);
+  position: relative;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 55% 70% at 80% 40%, rgba(155,143,255,.12), transparent),
+    radial-gradient(ellipse 40% 50% at 10% 80%, rgba(255,101,53,.08), transparent);
+  pointer-events: none;
+}
+.hero-copy { position: relative; z-index: 1; }
+.hero-lang {
+  font-size: 11px; font-weight: 500; letter-spacing: .12em;
+  color: var(--text3); margin-bottom: clamp(20px,3vw,32px);
+  display: flex; align-items: center; gap: 8px;
+}
+.hero-lang::before {
+  content: ''; width: 28px; height: 1px; background: var(--orange);
+}
+.hero-h1 {
+  font-family: var(--serif);
+  font-size: clamp(42px,5.5vw,72px);
+  font-weight: 900; line-height: 1.05;
+  letter-spacing: -.03em;
+  color: var(--text);
+  margin-bottom: clamp(16px,2.5vw,24px);
+}
+.hero-h1 .curve { font-style: italic; color: var(--gold); }
+.hero-he {
+  font-size: clamp(18px,2vw,24px);
+  font-weight: 300; color: var(--text2);
+  line-height: 1.5;
+  margin-bottom: clamp(24px,3vw,36px);
+  font-style: italic;
+  max-width: 36ch;
+}
+.hero-sub {
+  font-size: clamp(15px,1.6vw,17px);
+  font-weight: 300; color: var(--text2);
+  line-height: 1.75; max-width: 44ch;
+  margin-bottom: clamp(32px,4vw,48px);
+}
+.hero-cta-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.btn-main {
+  height: 54px; padding: 0 32px;
+  background: var(--orange); color: #fff;
+  font-family: var(--sans); font-size: 15px; font-weight: 500;
+  border-radius: 50px; display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 12px 36px -8px rgba(255,101,53,.55);
+  transition: transform .15s, filter .15s;
+}
+.btn-main:hover { transform: translateY(-2px); filter: brightness(1.08); }
+.btn-ghost {
+  font-family: var(--sans); font-size: 14px; font-weight: 400;
+  color: var(--text2);
+  border-bottom: 1px solid var(--border); padding-bottom: 2px;
+  transition: color .18s, border-color .18s;
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--text2); }
+.hero-trust {
+  margin-top: clamp(28px,3vw,40px);
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12px; color: var(--text3);
+}
+.hero-trust::before {
+  content: '';
+  width: 16px; height: 1px; background: var(--border);
+}
 
-/* HOW */
-.how{padding:80px 24px;text-align:center}
-.sec-tag{font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;
-  color:#FFD700;margin-bottom:16px;display:block}
-.how h2{font-size:clamp(32px,7vw,56px);font-weight:900;margin-bottom:48px}
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:900px;margin:0 auto}
-.step{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
-  border-radius:20px;padding:28px 20px;text-align:center}
-.step-ico{font-size:40px;margin-bottom:14px}
-.step-n{font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
-  color:rgba(255,255,255,.3);margin-bottom:8px}
-.step-t{font-size:17px;font-weight:800;margin-bottom:8px}
-.step-d{font-size:13px;color:rgba(255,255,255,.6);line-height:1.6}
+/* ── PHONE MOCKUP ────────────────────────────────────────────────── */
+.phone-wrap {
+  position: relative; z-index: 1;
+  display: flex; justify-content: center; align-items: center;
+}
+.phone {
+  width: clamp(220px,26vw,320px);
+  aspect-ratio: 9/19;
+  background: var(--bg2);
+  border-radius: 40px;
+  border: 2px solid rgba(255,255,255,.12);
+  box-shadow:
+    0 40px 80px -20px rgba(0,0,0,.6),
+    0 0 0 6px rgba(255,255,255,.04),
+    inset 0 0 0 1px rgba(255,255,255,.04);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  position: relative;
+}
+/* Phone top bar */
+.ph-topbar {
+  background: var(--bg3);
+  padding: 14px 16px 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.ph-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700; color: var(--text);
+  display: flex; align-items: center; gap: 6px;
+}
+.ph-streak {
+  background: rgba(255,184,0,.15); border: 1px solid rgba(255,184,0,.3);
+  border-radius: 50px; padding: 3px 10px;
+  font-size: 11px; font-weight: 700; color: var(--gold);
+  display: flex; align-items: center; gap: 4px;
+}
+/* Warriors */
+.ph-warriors {
+  display: flex; gap: 8px; padding: 12px 14px;
+  flex-shrink: 0;
+}
+.ph-warrior {
+  flex: 1; border-radius: 14px; padding: 10px 8px;
+  text-align: center; position: relative;
+}
+.ph-warrior.j { background: rgba(255,101,53,.15); border: 1px solid rgba(255,101,53,.3); }
+.ph-warrior.d { background: rgba(61,216,196,.1); border: 1px solid rgba(61,216,196,.2); opacity: .5; }
+.ph-warrior.v { background: rgba(155,143,255,.1); border: 1px solid rgba(155,143,255,.2); opacity: .5; }
+.ph-warrior-ico { font-size: 22px; margin-bottom: 4px; }
+.ph-warrior-name { font-size: 9px; font-weight: 700; color: var(--text); }
+.ph-warrior-xp {
+  width: 100%; height: 3px; border-radius: 2px;
+  background: rgba(255,255,255,.08); margin-top: 6px; overflow: hidden;
+}
+.ph-warrior-xp-fill {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg,#FF6535,#FFB800);
+}
+.ph-lock { position: absolute; top: 4px; left: 4px; font-size: 9px; }
+/* Spin zone */
+.ph-spin-zone {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 16px 14px; gap: 12px;
+}
+.ph-wheel {
+  width: clamp(90px,14vw,130px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(
+    rgba(255,101,53,.8) 0deg 51deg,
+    rgba(61,216,196,.8) 51deg 103deg,
+    rgba(155,143,255,.8) 103deg 154deg,
+    rgba(255,184,0,.8) 154deg 206deg,
+    rgba(255,101,53,.8) 206deg 257deg,
+    rgba(61,216,196,.8) 257deg 308deg,
+    rgba(155,143,255,.8) 308deg 360deg
+  );
+  border: 3px solid rgba(255,255,255,.15);
+  box-shadow: 0 8px 32px -8px rgba(155,143,255,.4);
+  position: relative;
+  animation: ph-spin 24s linear infinite;
+}
+@keyframes ph-spin { to { transform: rotate(360deg); } }
+.ph-wheel::after {
+  content: '▲';
+  position: absolute; top: -14px; left: 50%;
+  transform: translateX(-50%);
+  color: var(--gold); font-size: 14px;
+}
+.ph-spin-lbl {
+  font-size: 10px; font-weight: 700;
+  color: var(--text2); letter-spacing: .08em;
+}
+.ph-spin-btn {
+  background: var(--orange); color: #fff;
+  border: none; border-radius: 50px;
+  padding: 8px 22px; font-size: 11px; font-weight: 700;
+  cursor: pointer; letter-spacing: .04em;
+}
+/* Bottom bar */
+.ph-bottombar {
+  background: var(--bg3); padding: 10px 14px;
+  display: flex; justify-content: space-around;
+  border-top: 1px solid var(--border); flex-shrink: 0;
+}
+.ph-tab { font-size: 18px; opacity: .4; }
+.ph-tab.active { opacity: 1; }
 
-/* PRICING */
-.pricing{padding:80px 24px;text-align:center;
-  background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(123,104,238,.15),transparent)}
-.pricing h2{font-size:clamp(32px,7vw,52px);font-weight:900;margin-bottom:48px}
-.plans{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:640px;margin:0 auto 40px}
-.plan{border-radius:24px;padding:32px 24px;text-align:right}
-.plan.free{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)}
-.plan.premium{background:linear-gradient(135deg,rgba(123,104,238,.3),rgba(78,205,196,.2));
-  border:2px solid rgba(255,215,0,.4);position:relative}
-.plan-badge{position:absolute;top:-12px;right:24px;
-  background:linear-gradient(135deg,#FFD700,#FFA500);
-  color:#1A0F2E;font-size:11px;font-weight:800;
-  padding:4px 14px;border-radius:50px;letter-spacing:.08em}
-.plan-name{font-size:14px;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:8px}
-.plan-price{font-size:36px;font-weight:900;color:#fff;margin-bottom:4px}
-.plan-price-sub{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:20px}
-.plan-features{list-style:none;display:flex;flex-direction:column;gap:10px}
-.plan-features li{font-size:13px;color:rgba(255,255,255,.75);
-  display:flex;align-items:center;gap:8px}
-.plan-features li .ck{font-size:14px;flex-shrink:0}
-.plan-features li.locked{color:rgba(255,255,255,.35)}
-.plan-features li.locked .ck{opacity:.4}
-.pricing-cta{font-size:13px;color:rgba(255,255,255,.4)}
+/* ── STORY ───────────────────────────────────────────────────────── */
+.story {
+  max-width: 860px; margin: 0 auto;
+  padding: clamp(80px,10vw,128px) clamp(24px,5vw,80px);
+}
+.story-block {
+  margin-bottom: clamp(48px,6vw,72px);
+}
+.story-block:last-child { margin-bottom: 0; }
+.story-q {
+  font-family: var(--serif);
+  font-size: clamp(28px,4vw,48px);
+  font-weight: 700; line-height: 1.15;
+  letter-spacing: -.02em;
+  color: var(--text);
+  margin-bottom: clamp(16px,2vw,24px);
+}
+.story-q.italic { font-style: italic; }
+.story-q .gold { color: var(--gold); }
+.story-p {
+  font-size: clamp(15px,1.8vw,18px);
+  font-weight: 300; color: var(--text2);
+  line-height: 1.8; max-width: 56ch;
+}
+.story-he {
+  font-size: clamp(14px,1.6vw,16px);
+  font-weight: 300; color: var(--text3);
+  line-height: 1.75; max-width: 52ch;
+  margin-top: 12px; font-style: italic;
+  direction: rtl;
+}
+.story-divider {
+  width: 48px; height: 1.5px;
+  background: var(--orange); opacity: .5;
+  margin: clamp(40px,5vw,64px) 0;
+}
 
-/* TESTIMONIAL / SOCIAL PROOF */
-.proof{padding:60px 24px;text-align:center;border-top:1px solid rgba(255,255,255,.07)}
-.proof-sub{font-size:14px;color:rgba(255,255,255,.4);margin-bottom:24px}
-.emojis{font-size:32px;letter-spacing:4px;margin-bottom:8px}
+/* ── HOW ─────────────────────────────────────────────────────────── */
+.how {
+  border-top: 1px solid var(--border);
+  padding: clamp(80px,10vw,120px) clamp(24px,5vw,80px);
+}
+.how-inner { max-width: 1100px; margin: 0 auto; }
+.how-heading {
+  font-family: var(--serif);
+  font-size: clamp(32px,4.5vw,56px);
+  font-weight: 900; letter-spacing: -.03em;
+  color: var(--text);
+  margin-bottom: clamp(48px,6vw,80px);
+}
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 1px; background: var(--border);
+}
+.how-step {
+  background: var(--bg);
+  padding: clamp(24px,3vw,40px) clamp(20px,2.5vw,32px);
+}
+.how-step-ico {
+  font-size: 36px; margin-bottom: 16px;
+  display: block;
+}
+.how-step-title {
+  font-family: var(--serif);
+  font-size: clamp(18px,2vw,24px); font-weight: 700;
+  color: var(--text); margin-bottom: 10px; line-height: 1.2;
+}
+.how-step-desc {
+  font-size: 14px; font-weight: 300;
+  color: var(--text2); line-height: 1.7;
+  margin-bottom: 10px;
+}
+.how-step-he {
+  font-size: 12px; color: var(--text3);
+  line-height: 1.65; direction: rtl; font-style: italic;
+}
 
-/* FINAL CTA */
-.final-cta{padding:80px 24px;text-align:center}
-.final-cta h2{font-size:clamp(36px,8vw,64px);font-weight:900;margin-bottom:16px;line-height:1}
-.final-cta p{font-size:16px;color:rgba(255,255,255,.6);margin-bottom:36px}
+/* ── SCREENS ─────────────────────────────────────────────────────── */
+.screens {
+  padding: clamp(80px,10vw,120px) clamp(24px,5vw,80px);
+  border-top: 1px solid var(--border);
+}
+.screens-inner { max-width: 1100px; margin: 0 auto; }
+.screens-heading {
+  font-family: var(--serif);
+  font-size: clamp(28px,4vw,48px);
+  font-weight: 700; color: var(--text);
+  margin-bottom: clamp(40px,5vw,64px);
+  letter-spacing: -.02em;
+}
+.screens-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 20px;
+}
+/* Miniature phone screens */
+.mini-phone {
+  background: var(--bg2); border-radius: 24px;
+  border: 1px solid var(--border); overflow: hidden;
+  aspect-ratio: 9/17;
+  display: flex; flex-direction: column;
+}
+.mini-topbar {
+  background: var(--bg3); padding: 10px 12px;
+  font-size: 10px; font-weight: 700; color: var(--text);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.mini-body { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.mini-label {
+  margin-top: 12px; font-size: 10px; font-weight: 500;
+  color: var(--text3); letter-spacing: .04em;
+}
+.mini-title {
+  font-family: var(--serif);
+  font-size: clamp(13px,1.5vw,16px); font-weight: 700;
+  color: var(--text); margin-top: 4px;
+}
+.mini-desc {
+  font-size: 11px; color: var(--text2);
+  line-height: 1.6; margin-top: 4px;
+}
 
-/* FOOTER */
-footer{padding:32px 24px;border-top:1px solid rgba(255,255,255,.07);text-align:center}
-footer p{font-size:12px;color:rgba(255,255,255,.3)}
+/* Screen 1: Warriors */
+.sc1-warriors { display: flex; gap: 8px; margin-top: 8px; }
+.sc1-w {
+  flex: 1; border-radius: 10px; padding: 10px 6px;
+  text-align: center; font-size: 18px;
+}
+.sc1-w.j { background: rgba(255,101,53,.2); border: 1px solid rgba(255,101,53,.4); }
+.sc1-w.d { background: rgba(61,216,196,.1); border: 1px solid rgba(61,216,196,.2); }
+.sc1-w.v { background: rgba(155,143,255,.1); border: 1px solid rgba(155,143,255,.2); }
+.sc1-xp { height: 3px; border-radius: 2px; background: rgba(255,255,255,.08); margin-top: 6px; }
+.sc1-xp-f { height: 100%; border-radius: 2px; background: var(--orange); }
+.sc1-label { font-size: 8px; color: var(--text3); text-align: center; margin-top: 4px; }
 
-@media(max-width:640px){
-  .steps{grid-template-columns:repeat(2,1fr)}
-  .plans{grid-template-columns:1fr}
-  .hero h1{font-size:52px}
+/* Screen 2: Chore card */
+.sc2-card {
+  background: rgba(155,143,255,.1); border: 1px solid rgba(155,143,255,.25);
+  border-radius: 12px; padding: 14px 12px; flex: 1;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.sc2-emoji { font-size: 28px; }
+.sc2-chore { font-size: 13px; font-weight: 700; color: var(--text); }
+.sc2-xp-badge {
+  display: inline-flex; align-items: center;
+  background: rgba(255,184,0,.15); border: 1px solid rgba(255,184,0,.3);
+  border-radius: 50px; padding: 3px 10px;
+  font-size: 10px; font-weight: 700; color: var(--gold);
+}
+.sc2-btn {
+  background: var(--orange); color: #fff; border: none;
+  border-radius: 50px; padding: 8px;
+  font-size: 10px; font-weight: 700;
+}
+
+/* Screen 3: Leaderboard */
+.sc3-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg3); border-radius: 8px;
+  padding: 8px 10px;
+}
+.sc3-rank { font-size: 11px; font-weight: 700; color: var(--gold); width: 16px; }
+.sc3-emoji { font-size: 16px; }
+.sc3-name { font-size: 11px; font-weight: 700; color: var(--text); flex: 1; }
+.sc3-xp { font-size: 10px; font-weight: 500; color: var(--teal); }
+
+/* ── PRICING ─────────────────────────────────────────────────────── */
+.pricing {
+  border-top: 1px solid var(--border);
+  padding: clamp(80px,10vw,120px) clamp(24px,5vw,80px);
+}
+.pricing-inner { max-width: 700px; margin: 0 auto; }
+.pricing-heading {
+  font-family: var(--serif);
+  font-size: clamp(32px,4.5vw,52px);
+  font-weight: 900; color: var(--text);
+  letter-spacing: -.03em; line-height: 1.05;
+  margin-bottom: 12px;
+}
+.pricing-sub {
+  font-size: 16px; color: var(--text2); font-weight: 300;
+  margin-bottom: clamp(40px,5vw,64px); line-height: 1.6;
+}
+.plans {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: var(--border); margin-bottom: 32px;
+}
+.plan { background: var(--bg2); padding: clamp(24px,3vw,40px); }
+.plan.prem { background: var(--bg3); position: relative; }
+.plan-tag {
+  display: inline-flex; align-items: center;
+  background: var(--gold); color: var(--bg);
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  padding: 3px 10px; border-radius: 50px;
+  margin-bottom: 12px;
+}
+.plan-name {
+  font-family: var(--serif);
+  font-size: 22px; font-weight: 700; color: var(--text);
+  margin-bottom: 4px;
+}
+.plan-price {
+  font-family: var(--serif);
+  font-size: 40px; font-weight: 900; color: var(--text); line-height: 1;
+}
+.plan-price-sub {
+  font-size: 12px; color: var(--text3); margin-bottom: 24px;
+}
+.plan-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.plan-list li {
+  font-size: 13px; color: var(--text2);
+  display: flex; align-items: flex-start; gap: 8px; line-height: 1.4;
+}
+.plan-list li.on { color: var(--text); }
+.plan-list li span { flex-shrink: 0; font-size: 12px; margin-top: 1px; }
+.pricing-note { font-size: 12px; color: var(--text3); line-height: 1.6; }
+
+/* ── CLOSE ───────────────────────────────────────────────────────── */
+.close {
+  border-top: 1px solid var(--border);
+  padding: clamp(80px,10vw,120px) clamp(24px,5vw,80px);
+  text-align: center;
+}
+.close-h {
+  font-family: var(--serif);
+  font-size: clamp(36px,6vw,72px);
+  font-weight: 900; letter-spacing: -.03em;
+  color: var(--text); line-height: 1.05;
+  margin-bottom: 16px;
+}
+.close-h .it { font-style: italic; color: var(--teal); }
+.close-he {
+  font-family: var(--serif);
+  font-size: clamp(18px,2.5vw,28px);
+  font-weight: 300; font-style: italic;
+  color: var(--text2); margin-bottom: 36px;
+  direction: rtl;
+}
+.close-cta-row {
+  display: flex; flex-wrap: wrap; gap: 14px;
+  justify-content: center; align-items: center;
+}
+.close-note {
+  font-size: 12px; color: var(--text3);
+  margin-top: 20px; line-height: 1.6;
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────────── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: clamp(24px,3vw,36px) clamp(24px,5vw,80px);
+  display: flex; flex-wrap: wrap; gap: 16px;
+  align-items: center; justify-content: space-between;
+}
+footer p { font-size: 11px; color: var(--text3); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 11px; color: var(--text3); transition: color .15s; }
+.footer-links a:hover { color: var(--text); }
+
+/* ── MOBILE ──────────────────────────────────────────────────────── */
+@media(max-width:900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding-top: 80px;
+  }
+  .hero-copy { order: 1; }
+  .phone-wrap { order: 2; }
+  .hero-lang::before { display: none; }
+  .hero-lang { justify-content: center; }
+  .hero-sub { margin-inline: auto; }
+  .hero-cta-row { justify-content: center; }
+  .hero-trust { justify-content: center; }
+  .how-steps { grid-template-columns: repeat(2,1fr); }
+  .screens-grid { grid-template-columns: 1fr; }
+  .plans { grid-template-columns: 1fr; }
+  .phone { width: min(240px, 60vw); }
+}
+@media(max-width:560px) {
+  .how-steps { grid-template-columns: 1fr; }
+  .hero-h1 { font-size: 40px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .ph-wheel { animation: none; }
 }
 </style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav>
-  <div class="nav-logo">Chore Royale 🎮</div>
-  <a href="https://3shamrocksstudio.github.io/chore-wars/" class="nav-cta">שחקו עכשיו — חינם</a>
+  <div class="nav-mark">Chore <b>Royale</b></div>
+  <a href="https://3shamrocksstudio.github.io/chore-wars/" class="nav-play">Play free</a>
 </nav>
 
+<!-- HERO -->
 <section class="hero">
-  <div class="hero-tag">🎮 משחק משפחתי · חינם לגמרי</div>
-  <h1>מטלות?<br><span class="o">זה</span> <span class="g">אפי.</span></h1>
-  <p class="hero-sub">סובבו את הגלגל, קבלו מטלה, הוכיחו שעשיתם אותה, קבלו XP. המשחק שגורם למטלות לקרות בלי לריב.</p>
-  <div class="hero-ctas">
-    <a href="https://3shamrocksstudio.github.io/chore-wars/" class="btn-primary">
-      🎮 שחקו עכשיו — חינם
-    </a>
-    <a href="#pricing" class="btn-secondary">
-      🏆 ראו Premium
-    </a>
+  <div class="hero-copy">
+    <div class="hero-lang">The family game that works</div>
+    <h1 class="hero-h1">
+      When did<br>"clean your room"<br>become a <span class="curve">negotiation?</span>
+    </h1>
+    <div class="hero-he">מתי "תנקה את החדר" הפך לשיחה דיפלומטית?</div>
+    <p class="hero-sub">
+      Chore Royale gives your kids a mission they can't argue with — a random spin of the wheel, a chore to complete, a photo to prove it, and XP that actually matters to them. It gives you your evening back.
+    </p>
+    <div class="hero-cta-row">
+      <a href="https://3shamrocksstudio.github.io/chore-wars/" class="btn-main">
+        Play free — no download
+      </a>
+      <a href="#pricing" class="btn-ghost">See Premium →</a>
+    </div>
+    <div class="hero-trust">Free forever · Works on any phone · No signup</div>
   </div>
-  <div class="hero-screens">
-    <div class="screen-pill">🎡 גלגל המטלות</div>
-    <div class="screen-pill">📸 הוכחת ביצוע</div>
-    <div class="screen-pill">⚡ XP ורמות</div>
-    <div class="screen-pill">👑 לוח תוצאות</div>
-    <div class="screen-pill">🔥 רצפים יומיים</div>
-    <div class="screen-pill">🏆 ראיד בוס</div>
+
+  <!-- PHONE MOCKUP -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="ph-topbar">
+        <div class="ph-title">⚔️ Markovich Clan</div>
+        <div class="ph-streak">🔥 7</div>
+      </div>
+      <div class="ph-warriors">
+        <div class="ph-warrior j">
+          <div class="ph-warrior-ico">⚔️</div>
+          <div class="ph-warrior-name">Jakob</div>
+          <div class="ph-warrior-xp"><div class="ph-warrior-xp-fill" style="width:72%"></div></div>
+        </div>
+        <div class="ph-warrior d">
+          <div class="ph-lock">🔒</div>
+          <div class="ph-warrior-ico">🛡️</div>
+          <div class="ph-warrior-name">Dean</div>
+          <div class="ph-warrior-xp"><div class="ph-warrior-xp-fill" style="width:45%;background:#3DD8C4"></div></div>
+        </div>
+        <div class="ph-warrior v">
+          <div class="ph-lock">🔒</div>
+          <div class="ph-warrior-ico">👑</div>
+          <div class="ph-warrior-name">Daddy</div>
+          <div class="ph-warrior-xp"><div class="ph-warrior-xp-fill" style="width:88%;background:#9B8FFF"></div></div>
+        </div>
+      </div>
+      <div class="ph-spin-zone">
+        <div class="ph-spin-lbl">DAILY SPIN</div>
+        <div class="ph-wheel"></div>
+        <div class="ph-spin-btn">SPIN FOR TODAY'S CHORE</div>
+      </div>
+      <div class="ph-bottombar">
+        <div class="ph-tab active">🎡</div>
+        <div class="ph-tab">✅</div>
+        <div class="ph-tab">🏆</div>
+        <div class="ph-tab">⚙️</div>
+      </div>
+    </div>
   </div>
 </section>
 
-<section class="how">
-  <span class="sec-tag">איך זה עובד</span>
-  <h2>פשוט. מגניב. עובד.</h2>
-  <div class="steps">
-    <div class="step">
-      <div class="step-ico">🎡</div>
-      <div class="step-n">שלב 1</div>
-      <div class="step-t">סובבו</div>
-      <div class="step-d">לחצו על הגלגל לקבלת מטלה יומית אקראית</div>
-    </div>
-    <div class="step">
-      <div class="step-ico">🗑️</div>
-      <div class="step-n">שלב 2</div>
-      <div class="step-t">עשו</div>
-      <div class="step-d">עשו את המטלה — ניקיון, כביסה, הוצאת אשפה</div>
-    </div>
-    <div class="step">
-      <div class="step-ico">📸</div>
-      <div class="step-n">שלב 3</div>
-      <div class="step-t">הוכיחו</div>
-      <div class="step-d">צלמו תמונה להוכחה. הורה מאשר ומוסיף בונוס XP</div>
-    </div>
-    <div class="step">
-      <div class="step-ico">⚡</div>
-      <div class="step-n">שלב 4</div>
-      <div class="step-t">קבלו XP</div>
-      <div class="step-d">רווחו XP, בנו רצפים, נלחמו ב-Boss השבועי</div>
+<!-- STORY -->
+<section class="story">
+  <div class="story-block">
+    <h2 class="story-q">Every parent knows this conversation.</h2>
+    <p class="story-p">
+      It starts the same way every time. You ask. They say "in a minute." A minute becomes twenty. You ask again. It becomes an argument. By the time the chore is done, everyone's exhausted and nobody feels good about it — not you, not them.
+    </p>
+    <p class="story-he">
+      כל הורה מכיר את השיחה הזאת. היא מתחילה אותו הדבר כל פעם.
+    </p>
+  </div>
+
+  <div class="story-divider"></div>
+
+  <div class="story-block">
+    <h2 class="story-q italic">What if the chore wasn't <span class="gold">your idea?</span></h2>
+    <p class="story-p">
+      Kids don't argue with a wheel. They can't negotiate with randomness. When the spin lands on "Take out the trash," it's not mom or dad's fault — it's the game. And somehow, that changes everything.
+    </p>
+    <p class="story-he">
+      ילדים לא מתווכחים עם גלגל. הם לא יכולים לנהל משא ומתן עם האקראיות.
+    </p>
+  </div>
+
+  <div class="story-divider"></div>
+
+  <div class="story-block">
+    <h2 class="story-q">The chore becomes a <span class="gold">quest.</span></h2>
+    <p class="story-p">
+      They spin. They get their mission. They do it, take a photo to prove it, and earn XP. Real XP — that shows on the leaderboard, that builds their warrior, that compounds into streaks and boss raids. The pride isn't in doing the chore. It's in proving they did it.
+    </p>
+    <p class="story-he">
+      הם מסתובבים. מקבלים את המשימה. עושים אותה, מצלמים הוכחה, ומרוויחים XP.
+    </p>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="how-inner">
+    <h2 class="how-heading">Four steps.<br>No argument.</h2>
+    <div class="how-steps">
+      <div class="how-step">
+        <span class="how-step-ico">🎡</span>
+        <div class="how-step-title">Spin</div>
+        <div class="how-step-desc">One tap. A random chore from the family's list. Nobody chose it — the wheel did.</div>
+        <div class="how-step-he">לחיצה אחת. מטלה אקראית. אף אחד לא בחר אותה.</div>
+      </div>
+      <div class="how-step">
+        <span class="how-step-ico">🧹</span>
+        <div class="how-step-title">Do it</div>
+        <div class="how-step-desc">The chore is real. Clean the bathroom. Take out the trash. Fold the laundry. No shortcuts.</div>
+        <div class="how-step-he">המטלה אמיתית. לנקות אמבטיה. להוציא אשפה. לקפל כביסה.</div>
+      </div>
+      <div class="how-step">
+        <span class="how-step-ico">📸</span>
+        <div class="how-step-title">Prove it</div>
+        <div class="how-step-desc">Take a photo of the finished chore. A parent verifies — and awards a 15 XP bonus for honesty.</div>
+        <div class="how-step-he">לצלם הוכחה. הורה מאמת ומוסיף בונוס XP על הגינות.</div>
+      </div>
+      <div class="how-step">
+        <span class="how-step-ico">⚡</span>
+        <div class="how-step-title">Earn XP</div>
+        <div class="how-step-desc">XP builds the warrior. Streaks multiply the rewards. Boss raids happen once a week. It matters.</div>
+        <div class="how-step-he">XP בונה את הלוחם. רצפים מכפילים תגמולים. ראיד בוס פעם בשבוע.</div>
+      </div>
     </div>
   </div>
 </section>
 
+<!-- GAME SCREENS -->
+<section class="screens">
+  <div class="screens-inner">
+    <h2 class="screens-heading">What they see<br>when they open it.</h2>
+    <div class="screens-grid">
+
+      <!-- Screen 1: Warriors -->
+      <div class="mini-phone">
+        <div class="mini-topbar">
+          <span>⚔️ Markovich Clan</span>
+          <span style="color:var(--gold)">🔥 7</span>
+        </div>
+        <div class="mini-body">
+          <div class="sc1-warriors">
+            <div class="sc1-w j">
+              <div>⚔️</div>
+              <div class="sc1-label">JAKOB</div>
+              <div class="sc1-xp"><div class="sc1-xp-f" style="width:72%"></div></div>
+            </div>
+            <div class="sc1-w d">
+              <div>🛡️</div>
+              <div class="sc1-label" style="color:var(--teal)">DEAN</div>
+              <div class="sc1-xp"><div class="sc1-xp-f" style="width:45%;background:var(--teal)"></div></div>
+            </div>
+            <div class="sc1-w v">
+              <div>👑</div>
+              <div class="sc1-label" style="color:var(--lavender)">DADDY</div>
+              <div class="sc1-xp"><div class="sc1-xp-f" style="width:88%;background:var(--lavender)"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="mini-label" style="padding:0 12px 12px;font-size:10px;color:var(--text3)">Three warriors. Each player builds their own.</div>
+      </div>
+
+      <!-- Screen 2: Chore -->
+      <div class="mini-phone">
+        <div class="mini-topbar">
+          <span>⚔️ JAKOB'S QUEST</span>
+          <span style="color:var(--gold);font-size:10px">+30 XP</span>
+        </div>
+        <div class="mini-body">
+          <div class="sc2-card">
+            <div class="sc2-emoji">🧹</div>
+            <div class="sc2-chore">Clean the Living Room</div>
+            <div class="sc2-xp-badge">⚡ 30 XP + 15 bonus</div>
+            <div style="font-size:10px;color:var(--text2);margin-top:4px">Pick up toys, cushions back in place, vacuum the floor.</div>
+          </div>
+          <button class="sc2-btn">📸 Submit for Parent Review</button>
+        </div>
+      </div>
+
+      <!-- Screen 3: Leaderboard -->
+      <div class="mini-phone">
+        <div class="mini-topbar">
+          <span>🏆 Leaderboard</span>
+          <span style="color:var(--text3);font-size:9px">Week 12</span>
+        </div>
+        <div class="mini-body">
+          <div class="sc3-row">
+            <div class="sc3-rank">1</div>
+            <div class="sc3-emoji">⚔️</div>
+            <div class="sc3-name">Jakob</div>
+            <div class="sc3-xp">1,240 XP</div>
+          </div>
+          <div class="sc3-row" style="opacity:.7">
+            <div class="sc3-rank">2</div>
+            <div class="sc3-emoji">👑</div>
+            <div class="sc3-name">Daddy</div>
+            <div class="sc3-xp" style="color:var(--lavender)">980 XP</div>
+          </div>
+          <div class="sc3-row" style="opacity:.5">
+            <div class="sc3-rank">3</div>
+            <div class="sc3-emoji">🛡️</div>
+            <div class="sc3-name">Dean</div>
+            <div class="sc3-xp" style="color:var(--teal)">720 XP</div>
+          </div>
+          <div style="margin-top:12px;font-size:10px;color:var(--text3)">
+            👾 Boss Raid Sunday · King Grime at 34% HP
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
 <section class="pricing" id="pricing">
-  <span class="sec-tag">מחירים</span>
-  <h2>חינם לנצח.<br>או Premium.</h2>
-  <div class="plans">
-    <div class="plan free">
-      <div class="plan-name">FREE</div>
-      <div class="plan-price">חינם</div>
-      <div class="plan-price-sub">לנצח · ללא אשראי</div>
-      <ul class="plan-features">
-        <li><span class="ck">✅</span> לוחם 1 (ג׳ייקוב)</li>
-        <li><span class="ck">✅</span> 5 מטלות בגלגל</li>
-        <li><span class="ck">✅</span> XP ורמות</li>
-        <li><span class="ck">✅</span> רצפים יומיים</li>
-        <li class="locked"><span class="ck">🔒</span> 3 לוחמים</li>
-        <li class="locked"><span class="ck">🔒</span> XP כפול</li>
-        <li class="locked"><span class="ck">🔒</span> ראיד בוס</li>
-      </ul>
+  <div class="pricing-inner">
+    <h2 class="pricing-heading">Start free.<br>Stay as long as you like.</h2>
+    <p class="pricing-sub">The free tier is genuinely good. Premium is for the family that gets hooked.</p>
+    <div class="plans">
+      <div class="plan">
+        <div class="plan-name">Free</div>
+        <div class="plan-price">₪0</div>
+        <div class="plan-price-sub">forever · no credit card</div>
+        <ul class="plan-list">
+          <li class="on"><span>✦</span> 1 warrior (Jakob)</li>
+          <li class="on"><span>✦</span> 5 chores in the wheel</li>
+          <li class="on"><span>✦</span> XP, streaks, leaderboard</li>
+          <li class="on"><span>✦</span> Parent photo verification</li>
+          <li><span style="opacity:.3">✦</span> All 3 warriors</li>
+          <li><span style="opacity:.3">✦</span> 2x XP multiplier</li>
+          <li><span style="opacity:.3">✦</span> Weekly boss raids</li>
+        </ul>
+      </div>
+      <div class="plan prem">
+        <div class="plan-tag">★ Premium</div>
+        <div class="plan-name">Premium</div>
+        <div class="plan-price">₪29.90</div>
+        <div class="plan-price-sub">per month · cancel any time</div>
+        <ul class="plan-list">
+          <li class="on"><span>✦</span> All 3 warriors unlocked</li>
+          <li class="on"><span>✦</span> Unlimited custom chores</li>
+          <li class="on"><span>✦</span> 2x XP on every chore</li>
+          <li class="on"><span>✦</span> Parent verify + bonus XP</li>
+          <li class="on"><span>✦</span> Weekly boss raids</li>
+          <li class="on"><span>✦</span> Streak multiplier rewards</li>
+          <li class="on"><span>✦</span> Special seasonal missions</li>
+        </ul>
+      </div>
     </div>
-    <div class="plan premium">
-      <div class="plan-badge">★ PREMIUM</div>
-      <div class="plan-name">PREMIUM</div>
-      <div class="plan-price">₪29.90</div>
-      <div class="plan-price-sub">לחודש · ביטול בכל עת</div>
-      <ul class="plan-features">
-        <li><span class="ck">✅</span> כל 3 הלוחמים</li>
-        <li><span class="ck">✅</span> מטלות ללא הגבלה</li>
-        <li><span class="ck">✅</span> XP כפול תמיד</li>
-        <li><span class="ck">✅</span> אימות הורה + בונוס</li>
-        <li><span class="ck">✅</span> ראיד בוס שבועי</li>
-        <li><span class="ck">✅</span> תגמולים מיוחדים</li>
-      </ul>
-    </div>
+    <p class="pricing-note">To unlock Premium: tap the upgrade banner in the app → send a WhatsApp message → receive your unlock code. Payment by bank transfer or PayPal.</p>
   </div>
-  <div class="pricing-cta">להשיג Premium — פשוט תלחצו "שדרג" בתוך האפליקציה 👆</div>
 </section>
 
-<section class="proof">
-  <div class="emojis">👨‍👩‍👧‍👦 👨‍👩‍👦 👪</div>
-  <div class="proof-sub">עובד על כל טלפון · אין צורך בהורדה · מותקן ישירות מהדפדפן</div>
-</section>
-
-<section class="final-cta">
-  <h2>מוכנים<br>לשחק? 🎮</h2>
-  <p>חינם לגמרי. עובד עכשיו. ללא הורדה.</p>
-  <a href="https://3shamrocksstudio.github.io/chore-wars/" class="btn-primary" style="margin:0 auto;display:inline-flex">
-    🎡 סובבו את הגלגל עכשיו
-  </a>
+<!-- CLOSE -->
+<section class="close">
+  <h2 class="close-h">Tonight.<br>No <span class="it">argument.</span></h2>
+  <div class="close-he">הלילה. בלי ויכוח.</div>
+  <div class="close-cta-row">
+    <a href="https://3shamrocksstudio.github.io/chore-wars/" class="btn-main">
+      Start playing — it's free
+    </a>
+  </div>
+  <p class="close-note">Works on iPhone and Android · Installs from the browser · No App Store required</p>
 </section>
 
 <footer>
-  <p>Chore Royale · by <a href="https://3shamrocksstudio.github.io" style="color:rgba(255,255,255,.5)">3Shamrocks Studio</a> · 2026</p>
+  <p>Chore Royale · by <a href="https://3shamrocksstudio.github.io" style="color:var(--text2)">3Shamrocks Studio</a> · 2026</p>
+  <div class="footer-links">
+    <a href="https://3shamrocksstudio.github.io/chore-wars/">Play</a>
+    <a href="https://3shamrocksstudio.github.io">Studio</a>
+    <a href="mailto:markodave@gmail.com">Contact</a>
+  </div>
 </footer>
 
 </body>
