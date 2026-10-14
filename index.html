@@ -15,7 +15,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080420">
 <title>Chore Royale — Make Chores Epic</title>
-<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ─────────────────────────────────────────────── */
 :root{
@@ -28,9 +28,9 @@
   --tx0:#FFFFFF; --tx1:rgba(255,255,255,.78); --tx2:rgba(255,255,255,.42);
   --border:rgba(255,255,255,.07); --border-bright:rgba(255,255,255,.14);
   /* Brand accents */
-  --gold:#FFD700; --gold-lt:#FFE55C; --gold-dk:#C89B00;
+  --gold:#f59e0b; --gold-lt:#FFE55C; --gold-dk:#C89B00;
   --teal:#10B981; --teal-glow:rgba(16,185,129,.35);
-  --purple:#7C3AED; --purple-glow:rgba(124,58,237,.45);
+  --purple:#6a21c4; --purple-glow:rgba(124,58,237,.45);
   --red:#FF4757;
   /* Typography */
   --font:'Nunito',sans-serif; --mono:'Space Mono',monospace;
@@ -72,7 +72,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   background:transparent;position:relative;z-index:10;
 }
 .topbar-title{
-  font-family:'Bangers',cursive;font-size:22px;letter-spacing:.1em;
+  font-family:'Fredoka One',cursive;font-size:22px;letter-spacing:.1em;
   color:var(--gold);
   text-shadow:0 0 12px rgba(255,215,0,.45),0 2px 0 rgba(0,0,0,.7);
 }
@@ -90,7 +90,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 }
 .btn{
   width:100%;height:56px;border-radius:var(--r);border:none;cursor:pointer;
-  font-family:'Bangers',cursive;font-size:20px;letter-spacing:.06em;color:#fff;
+  font-family:'Fredoka One',cursive;font-size:20px;letter-spacing:.06em;color:#fff;
   display:flex;align-items:center;justify-content:center;gap:8px;
   transition:transform .12s,box-shadow .12s;
   -webkit-user-select:none;user-select:none;
@@ -125,7 +125,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 .pill{
   display:inline-flex;align-items:center;gap:5px;
   padding:5px 12px;border-radius:20px;font-size:12px;font-weight:800;
-  font-family:'Bangers',cursive;letter-spacing:.06em;font-size:13px;
+  font-family:'Fredoka One',cursive;letter-spacing:.06em;font-size:13px;
 }
 
 /* ── BOTTOM NAV ──────────────────────────────────────────── */
@@ -168,7 +168,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 }
 .home-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .clan-title{
-  font-family:'Bangers',cursive;font-size:30px;letter-spacing:.08em;
+  font-family:'Fredoka One',cursive;font-size:30px;letter-spacing:.08em;
   /* Gold embossed banner style */
   background:linear-gradient(180deg,var(--gold-lt) 0%,var(--gold) 45%,var(--gold-dk) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
@@ -235,7 +235,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   padding:4px 6px 6px;
 }
 .warrior-name{
-  font-family:'Bangers',cursive;font-size:13px;letter-spacing:.08em;
+  font-family:'Fredoka One',cursive;font-size:13px;letter-spacing:.08em;
   text-transform:uppercase;color:var(--tx0);display:block;
 }
 .w-j .warrior-name{color:var(--jakob)}
@@ -265,7 +265,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 /* SECTIONS — Gold banner style */
 .section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .section-title{
-  font-family:'Bangers',cursive;font-size:17px;letter-spacing:.1em;
+  font-family:'Fredoka One',cursive;font-size:17px;letter-spacing:.1em;
   text-transform:uppercase;
   background:linear-gradient(180deg,var(--gold-lt) 0%,var(--gold) 60%,var(--gold-dk) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
@@ -294,13 +294,13 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   background:linear-gradient(90deg,transparent,rgba(255,215,0,.5),rgba(16,185,129,.4),transparent);
 }
 .spin-hint{
-  font-family:'Bangers',cursive;font-size:14px;letter-spacing:.14em;
+  font-family:'Fredoka One',cursive;font-size:14px;letter-spacing:.14em;
   color:rgba(255,215,0,.55);margin-bottom:14px;text-transform:uppercase;
 }
 .spin-cta{
   width:100%;height:68px;border-radius:16px;border:none;cursor:pointer;
   background:linear-gradient(160deg,#FFE55C 0%,#FFD700 40%,#C89B00 100%);
-  font-family:'Bangers',cursive;font-size:24px;letter-spacing:.08em;
+  font-family:'Fredoka One',cursive;font-size:24px;letter-spacing:.08em;
   color:#1A0300;
   display:flex;align-items:center;justify-content:center;gap:10px;
   box-shadow:0 8px 0 #7A5E00,0 10px 30px rgba(255,215,0,.35);
@@ -358,12 +358,12 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   background:linear-gradient(90deg,transparent,rgba(255,107,53,.8),rgba(255,75,75,.6),transparent);
 }
 .raid-label{
-  font-family:'Bangers',cursive;font-size:11px;letter-spacing:.18em;
+  font-family:'Fredoka One',cursive;font-size:11px;letter-spacing:.18em;
   text-transform:uppercase;color:rgba(255,100,50,.9);margin-bottom:5px;
   text-shadow:0 0 10px rgba(255,107,53,.5);
 }
 .raid-name{
-  font-family:'Bangers',cursive;font-size:20px;letter-spacing:.05em;
+  font-family:'Fredoka One',cursive;font-size:20px;letter-spacing:.05em;
   color:var(--tx0);margin-bottom:12px;
   text-shadow:0 0 20px rgba(255,107,53,.3);
 }
@@ -381,7 +381,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 }
 .raid-meta{display:flex;justify-content:space-between;align-items:center}
 .raid-pct{
-  font-family:'Bangers',cursive;font-size:14px;letter-spacing:.04em;
+  font-family:'Fredoka One',cursive;font-size:14px;letter-spacing:.04em;
   color:var(--jakob);text-shadow:0 0 8px rgba(255,107,53,.4);
 }
 .raid-warriors{font-size:11px;font-weight:600;color:var(--tx2)}
@@ -398,7 +398,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   padding:20px;
 }
 .wheel-hint{
-  font-family:'Bangers',cursive;font-size:15px;letter-spacing:.14em;
+  font-family:'Fredoka One',cursive;font-size:15px;letter-spacing:.14em;
   color:rgba(255,215,0,.55);margin-bottom:24px;text-transform:uppercase;
 }
 
@@ -426,7 +426,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   width:min(240px,80vw);height:64px;
   border-radius:var(--r);border:none;cursor:pointer;
   background:linear-gradient(160deg,#FFE55C 0%,#FFD700 40%,#C89B00 100%);
-  font-family:'Bangers',cursive;font-size:22px;letter-spacing:.08em;
+  font-family:'Fredoka One',cursive;font-size:22px;letter-spacing:.08em;
   color:#1A0300;
   box-shadow:0 8px 0 #7A5E00,0 10px 28px rgba(255,215,0,.35);
   transition:transform .12s,box-shadow .12s;
@@ -539,11 +539,11 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 }
 @keyframes popIn{0%{transform:scale(0)}100%{transform:scale(1)}}
 .xp-pop-num{
-  font-family:'Bangers',cursive;font-size:38px;letter-spacing:.04em;
+  font-family:'Fredoka One',cursive;font-size:38px;letter-spacing:.04em;
   color:var(--gold);
   text-shadow:0 0 20px rgba(255,215,0,.6),0 2px 0 rgba(0,0,0,.7);
 }
-.xp-pop-lbl{font-family:'Bangers',cursive;font-size:18px;letter-spacing:.08em;color:var(--tx1)}
+.xp-pop-lbl{font-family:'Fredoka One',cursive;font-size:18px;letter-spacing:.08em;color:var(--tx1)}
 .reward-stats{
   display:grid;grid-template-columns:1fr 1fr;gap:10px;
   width:100%;max-width:300px;margin-bottom:28px;
@@ -573,11 +573,11 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 }
 .rankup-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .rankup-label{
-  font-family:'Bangers',cursive;font-size:11px;letter-spacing:.18em;
+  font-family:'Fredoka One',cursive;font-size:11px;letter-spacing:.18em;
   color:rgba(255,215,0,.75);text-transform:uppercase;
 }
 .rankup-rank{
-  font-family:'Bangers',cursive;font-size:26px;letter-spacing:.06em;
+  font-family:'Fredoka One',cursive;font-size:26px;letter-spacing:.06em;
   color:#FFD700;margin-top:2px;
   text-shadow:0 0 20px rgba(255,215,0,.6),0 2px 0 rgba(0,0,0,.7);
 }
@@ -615,7 +615,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 @keyframes crownDrop{0%{transform:translateY(-80px) scale(0);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
 .sovereign-name{
   font-size:48px;font-weight:900;color:#FFD700;line-height:1;margin-bottom:4px;
-  font-family:'Bangers',cursive;letter-spacing:.04em;
+  font-family:'Fredoka One',cursive;letter-spacing:.04em;
   animation:fadeSlideUp .6s .4s ease both;
   text-shadow:0 0 40px rgba(255,215,0,.5);
 }
@@ -698,7 +698,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   border:2px solid rgba(255,215,0,.5);
   background:linear-gradient(160deg,rgba(255,215,0,.18),rgba(124,58,237,.22));
   cursor:pointer;
-  font-family:'Bangers',cursive;font-size:20px;letter-spacing:.08em;
+  font-family:'Fredoka One',cursive;font-size:20px;letter-spacing:.08em;
   color:#FFD700;display:flex;align-items:center;justify-content:center;gap:10px;
   margin-top:16px;
   box-shadow:0 6px 0 rgba(0,0,0,.5),0 8px 24px rgba(255,215,0,.12);
@@ -723,7 +723,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   filter:drop-shadow(0 4px 8px rgba(0,0,0,.6));
 }
 .podium-name{
-  font-family:'Bangers',cursive;font-size:13px;letter-spacing:.08em;
+  font-family:'Fredoka One',cursive;font-size:13px;letter-spacing:.08em;
   text-transform:uppercase;color:var(--tx1);
 }
 .podium-xp{font-size:11px;font-weight:900;font-family:var(--mono)}
@@ -765,10 +765,10 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 .lb-rank{width:24px;font-size:13px;font-weight:800;color:var(--tx2);text-align:center;flex-shrink:0}
 .lb-av{font-size:24px;flex-shrink:0}
 .lb-info{flex:1}
-.lb-name{font-family:'Bangers',cursive;font-size:17px;letter-spacing:.06em;color:var(--tx0)}
+.lb-name{font-family:'Fredoka One',cursive;font-size:17px;letter-spacing:.06em;color:var(--tx0)}
 .lb-streak{font-size:11px;font-weight:600;color:var(--tx2);margin-top:1px}
 .lb-xp{
-  font-family:'Bangers',cursive;font-size:18px;letter-spacing:.04em;
+  font-family:'Fredoka One',cursive;font-size:18px;letter-spacing:.04em;
 }
 .lb-row:nth-child(1) .lb-xp{
   color:var(--gold);
@@ -813,7 +813,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 .pin-sub{font-size:14px;font-weight:400;color:var(--tx2);margin-bottom:var(--s5);text-align:center;max-width:28ch}
 .pin-dots{display:flex;gap:var(--s2);margin-bottom:var(--s4)}
 .pin-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);transition:background .15s,border-color .15s}
-.pin-dot.filled{background:var(--jakob);border-color:var(--jakob)}
+.pin-dot.filled{background:var(--purple);border-color:var(--purple)}
 .pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:min(280px,82vw)}
 .pin-key{height:64px;border-radius:50px;background:var(--bg2);border:1px solid var(--border);
   color:var(--tx0);font-size:24px;font-weight:700;cursor:pointer;
@@ -830,7 +830,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 /* Warrior playing indicator */
 .active-warrior-bar{
   display:flex;align-items:center;gap:8px;
-  background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.2);
+  background:rgba(106,33,196,.08);border:1px solid rgba(106,33,196,.2);
   border-radius:12px;padding:10px 14px;margin-bottom:var(--s3);
 }
 .aw-label{font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.08em}
@@ -860,7 +860,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 .locked-overlay .lock-icon{font-size:28px}
 .locked-overlay .lock-txt{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase}
 .upgrade-banner{
-  background:linear-gradient(135deg,#7B68EE,#4ECDC4);
+  background:linear-gradient(135deg,#6a21c4,#f59e0b);
   border-radius:var(--r);padding:16px;margin:var(--s3) 0;
   display:flex;align-items:center;justify-content:space-between;gap:12px;
   cursor:pointer;
@@ -919,6 +919,32 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 .modal-result.err{color:#ef4444}
 .premium-star{color:var(--gold)}
 
+
+/* ── ONBOARDING MODAL ────────────────────────────────────────────── */
+.ob-overlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.88);
+  display:flex;align-items:center;justify-content:center;padding:20px}
+.ob-overlay.hidden{display:none}
+.ob-box{background:var(--bg2);border:1px solid rgba(106,33,196,.4);
+  border-radius:24px;padding:28px 24px;width:100%;max-width:340px;text-align:center;
+  box-shadow:0 0 60px rgba(106,33,196,.25)}
+.ob-icon{font-size:52px;margin-bottom:8px}
+.ob-title{font-family:'Fredoka One',cursive;font-size:24px;color:var(--tx0);margin-bottom:4px}
+.ob-sub{font-size:13px;color:var(--tx1);line-height:1.5;margin-bottom:20px}
+.ob-field{width:100%;height:46px;padding:0 14px;margin-bottom:10px;
+  background:var(--bg3);border:1px solid rgba(106,33,196,.3);
+  border-radius:12px;color:var(--tx0);font-family:'Fredoka One',cursive;
+  font-size:16px;letter-spacing:.03em;outline:none;box-sizing:border-box}
+.ob-field:focus{border-color:rgba(106,33,196,.7)}
+.ob-field::placeholder{color:var(--tx3);font-family:'Nunito',sans-serif;font-size:14px}
+.ob-label{font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;
+  letter-spacing:.07em;text-align:left;margin-bottom:4px;margin-top:6px;display:block}
+.ob-btn{width:100%;height:52px;background:linear-gradient(135deg,#6a21c4,#f59e0b);
+  color:#fff;border:none;border-radius:14px;font-family:'Fredoka One',cursive;
+  font-size:18px;cursor:pointer;margin-top:14px;letter-spacing:.04em;
+  box-shadow:0 4px 0 rgba(0,0,0,.3)}
+.ob-btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
+.ob-skip{font-size:12px;color:var(--tx3);cursor:pointer;text-decoration:underline;
+  margin-top:12px;display:block}
 </style>
 </head>
 <body>
@@ -931,8 +957,8 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   <div class="home-header">
     <div class="home-top">
       <div>
-        <div class="clan-title">Markovich Clan 👑</div>
-        <div class="clan-sub">Wednesday · Day 47</div>
+        <div class="clan-title" id="family-title">Our Family 👑</div>
+        <div class="clan-sub" id="clan-sub"></div>
       </div>
       <div class="streak-badge">
         <span class="streak-fire">🔥</span>
@@ -944,26 +970,26 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     </div>
     <div class="warriors">
       <div class="warrior w-j" onclick="showProfile('jakob')">
-        <div class="warrior-av-wrap"><span class="warrior-av">⚔️</span></div>
+        <div class="warrior-av-wrap"><span class="warrior-av">🌟</span></div>
         <div class="warrior-name-band">
-          <span class="warrior-name">Jakob</span>
+          <span class="warrior-name" id="wname-jakob">Player 1</span>
           <span class="warrior-xp" id="xp-jakob">2,840</span>
         </div>
         <div class="xp-bar"><div class="xp-fill" style="width:72%"></div></div>
       </div>
       <div class="warrior w-d" onclick="if(!isPremium()){openPremiumModal();}else{showProfile('dean');}" style="position:relative">
-        <div class="warrior-av-wrap"><span class="warrior-av">🛡️</span></div>
+        <div class="warrior-av-wrap"><span class="warrior-av">⭐</span></div>
         <div class="warrior-name-band">
-          <span class="warrior-name">Dean</span>
+          <span class="warrior-name" id="wname-dean">Player 2</span>
           <span class="warrior-xp" id="xp-dean">1,920</span>
         </div>
         <div class="xp-bar"><div class="xp-fill" style="width:48%"></div></div>
         <div class="locked-overlay" id="lock-dean" style="display:none"><div class="lock-icon">🔒</div><div class="lock-txt">Premium</div></div>
       </div>
       <div class="warrior w-v" onclick="if(!isPremium()){openPremiumModal();}else{showProfile('dave');}" style="position:relative">
-        <div class="warrior-av-wrap"><span class="warrior-av">👑</span></div>
+        <div class="warrior-av-wrap"><span class="warrior-av">💫</span></div>
         <div class="warrior-name-band">
-          <span class="warrior-name">Daddy</span>
+          <span class="warrior-name" id="wname-dave">Player 3</span>
           <span class="warrior-xp" id="xp-dave">4,100</span>
         </div>
         <div class="xp-bar"><div class="xp-fill" style="width:90%"></div></div>
@@ -978,23 +1004,23 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     <!-- UPGRADE BANNER (hidden for premium users) -->
     <div class="upgrade-banner" id="upgrade-banner" onclick="openPremiumModal()" style="display:none">
       <div>
-        <div class="ub-text">🏆 שדרג ל-Premium</div>
-        <div class="ub-price">3 לוחמים · XP כפול · ₪29.90/חודש</div>
+        <div class="ub-text">🏆 Upgrade to Premium</div>
+        <div class="ub-price">3 players · 2x XP · ₪29.90/mo</div>
       </div>
-      <div class="ub-btn">שדרג</div>
+      <div class="ub-btn">Upgrade</div>
     </div>
     <!-- ACTIVE WARRIOR SELECTOR -->
     <div class="active-warrior-bar">
-      <span class="aw-label">🎮 עכשיו משחק</span>
+      <span class="aw-label">🎮 Now Playing</span>
       <select class="aw-select" id="warrior-select" onchange="onWarriorSelect(this)">
-        <option value="jakob">⚔️ Jakob</option>
-        <option value="dean">🛡️ Dean 🔒</option>
-        <option value="dave">👑 Daddy 🔒</option>
+        <option value="jakob" id="opt-jakob">🌟 Player 1</option>
+        <option value="dean" id="opt-dean">⭐ Player 2 🔒</option>
+        <option value="dave" id="opt-dave">💫 Player 3 🔒</option>
       </select>
     </div>
     <!-- SPIN CTA -->
     <div class="spin-zone">
-      <div class="spin-hint">🎡 Your daily chore awaits</div>
+      <div class="spin-hint">🎬 Spin for your chore, contestant!</div>
       <button class="spin-cta" onclick="goTo('s-spin')">
         ⚡ Spin the Wheel
       </button>
@@ -1002,16 +1028,16 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 
     <!-- RAID BOSS -->
     <div class="section-hd">
-      <div class="section-title">⚔️ Active Raid</div>
+      <div class="section-title">🎯 This Week's Goal</div>
       <div class="section-link">Details</div>
     </div>
     <div class="raid-card">
-      <div class="raid-label">🍕 Pizza Night Raid Boss</div>
-      <div class="raid-name">The Chore Dragon</div>
+      <div class="raid-label">🏆 Family Goal Progress</div>
+      <div class="raid-name" id="goal-reward-name">🍕 Pizza Night</div>
       <div class="boss-bar"><div class="boss-fill" id="boss-fill" style="width:68%"></div></div>
       <div class="raid-meta">
-        <span class="raid-pct">68% conquered</span>
-        <span class="raid-warriors">⚔️ 3 warriors active</span>
+        <span class="raid-pct" id="goal-pct">68% complete</span>
+        <span class="raid-warriors" id="goal-players">⭐ 3 players crushing it</span>
       </div>
     </div>
 
@@ -1050,7 +1076,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     <button class="nav-item on" onclick="showTab('home')"><span class="ico">🏠</span>Home</button>
     <button class="nav-item" onclick="showTab('missions')"><span class="ico">📋</span>Missions</button>
     <button class="nav-item" onclick="goTo('s-leaderboard')"><span class="ico">🏆</span>Squad</button>
-    <button class="nav-item" onclick="showTab('me')"><span class="ico">⚔️</span>Me</button>
+    <button class="nav-item" onclick="showTab('me')"><span class="ico">👤</span>Me</button>
   </nav>
 </div>
 
@@ -1081,7 +1107,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   <div class="body" style="padding-top:0">
     <div class="chore-hero">
       <span class="chore-emoji" id="chore-emoji">🧹</span>
-      <div class="chore-warrior" id="chore-warrior">⚔️ JAKOB'S QUEST</div>
+      <div class="chore-warrior" id="chore-warrior">🌟 PLAYER 1'S TURN</div>
       <div class="chore-title" id="chore-title">Clean the Living Room</div>
       <div class="chore-xp">⭐ <span id="chore-xp">+30 XP</span></div>
     </div>
@@ -1095,7 +1121,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     </div>
   </div>
   <div class="chore-actions">
-    <button class="btn btn-orange" onclick="goTo('s-proof')">✅ I'm on it!</button>
+    <button class="btn btn-orange" onclick="goTo('s-proof')">✅ Challenge Accepted!</button>
     <button class="btn btn-ghost" onclick="rerollChore()">🔄 Re-roll (1 remaining)</button>
   </div>
 </div>
@@ -1162,26 +1188,26 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 <div class="screen hidden" id="s-leaderboard">
   <div class="topbar">
     <button class="back-btn" onclick="goBack()">←</button>
-    <div class="topbar-title">Clan Rankings</div>
+    <div class="topbar-title">Scoreboard</div>
     <div style="width:38px"></div>
   </div>
 
   <div class="lb-podium">
     <div class="podium-spot podium-2">
-      <div class="podium-av">🛡️</div>
-      <div class="podium-name">Dean</div>
+      <div class="podium-av" id="pod-av-2">⭐</div>
+      <div class="podium-name" id="pod-name-2">Player 2</div>
       <div class="podium-xp">1,920</div>
       <div class="podium-block">2</div>
     </div>
     <div class="podium-spot podium-1">
-      <div class="podium-av">👑</div>
-      <div class="podium-name">Daddy</div>
+      <div class="podium-av" id="pod-av-1">💫</div>
+      <div class="podium-name" id="pod-name-1">Player 3</div>
       <div class="podium-xp">4,100</div>
       <div class="podium-block">1</div>
     </div>
     <div class="podium-spot podium-3">
-      <div class="podium-av">⚔️</div>
-      <div class="podium-name">Jakob</div>
+      <div class="podium-av" id="pod-av-3">🌟</div>
+      <div class="podium-name" id="pod-name-3">Player 1</div>
       <div class="podium-xp">2,885</div>
       <div class="podium-block">3</div>
     </div>
@@ -1221,15 +1247,15 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 
   <div class="body" style="padding-top:0">
     <div style="background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.2);border-radius:14px;padding:14px;text-align:center">
-      <div style="font-size:14px;font-weight:800;color:var(--gold);margin-bottom:4px">🍕 Next Raid Reward</div>
-      <div style="font-size:13px;font-weight:600;color:var(--tx1)">Pizza Night unlocks when boss reaches 100%</div>
+      <div style="font-size:14px;font-weight:800;color:var(--gold);margin-bottom:4px">🏆 Weekly Family Prize</div>
+      <div style="font-size:13px;font-weight:600;color:var(--tx1)" id="lb-goal-desc">Complete chores together to unlock the family reward!</div>
       <div style="margin-top:10px;height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden">
         <div id="lb-boss-fill" style="width:71%;height:100%;background:linear-gradient(90deg,var(--jakob),var(--gold));border-radius:4px;transition:width .8s"></div>
       </div>
       <div id="lb-boss-text" style="font-size:12px;color:var(--tx2);margin-top:4px">71% — almost there!</div>
     </div>
-    <button class="crown-btn" onclick="showSovereignProclamation()">
-      <span style="font-size:22px">👑</span> Crown the Sovereign
+    <button class="crown-btn" onclick="showSovereignProclamation()" style="font-family:'Fredoka One',cursive">
+      <span style="font-size:22px">🏆</span> Crown the Champion
     </button>
   </div>
 
@@ -1237,27 +1263,27 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     <button class="nav-item" onclick="goTo('s-home');"><span class="ico">🏠</span>Home</button>
     <button class="nav-item" onclick="showTab('missions')"><span class="ico">📋</span>Missions</button>
     <button class="nav-item on"><span class="ico">🏆</span>Squad</button>
-    <button class="nav-item" onclick="showTab('me')"><span class="ico">⚔️</span>Me</button>
+    <button class="nav-item" onclick="showTab('me')"><span class="ico">👤</span>Me</button>
   </nav>
 </div>
 
 <!-- ── RANK-UP TOAST ── -->
 <div class="rankup-toast" id="rankup-toast">
-  <div class="rankup-label">⚔️ Rank Achieved</div>
-  <div class="rankup-rank" id="rankup-rank-name">Knight</div>
+  <div class="rankup-label">🏆 Level Up!</div>
+  <div class="rankup-rank" id="rankup-rank-name">All-Star</div>
 </div>
 
 <!-- ── SOVEREIGN PROCLAMATION ── -->
 <div class="sovereign-overlay" id="sovereign-overlay">
   <div class="sovereign-crown-rain" id="crown-rain"></div>
-  <div class="sovereign-badge">👑 Sovereign of the Week</div>
+  <div class="sovereign-badge">🏆 Champion of the Week</div>
   <div class="sovereign-crown">👑</div>
   <div class="sovereign-name" id="sov-name">Daddy</div>
-  <div class="sovereign-title" id="sov-title">Rules the Kingdom This Week</div>
+  <div class="sovereign-title" id="sov-title">🌟 Top Player This Week!</div>
   <div class="sovereign-stats">
     <div class="sov-stat">
       <div class="sov-stat-n" id="sov-xp">4,100</div>
-      <div class="sov-stat-l">Glory Points</div>
+      <div class="sov-stat-l">Points</div>
     </div>
     <div class="sov-stat">
       <div class="sov-stat-n" id="sov-chores">41</div>
@@ -1269,24 +1295,24 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     </div>
   </div>
   <div class="sovereign-actions">
-    <button class="btn btn-gold" onclick="hideSovereignAndReset()">⚔️ Start New Battle Week</button>
-    <button class="btn btn-ghost" onclick="hideSovereign()">Stay &amp; Celebrate</button>
+    <button class="btn btn-gold" onclick="hideSovereignAndReset()">🎯 Start Fresh Week</button>
+    <button class="btn btn-ghost" onclick="hideSovereign()">Keep Celebrating! 🎉</button>
   </div>
 </div>
 
 <!-- ── BOSS DEFEATED ── -->
 <div class="boss-defeated-overlay" id="boss-defeated-overlay">
   <div class="boss-kaboom" id="kaboom-particles"></div>
-  <div class="bd-roar">⚡ Quest Complete</div>
+  <div class="bd-roar">🎊 Goal Reached!</div>
   <div class="bd-icon">🏰</div>
-  <div class="bd-title">BOSS<br>DEFEATED!</div>
-  <div class="bd-subtitle">The clan fought valiantly — all chores conquered</div>
+  <div class="bd-title">REWARD<br>UNLOCKED!</div>
+  <div class="bd-subtitle">The family crushed it — reward is yours!</div>
   <div class="bd-reward">
-    <div class="bd-reward-label">🎁 Raid Reward Unlocked</div>
+    <div class="bd-reward-label">🎁 Family Reward Unlocked</div>
     <div class="bd-reward-name" id="bd-reward-name">🍕 Pizza Night!</div>
   </div>
   <div class="bd-actions">
-    <button class="btn btn-gold" onclick="hideBossDefeated()">Claim Victory!</button>
+    <button class="btn btn-gold" onclick="hideBossDefeated()">🎉 Claim Your Reward!</button>
   </div>
 </div>
 
@@ -1340,6 +1366,15 @@ function checkDailyReset() {
   }
 }
 
+/* Player names — customizable via onboarding */
+var PLAYER_NAMES = (function(){
+  try { var n = localStorage.getItem('cr_names'); if(n) return JSON.parse(n); } catch(e){}
+  return {jakob:'Player 1',dean:'Player 2',dave:'Player 3'};
+})();
+var FAMILY_NAME = (function(){
+  try { var f = localStorage.getItem('cr_family'); if(f) return f; } catch(e){}
+  return 'Our Family';
+})();
 var STATE = loadState();
 var activeWarrior = 'jakob'; // tracks who is currently playing
 checkDailyReset();
@@ -1350,14 +1385,14 @@ var history = [];
 var photoTaken = false;
 
 var CHORES = [
-  {emoji:'🧹',name:'Clean the Living Room',xp:30,bonus:15,desc:'Make sure the whole living room is clean — pick up toys, cushions back in place, and vacuum the carpet.',warrior:'⚔️ JAKOB\'S QUEST'},
-  {emoji:'🍽️',name:'Wash All the Dishes',xp:20,bonus:10,desc:'Wash every dish, pot and utensil. Dry them and put them back in the cupboard.',warrior:'⚔️ JAKOB\'S QUEST'},
-  {emoji:'🛁',name:'Clean the Bathroom',xp:35,bonus:15,desc:'Scrub the sink, toilet and shower. Wipe surfaces and replace the towels.',warrior:'🛡️ DEAN\'S QUEST'},
-  {emoji:'🗑️',name:'Take Out the Trash',xp:15,bonus:5,desc:'Empty all bins in the house. Take bags to the outdoor bin.',warrior:'🛡️ DEAN\'S QUEST'},
-  {emoji:'🧺',name:'Do the Laundry',xp:25,bonus:10,desc:'Put clothes in the machine, add detergent, set the right cycle. Move to dryer when done.',warrior:'👑 DADDY\'S QUEST'},
-  {emoji:'🌿',name:'Water the Plants',xp:10,bonus:5,desc:'Water all indoor plants and the balcony plants. Check soil is moist, not soaked.',warrior:'🛡️ DEAN\'S QUEST'},
-  {emoji:'🐕',name:'Walk the Dog',xp:20,bonus:10,desc:'Take the dog for a full walk around the block. Clean up after them.',warrior:'⚔️ JAKOB\'S QUEST'},
-  {emoji:'🪟',name:'Clean the Windows',xp:30,bonus:15,desc:'Use glass cleaner on all windows and glass doors. Wipe until no streaks.',warrior:'👑 DADDY\'S QUEST'},
+  {emoji:'🧹',name:'Clean the Living Room',xp:30,bonus:15,desc:'Make sure the whole living room is clean — pick up toys, cushions back in place, and vacuum the carpet.'},
+  {emoji:'🍽️',name:'Wash All the Dishes',xp:20,bonus:10,desc:'Wash every dish, pot and utensil. Dry them and put them back in the cupboard.'},
+  {emoji:'🛁',name:'Clean the Bathroom',xp:35,bonus:15,desc:'Scrub the sink, toilet and shower. Wipe surfaces and replace the towels.'},
+  {emoji:'🗑️',name:'Take Out the Trash',xp:15,bonus:5,desc:'Empty all bins in the house. Take bags to the outdoor bin.'},
+  {emoji:'🧺',name:'Do the Laundry',xp:25,bonus:10,desc:'Put clothes in the machine, add detergent, set the right cycle. Move to dryer when done.'},
+  {emoji:'🌿',name:'Water the Plants',xp:10,bonus:5,desc:'Water all indoor plants and the balcony plants. Check soil is moist, not soaked.'},
+  {emoji:'🐕',name:'Walk the Dog',xp:20,bonus:10,desc:'Take the dog for a full walk around the block. Clean up after them.'},
+  {emoji:'🪟',name:'Clean the Windows',xp:30,bonus:15,desc:'Use glass cleaner on all windows and glass doors. Wipe until no streaks.'},
 ];
 
 var currentChore = CHORES[0];
@@ -1432,16 +1467,17 @@ function setActiveWarrior(name) {
     w.style.opacity = '1';
   });
   // Highlight selected warrior's card
-  var colors = {jakob: 'rgba(255,107,53,.4)', dean: 'rgba(78,205,196,.4)', dave: 'rgba(123,104,238,.4)'};
+  var colors = {jakob: 'rgba(106,33,196,.4)', dean: 'rgba(245,158,11,.4)', dave: 'rgba(124,58,237,.4)'};
   var card = document.querySelector('.w-' + (name === 'dave' ? 'v' : name.charAt(0)));
   if (card) card.style.borderColor = colors[name] || '';
   // Update chore warrior label
   var wl = document.getElementById('chore-warrior');
-  var labels = {jakob: '⚔️ JAKOB'S QUEST', dean: '🛡️ DEAN'S QUEST', dave: '👑 DADDY'S QUEST'};
-  if (wl) wl.textContent = labels[name] || labels.jakob;
+  var PICONS = {jakob:'🌟', dean:'⭐', dave:'💫'};
+  var pLabel = (PICONS[name]||'🌟') + ' ' + (PLAYER_NAMES[name]||'Player').toUpperCase() + "'S TURN";
+  if (wl) wl.textContent = pLabel;
   // Update pin warrior name
   var pn = document.getElementById('pin-warrior-name');
-  var pnames = {jakob: 'Jakob', dean: 'Dean', dave: 'Daddy'};
+  var pnames = {jakob: PLAYER_NAMES.jakob, dean: PLAYER_NAMES.dean, dave: PLAYER_NAMES.dave};
   if (pn) pn.textContent = pnames[name] || 'Jakob';
 }
 
@@ -1454,7 +1490,7 @@ function goTo(id) {
 
   // Flash effect
   var flash = document.getElementById('flash');
-  flash.style.background = id === 's-reward' ? '#FF6B35' : 'var(--bg)';
+  flash.style.background = id === 's-reward' ? '#6a21c4' : 'var(--bg)';
   flash.classList.add('flash');
   setTimeout(function() { flash.classList.remove('flash'); }, 200);
 
@@ -1507,7 +1543,7 @@ function goBack() {
   var n = CHORES.length;
   var angle = 360 / n;
   var cx = 100, cy = 100, r = 96;
-  var colors = ['#FF6B35','#4ECDC4','#7B68EE','#FF6B35','#4ECDC4','#7B68EE','#FF6B35','#4ECDC4'];
+  var colors = ['#6a21c4','#f59e0b','#7c3aed','#f59e0b','#6a21c4','#f59e0b','#7c3aed','#f59e0b'];
 
   CHORES.forEach(function(c, i) {
     var start = (i * angle - 90) * Math.PI / 180;
@@ -1574,8 +1610,11 @@ function spinWheel() {
 }
 
 function updateChoreScreen(chore) {
+  var PLAYER_ICONS = {jakob:'🌟', dean:'⭐', dave:'💫'};
+  var icon = PLAYER_ICONS[activeWarrior] || '🌟';
+  var pname = (PLAYER_NAMES[activeWarrior] || 'Player 1').toUpperCase();
   document.getElementById('chore-emoji').textContent = chore.emoji;
-  document.getElementById('chore-warrior').textContent = chore.warrior;
+  document.getElementById('chore-warrior').textContent = icon + ' ' + pname + '\'S TURN';
   document.getElementById('chore-title').textContent = chore.name;
   document.getElementById('chore-xp').textContent = '+' + chore.xp + ' XP';
   document.getElementById('chore-desc').textContent = chore.desc;
@@ -1642,7 +1681,7 @@ function skipPhoto() {
 function launchFireworks() {
   var fw = document.getElementById('fireworks');
   fw.innerHTML = '';
-  var colors = ['#FF6B35','#4ECDC4','#7B68EE','#FFD700','#FF4757'];
+  var colors = ['#6a21c4','#f59e0b','#7c3aed','#FFD700','#4a1a8c'];
   for (var i = 0; i < 40; i++) {
     var s = document.createElement('div');
     s.className = 'spark';
@@ -1661,12 +1700,12 @@ function launchFireworks() {
 
 // Rank system — XP thresholds
 var RANKS = [
-  { min: 0,    name: 'Peasant',   icon: '🌾' },
-  { min: 500,  name: 'Squire',    icon: '⚔️' },
-  { min: 1200, name: 'Knight',    icon: '🛡️' },
-  { min: 2500, name: 'Baron',     icon: '🏰' },
-  { min: 4500, name: 'Duke',      icon: '⚜️' },
-  { min: 7000, name: 'Sovereign', icon: '👑' }
+  { min: 0,    name: 'Rookie',      icon: '🌟' },
+  { min: 500,  name: 'Rising Star', icon: '⭐' },
+  { min: 1200, name: 'All-Star',    icon: '💫' },
+  { min: 2500, name: 'Pro',         icon: '🏅' },
+  { min: 4500, name: 'Champion',    icon: '🏆' },
+  { min: 7000, name: 'Legend',      icon: '👑' }
 ];
 
 function getWarriorRank(xp) {
@@ -1681,7 +1720,7 @@ function checkRankUp(warrior, oldXP, newXP) {
   var oldRank = getWarriorRank(oldXP);
   var newRank = getWarriorRank(newXP);
   if (newRank.min > oldRank.min) {
-    var names = { jakob: 'Jakob', dean: 'Dean', dave: 'Daddy' };
+    var names = { jakob: PLAYER_NAMES.jakob, dean: PLAYER_NAMES.dean, dave: PLAYER_NAMES.dave };
     showRankUpToast(names[warrior] || warrior, newRank);
   }
 }
@@ -1727,7 +1766,7 @@ function launchKaboom() {
   var container = document.getElementById('kaboom-particles');
   if (!container) return;
   container.innerHTML = '';
-  var colors = ['#FFD700','#FF6B35','#7B68EE','#4ECDC4','#FF4757','#fff'];
+  var colors = ['#FFD700','#6a21c4','#7c3aed','#f59e0b','#4a1a8c','#fff'];
   var cx = window.innerWidth / 2, cy = window.innerHeight / 2;
   for (var i = 0; i < 80; i++) {
     var s = document.createElement('div');
@@ -1756,7 +1795,7 @@ function showSovereignProclamation() {
   if (w.dean.xp > w[top].xp) top = 'dean';
   if (w.dave.xp > w[top].xp) top = 'dave';
 
-  var names = { jakob: 'Jakob', dean: 'Dean', dave: 'Daddy' };
+  var names = { jakob: PLAYER_NAMES.jakob, dean: PLAYER_NAMES.dean, dave: PLAYER_NAMES.dave };
   var topName = names[top];
   var topXP = w[top].xp;
   var topChores = w[top].totalChores;
@@ -1805,7 +1844,7 @@ function weeklyReset() {
   // Quick victory flash
   var flash = document.getElementById('flash');
   if (flash) {
-    flash.style.background = '#7B68EE';
+    flash.style.background = '#6a21c4';
     flash.classList.add('flash');
     setTimeout(function() { flash.classList.remove('flash'); }, 300);
   }
@@ -1832,9 +1871,9 @@ function refreshLeaderboard() {
   var w = STATE.warriors;
   // Sort warriors by XP
   var sorted = [
-    { key:'jakob', name:'Jakob', icon:'⚔️', xp:w.jakob.xp, streak:w.jakob.streak, totalChores:w.jakob.totalChores },
-    { key:'dean',  name:'Dean',  icon:'🛡️', xp:w.dean.xp,  streak:w.dean.streak,  totalChores:w.dean.totalChores  },
-    { key:'dave',  name:'Daddy', icon:'👑', xp:w.dave.xp,  streak:w.dave.streak,  totalChores:w.dave.totalChores  }
+    { key:'jakob', name:PLAYER_NAMES.jakob, icon:'🌟', xp:w.jakob.xp, streak:w.jakob.streak, totalChores:w.jakob.totalChores },
+    { key:'dean',  name:PLAYER_NAMES.dean,  icon:'⭐', xp:w.dean.xp,  streak:w.dean.streak,  totalChores:w.dean.totalChores  },
+    { key:'dave',  name:PLAYER_NAMES.dave,  icon:'💫', xp:w.dave.xp,  streak:w.dave.streak,  totalChores:w.dave.totalChores  }
   ].sort(function(a, b) { return b.xp - a.xp; });
 
   // Podium (positions: 2nd, 1st, 3rd visually)
@@ -1920,11 +1959,38 @@ function showProfile(name) {}
     var lv = document.getElementById('lock-dave'); if(lv) lv.style.display='flex';
   }
 
+  // Apply player names + family name to DOM
+  var ftEl = document.getElementById('family-title');
+  if(ftEl) ftEl.textContent = FAMILY_NAME + ' 👑';
+  var subEl = document.getElementById('clan-sub');
+  if(subEl) {
+    var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var now = new Date();
+    subEl.textContent = days[now.getDay()] + ' · ' + now.getDate() + ' ' + months[now.getMonth()];
+  }
+  // Player name displays
+  var wNames = {jakob: PLAYER_NAMES.jakob||'Player 1', dean: PLAYER_NAMES.dean||'Player 2', dave: PLAYER_NAMES.dave||'Player 3'};
+  var wn1 = document.getElementById('wname-jakob'); if(wn1) wn1.textContent = wNames.jakob;
+  var wn2 = document.getElementById('wname-dean'); if(wn2) wn2.textContent = wNames.dean;
+  var wn3 = document.getElementById('wname-dave'); if(wn3) wn3.textContent = wNames.dave;
+  // Select options
+  var op1 = document.getElementById('opt-jakob'); if(op1) op1.text = '🌟 ' + wNames.jakob;
+  var op2 = document.getElementById('opt-dean'); if(op2) op2.text = '⭐ ' + wNames.dean + (isPremium()?'':' 🔒');
+  var op3 = document.getElementById('opt-dave'); if(op3) op3.text = '💫 ' + wNames.dave + (isPremium()?'':' 🔒');
+
   // Restore warrior select if state exists
   var ws = document.getElementById('warrior-select');
   if (ws && activeWarrior) ws.value = activeWarrior;
   setActiveWarrior(activeWarrior);
   refreshWarriorDisplay();
+
+  // First run: show onboarding if no names set
+  try {
+    if (!localStorage.getItem('cr_names') && !localStorage.getItem('cr_onboarded')) {
+      setTimeout(showOnboarding, 400);
+    }
+  } catch(e) {}
 })();
 
 /* ── PARENT PIN ──────────────────────────────────────────────── */
@@ -2036,11 +2102,11 @@ function checkPremiumCode() {
   var code = (document.getElementById('premium-code-input').value||'').trim();
   var res = document.getElementById('premium-result');
   if (PREMIUM_CODES.indexOf(code) !== -1) {
-    res.textContent = '✓ קוד תקין!';
+    res.textContent = '✓ Code accepted!';
     res.className = 'modal-result ok';
     setTimeout(unlockPremium, 700);
   } else {
-    res.textContent = 'קוד שגוי — נסה/י שוב';
+    res.textContent = 'Invalid code — try again';
     res.className = 'modal-result err';
     document.getElementById('premium-code-input').value = '';
   }
@@ -2055,7 +2121,7 @@ function closePremiumModal() {
 }
 
 function sendPremiumWA() {
-  var txt = encodeURIComponent('היי דייב! אני רוצה לשדרג ל-Chore Royale Premium ('+PRICE_TEXT+'). אשמח לקבל קוד הפעלה 🏆');
+  var txt = encodeURIComponent('Hi! I want to upgrade to Chore Royale Premium (' + PRICE_TEXT + '). Please send me an unlock code! 🏆');
   window.open('https://wa.me/'+WA_PHONE+'?text='+txt,'_blank');
 }
 
@@ -2067,6 +2133,54 @@ function sendPremiumWA() {
     // Will be applied in initDisplay
   } catch(e){}
 })();
+
+/* ── ONBOARDING ──────────────────────────────────────────────────── */
+function showOnboarding() {
+  var modal = document.getElementById('ob-modal');
+  if (modal) modal.classList.remove('hidden');
+  // Pre-fill if names exist
+  var p1 = document.getElementById('ob-p1');
+  var p2 = document.getElementById('ob-p2');
+  var p3 = document.getElementById('ob-p3');
+  var fam = document.getElementById('ob-family');
+  if(p1 && PLAYER_NAMES.jakob !== 'Player 1') p1.value = PLAYER_NAMES.jakob;
+  if(p2 && PLAYER_NAMES.dean !== 'Player 2') p2.value = PLAYER_NAMES.dean;
+  if(p3 && PLAYER_NAMES.dave !== 'Player 3') p3.value = PLAYER_NAMES.dave;
+  if(fam) fam.value = FAMILY_NAME !== 'Our Family' ? FAMILY_NAME : '';
+}
+
+function saveOnboarding() {
+  var p1 = (document.getElementById('ob-p1').value||'').trim() || 'Player 1';
+  var p2 = (document.getElementById('ob-p2').value||'').trim() || 'Player 2';
+  var p3 = (document.getElementById('ob-p3').value||'').trim() || 'Player 3';
+  var fam = (document.getElementById('ob-family').value||'').trim() || 'Our Family';
+  try {
+    PLAYER_NAMES.jakob = p1; PLAYER_NAMES.dean = p2; PLAYER_NAMES.dave = p3;
+    FAMILY_NAME = fam;
+    localStorage.setItem('cr_names', JSON.stringify(PLAYER_NAMES));
+    localStorage.setItem('cr_family', FAMILY_NAME);
+    localStorage.setItem('cr_onboarded','1');
+  } catch(e){}
+  applyPlayerNames();
+  document.getElementById('ob-modal').classList.add('hidden');
+}
+
+function skipOnboarding() {
+  try { localStorage.setItem('cr_onboarded','1'); } catch(e){}
+  document.getElementById('ob-modal').classList.add('hidden');
+}
+
+function applyPlayerNames() {
+  var ftEl = document.getElementById('family-title');
+  if(ftEl) ftEl.textContent = (FAMILY_NAME||'Our Family') + ' 👑';
+  var wn1 = document.getElementById('wname-jakob'); if(wn1) wn1.textContent = PLAYER_NAMES.jakob||'Player 1';
+  var wn2 = document.getElementById('wname-dean'); if(wn2) wn2.textContent = PLAYER_NAMES.dean||'Player 2';
+  var wn3 = document.getElementById('wname-dave'); if(wn3) wn3.textContent = PLAYER_NAMES.dave||'Player 3';
+  var op1 = document.getElementById('opt-jakob'); if(op1) op1.text = '🌟 ' + (PLAYER_NAMES.jakob||'Player 1');
+  var op2 = document.getElementById('opt-dean'); if(op2) op2.text = '⭐ ' + (PLAYER_NAMES.dean||'Player 2') + (isPremium()?'':' 🔒');
+  var op3 = document.getElementById('opt-dave'); if(op3) op3.text = '💫 ' + (PLAYER_NAMES.dave||'Player 3') + (isPremium()?'':' 🔒');
+  refreshLeaderboard();
+}
 
 </script>
 
@@ -2080,7 +2194,7 @@ function sendPremiumWA() {
   <div class="pin-zone">
     <div style="font-size:40px;margin-bottom:var(--s2)">👑</div>
     <div class="pin-title">Parent PIN</div>
-    <div class="pin-sub">Verify <span id="pin-warrior-name">Jakob</span>'s chore to award +15 bonus XP</div>
+    <div class="pin-sub">Parent verifies <span id="pin-warrior-name">Player 1</span>'s chore — award +15 bonus XP</div>
     <div class="pin-dots" id="pin-dots">
       <div class="pin-dot" id="pd0"></div>
       <div class="pin-dot" id="pd1"></div>
@@ -2108,27 +2222,45 @@ function sendPremiumWA() {
 
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/chore-wars/sw.js').catch(()=>{});</script>
 
+
+<!-- ── ONBOARDING MODAL ──────────────────────────────────────────────── -->
+<div class="ob-overlay hidden" id="ob-modal">
+  <div class="ob-box">
+    <div class="ob-icon">🎬</div>
+    <div class="ob-title">Welcome to Chore Royale!</div>
+    <div class="ob-sub">Set up your family to get started. You can always change this later.</div>
+    <label class="ob-label">Family Name</label>
+    <input class="ob-field" id="ob-family" placeholder="e.g. The Smiths" maxlength="20">
+    <label class="ob-label">Player 1 Name</label>
+    <input class="ob-field" id="ob-p1" placeholder="Player 1" maxlength="12">
+    <label class="ob-label">Player 2 Name (optional)</label>
+    <input class="ob-field" id="ob-p2" placeholder="Player 2" maxlength="12">
+    <label class="ob-label">Player 3 Name (optional)</label>
+    <input class="ob-field" id="ob-p3" placeholder="Player 3" maxlength="12">
+    <button class="ob-btn" onclick="saveOnboarding()">🚀 Let's Play!</button>
+    <span class="ob-skip" onclick="skipOnboarding()">Skip — use defaults</span>
+  </div>
+</div>
+
 <!-- ── PREMIUM MODAL ───────────────────────────────────────────── -->
 <div class="modal-bg hidden" id="premium-modal" onclick="if(event.target===this)closePremiumModal()">
   <div class="modal-box">
     <div style="font-size:36px;margin-bottom:8px">🏆</div>
     <div class="modal-title">Chore Royale Premium</div>
     <div class="modal-price">₪29.90</div>
-    <div class="modal-price-sub">לחודש · ביטול בכל עת</div>
+    <div class="modal-price-sub">/ month · cancel anytime</div>
     <ul class="modal-features">
-      <li>3 לוחמים — ג׳ייקוב, דין ודדי</li>
-      <li>כל המשימות ללא הגבלה</li>
-      <li>XP כפול על כל משימה</li>
-      <li>אימות הורה + בונוס 15 XP</li>
-      <li>ראיד בוס שבועי</li>
-      <li>ריצות שיא ותגמולים מיוחדים</li>
+      <li>3 players — customize all names</li>
+      <li>All chores, no limits</li>
+      <li>Double XP on every chore</li>
+      <li>Parent verify + bonus 15 XP</li>
+      <li>Weekly family goals & rewards</li>
+      <li>Streak records & special prizes</li>
     </ul>
-    <button class="modal-wa-btn" onclick="sendPremiumWA()">
-      💬 שלח הודעה לקבלת קוד
+    <button class="modal-wa-btn" onclick="sendPremiumWA()" style="font-family:'Fredoka One',cursive">
+      💬 Message us for unlock code
     </button>
-    <div style="font-size:11px;color:var(--tx2);margin-bottom:14px">
-      שלח הודעת WhatsApp ← קבל קוד הפעלה ← הכנס כאן
-    </div>
+    <div style="font-size:11px;color:var(--tx2);margin-bottom:14px">WhatsApp us → get code → enter here</div>
     <div class="modal-result" id="premium-result"></div>
     <div class="modal-code-row">
       <input class="modal-code-input" id="premium-code-input" type="tel"
@@ -2136,7 +2268,7 @@ function sendPremiumWA() {
         oninput="this.value=this.value.replace(/\D/g,'')">
       <button class="modal-code-btn" onclick="checkPremiumCode()">✓</button>
     </div>
-    <div class="modal-close" onclick="closePremiumModal()">סגור</div>
+    <div class="modal-close" onclick="closePremiumModal()">Close</div>
   </div>
 </div>
 
