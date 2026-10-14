@@ -542,17 +542,19 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none}
         <div class="warrior-xp" id="xp-jakob">2,840</div>
         <div class="xp-bar"><div class="xp-fill" style="width:72%;background:var(--jakob)"></div></div>
       </div>
-      <div class="warrior w-d" onclick="if(!isPremium()){openPremiumModal();return;}" style="position:relative" onclick="showProfile('dean')">
+      <div class="warrior w-d" onclick="if(!isPremium()){openPremiumModal();}else{showProfile('dean');}" style="position:relative">
         <div class="warrior-av">🛡️</div>
         <div class="warrior-name">Dean</div>
         <div class="warrior-xp" id="xp-dean">1,920</div>
         <div class="xp-bar"><div class="xp-fill" style="width:48%;background:var(--dean)"></div></div>
+        <div class="locked-overlay" id="lock-dean" style="display:none"><div class="lock-icon">🔒</div><div class="lock-txt">Premium</div></div>
       </div>
-      <div class="warrior w-v" onclick="if(!isPremium()){openPremiumModal();return;}" style="position:relative" onclick="showProfile('dave')">
+      <div class="warrior w-v" onclick="if(!isPremium()){openPremiumModal();}else{showProfile('dave');}" style="position:relative">
         <div class="warrior-av">👑</div>
         <div class="warrior-name">Daddy</div>
         <div class="warrior-xp" id="xp-dave">4,100</div>
         <div class="xp-bar"><div class="xp-fill" style="width:90%;background:var(--dave)"></div></div>
+        <div class="locked-overlay" id="lock-dave" style="display:none"><div class="lock-icon">🔒</div><div class="lock-txt">Premium</div></div>
       </div>
     </div>
   </div>
@@ -571,10 +573,10 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none}
     <!-- ACTIVE WARRIOR SELECTOR -->
     <div class="active-warrior-bar">
       <span class="aw-label">🎮 עכשיו משחק</span>
-      <select class="aw-select" id="warrior-select" onchange="setActiveWarrior(this.value)">
+      <select class="aw-select" id="warrior-select" onchange="onWarriorSelect(this)">
         <option value="jakob">⚔️ Jakob</option>
-        <option value="dean">🛡️ Dean</option>
-        <option value="dave">👑 Daddy</option>
+        <option value="dean">🛡️ Dean 🔒</option>
+        <option value="dave">👑 Daddy 🔒</option>
       </select>
     </div>
     <!-- SPIN CTA -->
@@ -940,6 +942,16 @@ function refreshWarriorDisplay() {
 }
 
 
+function onWarriorSelect(sel) {
+  var name = sel.value;
+  if((name === 'dean' || name === 'dave') && !isPremium()) {
+    sel.value = activeWarrior || 'jakob';
+    openPremiumModal();
+    return;
+  }
+  setActiveWarrior(name);
+}
+
 function setActiveWarrior(name) {
   activeWarrior = name;
   // Update visual emphasis on warrior cards
@@ -1206,6 +1218,16 @@ function showProfile(name) {}
     premBadge.textContent = '★ PREMIUM';
     var clanTitle = document.querySelector('.clan-title');
     if(clanTitle) clanTitle.appendChild(premBadge);
+    // Remove lock labels from select
+    var ws = document.getElementById('warrior-select');
+    if(ws) { ws.options[1].text = '🛡️ Dean'; ws.options[2].text = '👑 Daddy'; }
+    // Hide lock overlays
+    var ld = document.getElementById('lock-dean'); if(ld) ld.style.display='none';
+    var lv = document.getElementById('lock-dave'); if(lv) lv.style.display='none';
+  } else {
+    // Show lock overlays for free users
+    var ld = document.getElementById('lock-dean'); if(ld) ld.style.display='flex';
+    var lv = document.getElementById('lock-dave'); if(lv) lv.style.display='flex';
   }
 
   // Restore warrior select if state exists
@@ -1299,6 +1321,11 @@ function unlockPremium() {
     document.getElementById('premium-modal').classList.add('hidden');
     // Unlock all warriors
     document.querySelectorAll('.warrior').forEach(function(w){ w.style.opacity='1'; w.style.pointerEvents='auto'; });
+    var ld = document.getElementById('lock-dean'); if(ld) ld.style.display='none';
+    var lv = document.getElementById('lock-dave'); if(lv) lv.style.display='none';
+    var ws = document.getElementById('warrior-select');
+    if(ws) { ws.options[1].text = '🛡️ Dean'; ws.options[2].text = '👑 Daddy'; }
+    var ubanner = document.getElementById('upgrade-banner'); if(ubanner) ubanner.style.display='none';
     // Show all chores
     STATE.premiumUnlocked = true;
     saveState();
