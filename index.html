@@ -332,6 +332,133 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none}
 .rstat-l{font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.07em;margin-top:2px}
 .reward-actions{width:100%;max-width:300px;display:flex;flex-direction:column;gap:10px}
 
+/* ── WIN MECHANICS ────────────────────────────────────────── */
+
+/* Rank-up toast */
+.rankup-toast{
+  position:fixed;bottom:120px;left:50%;transform:translateX(-50%) translateY(20px);
+  z-index:900;pointer-events:none;opacity:0;
+  transition:opacity .3s,transform .3s;
+  background:linear-gradient(135deg,#7B68EE,#a855f7);
+  border:2px solid rgba(255,215,0,.5);
+  border-radius:20px;padding:14px 28px;text-align:center;
+  box-shadow:0 8px 32px rgba(123,104,238,.5);
+  white-space:nowrap;
+}
+.rankup-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.rankup-label{font-size:11px;font-weight:800;letter-spacing:.15em;color:rgba(255,255,255,.7);text-transform:uppercase}
+.rankup-rank{font-size:22px;font-weight:900;color:#FFD700;margin-top:2px}
+
+/* Sovereign proclamation overlay */
+.sovereign-overlay{
+  position:fixed;inset:0;z-index:950;
+  background:linear-gradient(160deg,#0d0720 0%,#1a0f2e 50%,#0a1a0a 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;text-align:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .4s;overflow:hidden;
+}
+.sovereign-overlay.show{opacity:1;pointer-events:auto}
+.sovereign-crown-rain{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.crown-particle{
+  position:absolute;top:-40px;
+  font-size:24px;
+  animation:crownFall var(--fall-dur,3s) linear var(--fall-del,0s) both;
+}
+@keyframes crownFall{
+  0%{transform:translateY(0) rotate(0deg);opacity:1}
+  100%{transform:translateY(110vh) rotate(360deg);opacity:0}
+}
+.sovereign-badge{
+  font-size:13px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(255,215,0,.7);margin-bottom:16px;
+  animation:fadeSlideUp .6s .1s ease both;
+}
+.sovereign-crown{
+  font-size:100px;margin-bottom:8px;
+  animation:crownDrop .8s .2s cubic-bezier(.36,2.1,.57,.9) both;
+  filter:drop-shadow(0 0 40px rgba(255,215,0,.8));
+}
+@keyframes crownDrop{0%{transform:translateY(-80px) scale(0);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
+.sovereign-name{
+  font-size:48px;font-weight:900;color:#FFD700;line-height:1;margin-bottom:4px;
+  font-family:var(--mono);
+  animation:fadeSlideUp .6s .4s ease both;
+  text-shadow:0 0 40px rgba(255,215,0,.5);
+}
+.sovereign-title{
+  font-size:16px;font-weight:800;color:rgba(255,255,255,.8);margin-bottom:32px;
+  animation:fadeSlideUp .6s .5s ease both;
+}
+.sovereign-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+  width:100%;max-width:320px;margin-bottom:32px;
+  animation:fadeSlideUp .6s .6s ease both;
+}
+.sov-stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,215,0,.15);border-radius:14px;padding:14px 10px}
+.sov-stat-n{font-size:26px;font-weight:900;color:#FFD700}
+.sov-stat-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.5);margin-top:3px}
+.sovereign-actions{display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px;animation:fadeSlideUp .6s .7s ease both}
+.btn-gold{background:linear-gradient(135deg,#F59E0B,#FFD700);color:#1A0F2E !important;font-weight:900}
+@keyframes fadeSlideUp{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
+
+/* Boss defeated overlay */
+.boss-defeated-overlay{
+  position:fixed;inset:0;z-index:960;
+  background:radial-gradient(ellipse at center,rgba(255,215,0,.15) 0%,#0d0720 70%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;text-align:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .5s;overflow:hidden;
+}
+.boss-defeated-overlay.show{opacity:1;pointer-events:auto}
+.boss-kaboom{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.kaboom-particle{
+  position:absolute;
+  border-radius:50%;
+  animation:kaboomFly var(--k-dur,1.5s) ease-out var(--k-del,0s) both;
+}
+@keyframes kaboomFly{
+  0%{transform:translate(0,0) scale(1);opacity:1}
+  100%{transform:translate(var(--k-x),var(--k-y)) scale(0);opacity:0}
+}
+.bd-roar{
+  font-size:13px;font-weight:800;letter-spacing:.25em;text-transform:uppercase;
+  color:rgba(255,100,0,.9);margin-bottom:12px;
+  animation:fadeSlideUp .6s .1s ease both;
+}
+.bd-icon{
+  font-size:90px;margin-bottom:4px;
+  animation:crownDrop .8s .2s cubic-bezier(.36,2.1,.57,.9) both;
+  filter:drop-shadow(0 0 50px rgba(255,107,53,.9));
+}
+.bd-title{
+  font-size:42px;font-weight:900;color:#fff;margin-bottom:8px;
+  font-family:var(--mono);line-height:1;
+  animation:fadeSlideUp .6s .4s ease both;
+  text-shadow:0 0 30px rgba(255,107,53,.7);
+}
+.bd-subtitle{font-size:16px;color:rgba(255,255,255,.7);margin-bottom:32px;animation:fadeSlideUp .6s .5s ease both}
+.bd-reward{
+  background:rgba(255,215,0,.1);border:2px solid rgba(255,215,0,.3);
+  border-radius:18px;padding:20px 28px;margin-bottom:32px;
+  animation:fadeSlideUp .6s .6s ease both;
+}
+.bd-reward-label{font-size:12px;font-weight:800;color:rgba(255,215,0,.8);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
+.bd-reward-name{font-size:28px;font-weight:900;color:#FFD700}
+.bd-actions{display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px;animation:fadeSlideUp .6s .7s ease both}
+
+/* Crown Sovereign button on leaderboard */
+.crown-btn{
+  width:100%;padding:16px;border-radius:16px;border:2px solid rgba(255,215,0,.4);
+  background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(123,104,238,.15));
+  cursor:pointer;font-family:var(--font);font-size:16px;font-weight:900;
+  color:#FFD700;display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-top:16px;
+  transition:transform .12s,background .2s;
+}
+.crown-btn:active{transform:scale(.97)}
+
 /* ═══════════════════════════════════════════════════════════
    SCREEN 6 — LEADERBOARD
 ═══════════════════════════════════════════════════════════ */
@@ -811,10 +938,13 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none}
       <div style="font-size:14px;font-weight:800;color:var(--gold);margin-bottom:4px">🍕 Next Raid Reward</div>
       <div style="font-size:13px;font-weight:600;color:var(--tx1)">Pizza Night unlocks when boss reaches 100%</div>
       <div style="margin-top:10px;height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden">
-        <div style="width:71%;height:100%;background:linear-gradient(90deg,var(--jakob),var(--gold));border-radius:4px"></div>
+        <div id="lb-boss-fill" style="width:71%;height:100%;background:linear-gradient(90deg,var(--jakob),var(--gold));border-radius:4px;transition:width .8s"></div>
       </div>
-      <div style="font-size:12px;color:var(--tx2);margin-top:4px">71% — 3 more chores to go!</div>
+      <div id="lb-boss-text" style="font-size:12px;color:var(--tx2);margin-top:4px">71% — almost there!</div>
     </div>
+    <button class="crown-btn" onclick="showSovereignProclamation()">
+      <span style="font-size:22px">👑</span> Crown the Sovereign
+    </button>
   </div>
 
   <nav class="bottom-nav">
@@ -823,6 +953,55 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none}
     <button class="nav-item on"><span class="ico">🏆</span>Squad</button>
     <button class="nav-item" onclick="showTab('me')"><span class="ico">⚔️</span>Me</button>
   </nav>
+</div>
+
+<!-- ── RANK-UP TOAST ── -->
+<div class="rankup-toast" id="rankup-toast">
+  <div class="rankup-label">⚔️ Rank Achieved</div>
+  <div class="rankup-rank" id="rankup-rank-name">Knight</div>
+</div>
+
+<!-- ── SOVEREIGN PROCLAMATION ── -->
+<div class="sovereign-overlay" id="sovereign-overlay">
+  <div class="sovereign-crown-rain" id="crown-rain"></div>
+  <div class="sovereign-badge">👑 Sovereign of the Week</div>
+  <div class="sovereign-crown">👑</div>
+  <div class="sovereign-name" id="sov-name">Daddy</div>
+  <div class="sovereign-title" id="sov-title">Rules the Kingdom This Week</div>
+  <div class="sovereign-stats">
+    <div class="sov-stat">
+      <div class="sov-stat-n" id="sov-xp">4,100</div>
+      <div class="sov-stat-l">Glory Points</div>
+    </div>
+    <div class="sov-stat">
+      <div class="sov-stat-n" id="sov-chores">41</div>
+      <div class="sov-stat-l">Chores Done</div>
+    </div>
+    <div class="sov-stat">
+      <div class="sov-stat-n" id="sov-streak">12</div>
+      <div class="sov-stat-l">Day Streak</div>
+    </div>
+  </div>
+  <div class="sovereign-actions">
+    <button class="btn btn-gold" onclick="hideSovereignAndReset()">⚔️ Start New Battle Week</button>
+    <button class="btn btn-ghost" onclick="hideSovereign()">Stay &amp; Celebrate</button>
+  </div>
+</div>
+
+<!-- ── BOSS DEFEATED ── -->
+<div class="boss-defeated-overlay" id="boss-defeated-overlay">
+  <div class="boss-kaboom" id="kaboom-particles"></div>
+  <div class="bd-roar">⚡ Quest Complete</div>
+  <div class="bd-icon">🏰</div>
+  <div class="bd-title">BOSS<br>DEFEATED!</div>
+  <div class="bd-subtitle">The clan fought valiantly — all chores conquered</div>
+  <div class="bd-reward">
+    <div class="bd-reward-label">🎁 Raid Reward Unlocked</div>
+    <div class="bd-reward-name" id="bd-reward-name">🍕 Pizza Night!</div>
+  </div>
+  <div class="bd-actions">
+    <button class="btn btn-gold" onclick="hideBossDefeated()">Claim Victory!</button>
+  </div>
 </div>
 
 <script>
@@ -902,7 +1081,9 @@ var rerollsLeft = 1;
 
 function awardXP(warrior, amount) {
   if (!STATE.warriors[warrior]) return;
+  var oldXP = STATE.warriors[warrior].xp;
   STATE.warriors[warrior].xp += amount;
+  var newXP = STATE.warriors[warrior].xp;
   var today = todayStr();
   if (STATE.warriors[warrior].lastChoreDate !== today) {
     STATE.warriors[warrior].streak++;
@@ -912,9 +1093,15 @@ function awardXP(warrior, amount) {
   STATE.lastSpinDate = today;
   STATE.spinUsedToday = true;
   // Update boss HP
-  STATE.boss.hp = Math.min(100, (STATE.boss.hp || 68) + 3);
+  var prevHP = STATE.boss.hp || 0;
+  STATE.boss.hp = Math.min(100, prevHP + 3);
   saveState();
   refreshWarriorDisplay();
+  refreshLeaderboard();
+  // Check rank-up
+  checkRankUp(warrior, oldXP, newXP);
+  // Check boss defeated (only first time crossing 100)
+  if (prevHP < 100) checkBossDefeated();
 }
 
 function refreshWarriorDisplay() {
@@ -1002,6 +1189,7 @@ function goTo(id) {
   currentScreen = id;
 
   if (id === 's-reward') launchFireworks();
+  if (id === 's-leaderboard') refreshLeaderboard();
 }
 
 function goBack() {
@@ -1180,6 +1368,222 @@ function launchFireworks() {
     s.style.setProperty('--dur', (1 + Math.random() * 1) + 's');
     s.style.setProperty('--del', (Math.random() * 0.4) + 's');
     fw.appendChild(s);
+  }
+}
+
+/* ── WIN MECHANICS ───────────────────────────────────────── */
+
+// Rank system — XP thresholds
+var RANKS = [
+  { min: 0,    name: 'Peasant',   icon: '🌾' },
+  { min: 500,  name: 'Squire',    icon: '⚔️' },
+  { min: 1200, name: 'Knight',    icon: '🛡️' },
+  { min: 2500, name: 'Baron',     icon: '🏰' },
+  { min: 4500, name: 'Duke',      icon: '⚜️' },
+  { min: 7000, name: 'Sovereign', icon: '👑' }
+];
+
+function getWarriorRank(xp) {
+  var rank = RANKS[0];
+  for (var i = 0; i < RANKS.length; i++) {
+    if (xp >= RANKS[i].min) rank = RANKS[i];
+  }
+  return rank;
+}
+
+function checkRankUp(warrior, oldXP, newXP) {
+  var oldRank = getWarriorRank(oldXP);
+  var newRank = getWarriorRank(newXP);
+  if (newRank.min > oldRank.min) {
+    var names = { jakob: 'Jakob', dean: 'Dean', dave: 'Daddy' };
+    showRankUpToast(names[warrior] || warrior, newRank);
+  }
+}
+
+function showRankUpToast(name, rank) {
+  var toast = document.getElementById('rankup-toast');
+  var rankEl = document.getElementById('rankup-rank-name');
+  if (!toast || !rankEl) return;
+  rankEl.textContent = rank.icon + ' ' + name + ' is now ' + rank.name + '!';
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 3200);
+}
+
+// Boss defeated logic
+var _bossDefeatedShown = false;
+
+function checkBossDefeated() {
+  if (STATE.boss.hp >= 100 && !_bossDefeatedShown) {
+    _bossDefeatedShown = true;
+    // Small delay so XP animation settles first
+    setTimeout(showBossDefeated, 800);
+  }
+}
+
+function showBossDefeated() {
+  var overlay = document.getElementById('boss-defeated-overlay');
+  if (!overlay) return;
+  launchKaboom();
+  overlay.classList.add('show');
+}
+
+function hideBossDefeated() {
+  var overlay = document.getElementById('boss-defeated-overlay');
+  if (overlay) overlay.classList.remove('show');
+  _bossDefeatedShown = false;
+  // Reset boss for next raid
+  STATE.boss.hp = 0;
+  saveState();
+  refreshWarriorDisplay();
+}
+
+function launchKaboom() {
+  var container = document.getElementById('kaboom-particles');
+  if (!container) return;
+  container.innerHTML = '';
+  var colors = ['#FFD700','#FF6B35','#7B68EE','#4ECDC4','#FF4757','#fff'];
+  var cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+  for (var i = 0; i < 80; i++) {
+    var s = document.createElement('div');
+    s.className = 'kaboom-particle';
+    var size = 6 + Math.random() * 10;
+    var angle = (Math.random() * Math.PI * 2);
+    var dist = 150 + Math.random() * 300;
+    s.style.cssText = [
+      'left:' + cx + 'px', 'top:' + cy + 'px',
+      'width:' + size + 'px', 'height:' + size + 'px',
+      'background:' + colors[Math.floor(Math.random() * colors.length)],
+      '--k-x:' + (Math.cos(angle) * dist) + 'px',
+      '--k-y:' + (Math.sin(angle) * dist) + 'px',
+      '--k-dur:' + (0.8 + Math.random() * 1.2) + 's',
+      '--k-del:' + (Math.random() * 0.3) + 's'
+    ].join(';');
+    container.appendChild(s);
+  }
+}
+
+// Sovereign proclamation
+function showSovereignProclamation() {
+  var w = STATE.warriors;
+  // Find winner (highest XP)
+  var top = 'jakob';
+  if (w.dean.xp > w[top].xp) top = 'dean';
+  if (w.dave.xp > w[top].xp) top = 'dave';
+
+  var names = { jakob: 'Jakob', dean: 'Dean', dave: 'Daddy' };
+  var topName = names[top];
+  var topXP = w[top].xp;
+  var topChores = w[top].totalChores;
+  var topStreak = w[top].streak;
+
+  // Populate overlay
+  var nameEl = document.getElementById('sov-name');
+  var xpEl = document.getElementById('sov-xp');
+  var chEl = document.getElementById('sov-chores');
+  var stEl = document.getElementById('sov-streak');
+  if (nameEl) nameEl.textContent = topName;
+  if (xpEl) xpEl.textContent = topXP.toLocaleString();
+  if (chEl) chEl.textContent = topChores;
+  if (stEl) stEl.textContent = topStreak;
+
+  var overlay = document.getElementById('sovereign-overlay');
+  if (overlay) overlay.classList.add('show');
+  launchCrownRain();
+}
+
+function hideSovereign() {
+  var overlay = document.getElementById('sovereign-overlay');
+  if (overlay) overlay.classList.remove('show');
+}
+
+function hideSovereignAndReset() {
+  hideSovereign();
+  weeklyReset();
+}
+
+function weeklyReset() {
+  // Reset XP, streaks — keep totalChores as all-time record
+  var w = STATE.warriors;
+  Object.keys(w).forEach(function(k) {
+    w[k].xp = 0;
+    w[k].streak = 0;
+    w[k].lastChoreDate = '';
+  });
+  STATE.boss.hp = 0;
+  STATE.spinUsedToday = false;
+  STATE.lastSpinDate = '';
+  _bossDefeatedShown = false;
+  saveState();
+  refreshWarriorDisplay();
+  refreshLeaderboard();
+  // Quick victory flash
+  var flash = document.getElementById('flash');
+  if (flash) {
+    flash.style.background = '#7B68EE';
+    flash.classList.add('flash');
+    setTimeout(function() { flash.classList.remove('flash'); }, 300);
+  }
+}
+
+function launchCrownRain() {
+  var container = document.getElementById('crown-rain');
+  if (!container) return;
+  container.innerHTML = '';
+  var symbols = ['👑', '⚔️', '✨', '🏆', '⭐', '🌟'];
+  for (var i = 0; i < 20; i++) {
+    var p = document.createElement('div');
+    p.className = 'crown-particle';
+    p.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    p.style.left = (Math.random() * 100) + '%';
+    p.style.setProperty('--fall-dur', (2 + Math.random() * 2) + 's');
+    p.style.setProperty('--fall-del', (Math.random() * 1.5) + 's');
+    container.appendChild(p);
+  }
+}
+
+// Refresh leaderboard with live state
+function refreshLeaderboard() {
+  var w = STATE.warriors;
+  // Sort warriors by XP
+  var sorted = [
+    { key:'jakob', name:'Jakob', icon:'⚔️', xp:w.jakob.xp, streak:w.jakob.streak, totalChores:w.jakob.totalChores },
+    { key:'dean',  name:'Dean',  icon:'🛡️', xp:w.dean.xp,  streak:w.dean.streak,  totalChores:w.dean.totalChores  },
+    { key:'dave',  name:'Daddy', icon:'👑', xp:w.dave.xp,  streak:w.dave.streak,  totalChores:w.dave.totalChores  }
+  ].sort(function(a, b) { return b.xp - a.xp; });
+
+  // Podium (positions: 2nd, 1st, 3rd visually)
+  var order = [sorted[1], sorted[0], sorted[2]];
+  var podSpots = document.querySelectorAll('.podium-spot');
+  podSpots.forEach(function(spot, i) {
+    var d = order[i];
+    if (!d) return;
+    spot.querySelector('.podium-av').textContent = d.icon;
+    spot.querySelector('.podium-name').textContent = d.name;
+    spot.querySelector('.podium-xp').textContent = d.xp.toLocaleString();
+  });
+
+  // List rows
+  var rows = document.querySelectorAll('.lb-row');
+  rows.forEach(function(row, i) {
+    var d = sorted[i];
+    if (!d) return;
+    row.querySelector('.lb-av').textContent = d.icon;
+    row.querySelector('.lb-name').textContent = d.name;
+    row.querySelector('.lb-xp').textContent = d.xp.toLocaleString();
+    var streak = row.querySelector('.lb-streak');
+    if (streak) streak.textContent = '🔥 ' + d.streak + ' day streak · 📸 ' + d.totalChores + ' chores';
+  });
+
+  // Boss bar on leaderboard
+  var lbFill = document.getElementById('lb-boss-fill');
+  var lbText = document.getElementById('lb-boss-text');
+  var hp = STATE.boss.hp || 0;
+  if (lbFill) lbFill.style.width = hp + '%';
+  if (lbText) {
+    var left = Math.ceil((100 - hp) / 3);
+    lbText.textContent = hp >= 100
+      ? '100% — Boss Defeated! Claim your reward!'
+      : hp + '% — ' + left + ' more chore' + (left !== 1 ? 's' : '') + ' to victory!';
   }
 }
 
