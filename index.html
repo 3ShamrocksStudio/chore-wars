@@ -945,9 +945,87 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 .ob-btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
 .ob-skip{font-size:12px;color:var(--tx3);cursor:pointer;text-decoration:underline;
   margin-top:12px;display:block}
+
+/* ── DESKTOP WALL ─────────────────────────────────────────────── */
+#desktop-wall{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg);
+  display:none;
+  flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:40px;
+}
+.dw-icon{font-size:64px;margin-bottom:16px}
+.dw-title{
+  font-family:'Fredoka One',cursive;font-size:26px;
+  color:var(--gold);margin-bottom:12px;letter-spacing:.05em;
+}
+.dw-sub{font-size:14px;color:var(--tx1);line-height:1.6;max-width:300px}
+
+/* ── PLAYER HERO CARD ─────────────────────────────────────────── */
+.player-hero{
+  background:linear-gradient(135deg,rgba(106,33,196,.22) 0%,rgba(245,158,11,.1) 100%);
+  border:1.5px solid rgba(106,33,196,.45);
+  border-radius:20px;padding:18px 20px;margin-bottom:14px;
+  display:flex;align-items:center;gap:16px;
+  box-shadow:0 0 30px rgba(106,33,196,.15),0 8px 24px rgba(0,0,0,.4);
+  position:relative;overflow:hidden;
+}
+.player-hero::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--purple),var(--gold));
+}
+.ph-avatar{font-size:46px;flex-shrink:0;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+.ph-info{flex:1;min-width:0}
+.ph-name{
+  font-family:'Fredoka One',cursive;font-size:21px;
+  letter-spacing:.06em;color:var(--tx0);display:block;margin-bottom:2px;
+}
+.ph-rank{
+  font-size:11px;font-weight:700;color:var(--gold);
+  text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:8px;
+}
+.ph-xp{
+  font-family:var(--mono);font-size:13px;font-weight:700;
+  color:var(--tx1);display:block;margin-bottom:6px;
+}
+.ph-bar-wrap{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.ph-bar{
+  height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--purple),var(--gold));
+  box-shadow:0 0 8px rgba(106,33,196,.6);
+  transition:width .6s cubic-bezier(.4,0,.2,1);
+  width:50%;
+}
+
+/* ── PLAYER SWITCHER PILLS ────────────────────────────────────── */
+.player-pills{display:flex;gap:8px;margin-bottom:4px}
+.ppill{
+  flex:1;height:42px;border-radius:12px;
+  border:1.5px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  cursor:pointer;font-family:'Fredoka One',cursive;font-size:12px;
+  letter-spacing:.04em;color:var(--tx2);
+  transition:all .15s;position:relative;overflow:hidden;
+}
+.ppill:active{transform:scale(.95)}
+.ppill.active{
+  border-color:var(--purple);background:rgba(106,33,196,.2);
+  color:var(--tx0);box-shadow:0 0 12px rgba(106,33,196,.3);
+}
+.ppill.locked{opacity:.5}
+.ppill-lock{font-size:10px;position:absolute;top:3px;right:5px}
 </style>
 </head>
 <body>
+
+<!-- ── DESKTOP WALL (mobile-only enforcement) ──────────────── -->
+<div id="desktop-wall">
+  <div class="dw-icon">📱</div>
+  <div class="dw-title">Chore Royale™ is mobile-only</div>
+  <div class="dw-sub">Open this on your phone for the full game-show experience. Built for the palm of your hand.</div>
+</div>
 
 <!-- Flash transition overlay -->
 <div class="transition-overlay" id="flash"></div>
@@ -968,33 +1046,29 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
         </div>
       </div>
     </div>
-    <div class="warriors">
-      <div class="warrior w-j" onclick="showProfile('jakob')">
-        <div class="warrior-av-wrap"><span class="warrior-av">🌟</span></div>
-        <div class="warrior-name-band">
-          <span class="warrior-name" id="wname-jakob">Player 1</span>
-          <span class="warrior-xp" id="xp-jakob">2,840</span>
-        </div>
-        <div class="xp-bar"><div class="xp-fill" style="width:72%"></div></div>
+    <!-- PLAYER HERO CARD -->
+    <div class="player-hero">
+      <div class="ph-avatar" id="hero-av">🌟</div>
+      <div class="ph-info">
+        <span class="ph-name" id="hero-name">Player 1</span>
+        <span class="ph-rank" id="hero-rank">🌟 Rookie</span>
+        <span class="ph-xp" id="hero-xp">0 XP</span>
+        <div class="ph-bar-wrap"><div class="ph-bar" id="hero-bar-fill" style="width:10%"></div></div>
       </div>
-      <div class="warrior w-d" onclick="if(!isPremium()){openPremiumModal();}else{showProfile('dean');}" style="position:relative">
-        <div class="warrior-av-wrap"><span class="warrior-av">⭐</span></div>
-        <div class="warrior-name-band">
-          <span class="warrior-name" id="wname-dean">Player 2</span>
-          <span class="warrior-xp" id="xp-dean">1,920</span>
-        </div>
-        <div class="xp-bar"><div class="xp-fill" style="width:48%"></div></div>
-        <div class="locked-overlay" id="lock-dean" style="display:none"><div class="lock-icon">🔒</div><div class="lock-txt">Premium</div></div>
-      </div>
-      <div class="warrior w-v" onclick="if(!isPremium()){openPremiumModal();}else{showProfile('dave');}" style="position:relative">
-        <div class="warrior-av-wrap"><span class="warrior-av">💫</span></div>
-        <div class="warrior-name-band">
-          <span class="warrior-name" id="wname-dave">Player 3</span>
-          <span class="warrior-xp" id="xp-dave">4,100</span>
-        </div>
-        <div class="xp-bar"><div class="xp-fill" style="width:90%"></div></div>
-        <div class="locked-overlay" id="lock-dave" style="display:none"><div class="lock-icon">🔒</div><div class="lock-txt">Premium</div></div>
-      </div>
+    </div>
+    <!-- PLAYER SWITCHER PILLS -->
+    <div class="player-pills">
+      <button class="ppill active" data-player="jakob" onclick="switchPlayer('jakob')">
+        <span>🌟</span><span id="ppill-name-jakob">Player 1</span>
+      </button>
+      <button class="ppill locked" data-player="dean" onclick="switchPlayer('dean')">
+        <span>⭐</span><span id="ppill-name-dean">Player 2</span>
+        <span class="ppill-lock">🔒</span>
+      </button>
+      <button class="ppill locked" data-player="dave" onclick="switchPlayer('dave')">
+        <span>💫</span><span id="ppill-name-dave">Player 3</span>
+        <span class="ppill-lock">🔒</span>
+      </button>
     </div>
   </div>
 
@@ -1004,23 +1078,20 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     <!-- UPGRADE BANNER (hidden for premium users) -->
     <div class="upgrade-banner" id="upgrade-banner" onclick="openPremiumModal()" style="display:none">
       <div>
-        <div class="ub-text">🏆 Upgrade to Premium</div>
+        <div class="ub-text">⭐ Unlock All Players</div>
         <div class="ub-price">3 players · 2x XP · ₪29.90/mo</div>
       </div>
-      <div class="ub-btn">Upgrade</div>
+      <div class="ub-btn">Unlock</div>
     </div>
-    <!-- ACTIVE WARRIOR SELECTOR -->
-    <div class="active-warrior-bar">
-      <span class="aw-label">🎮 Now Playing</span>
-      <select class="aw-select" id="warrior-select" onchange="onWarriorSelect(this)">
-        <option value="jakob" id="opt-jakob">🌟 Player 1</option>
-        <option value="dean" id="opt-dean">⭐ Player 2 🔒</option>
-        <option value="dave" id="opt-dave">💫 Player 3 🔒</option>
-      </select>
-    </div>
+    <!-- Hidden select for JS compatibility -->
+    <select id="warrior-select" onchange="onWarriorSelect(this)" style="display:none">
+      <option value="jakob" id="opt-jakob">Player 1</option>
+      <option value="dean" id="opt-dean">Player 2</option>
+      <option value="dave" id="opt-dave">Player 3</option>
+    </select>
     <!-- SPIN CTA -->
     <div class="spin-zone">
-      <div class="spin-hint">🎬 Spin for your chore, contestant!</div>
+      <div class="spin-hint" id="spin-hint-text">🎯 Your turn — spin the wheel!</div>
       <button class="spin-cta" onclick="goTo('s-spin')">
         ⚡ Spin the Wheel
       </button>
@@ -1050,7 +1121,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <span class="quest-ico">🍽️</span>
       <div class="quest-body">
         <div class="quest-name">Wash the dishes</div>
-        <div class="quest-meta">⚔️ Jakob · +15 XP</div>
+        <div class="quest-meta">🌟 Player 1 · +15 XP</div>
       </div>
       <div class="quest-check">✓</div>
     </div>
@@ -1058,7 +1129,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <span class="quest-ico">🛏️</span>
       <div class="quest-body">
         <div class="quest-name">Make your bed</div>
-        <div class="quest-meta">🛡️ Dean · +10 XP</div>
+        <div class="quest-meta">⭐ Player 2 · +10 XP</div>
       </div>
       <div class="quest-check"></div>
     </div>
@@ -1066,7 +1137,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <span class="quest-ico">📚</span>
       <div class="quest-body">
         <div class="quest-name">30 min reading</div>
-        <div class="quest-meta">⚔️ Jakob · +25 XP · 📸 Photo proof</div>
+        <div class="quest-meta">🌟 Player 1 · +25 XP · 📸 Photo proof</div>
       </div>
       <div class="quest-check"></div>
     </div>
@@ -1479,6 +1550,90 @@ function setActiveWarrior(name) {
   var pn = document.getElementById('pin-warrior-name');
   var pnames = {jakob: PLAYER_NAMES.jakob, dean: PLAYER_NAMES.dean, dave: PLAYER_NAMES.dave};
   if (pn) pn.textContent = pnames[name] || 'Jakob';
+  refreshHeroCard();
+}
+
+
+/* ── DESKTOP WALL CHECK ───────────────────────────────────── */
+function checkDesktop() {
+  var wall = document.getElementById('desktop-wall');
+  if (!wall) return;
+  wall.style.display = window.innerWidth > 520 ? 'flex' : 'none';
+}
+window.addEventListener('resize', checkDesktop);
+
+/* ── PLAYER SWITCHER ─────────────────────────────────────── */
+function switchPlayer(name) {
+  if ((name === 'dean' || name === 'dave') && !isPremium()) {
+    openPremiumModal();
+    return;
+  }
+  var ws = document.getElementById('warrior-select');
+  if (ws) ws.value = name;
+  setActiveWarrior(name);
+}
+
+/* ── HERO CARD REFRESH ───────────────────────────────────── */
+function refreshHeroCard() {
+  var name = activeWarrior || 'jakob';
+  var w = STATE.warriors[name];
+  var PICONS = {jakob: '🌟', dean: '⭐', dave: '💫'};
+  var icon = PICONS[name] || '🌟';
+  var pname = PLAYER_NAMES[name] || 'Player';
+
+  // Get current rank
+  var rank = RANKS[0];
+  for (var i = RANKS.length - 1; i >= 0; i--) {
+    if (w.xp >= RANKS[i].min) { rank = RANKS[i]; break; }
+  }
+
+  // XP bar progress to next rank
+  var nextIdx = -1;
+  for (var j = 0; j < RANKS.length; j++) {
+    if (RANKS[j].min > w.xp) { nextIdx = j; break; }
+  }
+  var pct = 100;
+  if (nextIdx > 0) {
+    var prevMin = RANKS[nextIdx - 1].min;
+    var nextMin = RANKS[nextIdx].min;
+    pct = Math.min(100, Math.round((w.xp - prevMin) / (nextMin - prevMin) * 100));
+  } else if (nextIdx === 0) {
+    pct = 5;
+  }
+
+  // Update hero card
+  var avEl = document.getElementById('hero-av');
+  var nmEl = document.getElementById('hero-name');
+  var rkEl = document.getElementById('hero-rank');
+  var xpEl = document.getElementById('hero-xp');
+  var barEl = document.getElementById('hero-bar-fill');
+  if (avEl) avEl.textContent = icon;
+  if (nmEl) nmEl.textContent = pname;
+  if (rkEl) rkEl.textContent = rank.icon + ' ' + rank.name;
+  if (xpEl) xpEl.textContent = w.xp.toLocaleString() + ' XP';
+  if (barEl) { barEl.style.transition = 'width .6s'; barEl.style.width = pct + '%'; }
+
+  // Update pills — active state + lock state
+  document.querySelectorAll('.ppill').forEach(function(pill) {
+    var pn = pill.dataset.player;
+    pill.classList.toggle('active', pn === name);
+    var isLocked = (pn === 'dean' || pn === 'dave') && !isPremium();
+    pill.classList.toggle('locked', isLocked);
+    var lockEl = pill.querySelector('.ppill-lock');
+    if (lockEl) lockEl.style.display = isLocked ? '' : 'none';
+  });
+
+  // Update pill name labels from PLAYER_NAMES
+  var p1n = document.getElementById('ppill-name-jakob');
+  var p2n = document.getElementById('ppill-name-dean');
+  var p3n = document.getElementById('ppill-name-dave');
+  if (p1n) p1n.textContent = PLAYER_NAMES.jakob || 'Player 1';
+  if (p2n) p2n.textContent = PLAYER_NAMES.dean || 'Player 2';
+  if (p3n) p3n.textContent = PLAYER_NAMES.dave || 'Player 3';
+
+  // Update spin zone hint dynamically
+  var sh = document.getElementById('spin-hint-text');
+  if (sh) sh.textContent = icon + ' ' + pname + "’s turn — spin the wheel!";
 }
 
 function goTo(id) {
@@ -1953,10 +2108,6 @@ function showProfile(name) {}
     // Hide lock overlays
     var ld = document.getElementById('lock-dean'); if(ld) ld.style.display='none';
     var lv = document.getElementById('lock-dave'); if(lv) lv.style.display='none';
-  } else {
-    // Show lock overlays for free users
-    var ld = document.getElementById('lock-dean'); if(ld) ld.style.display='flex';
-    var lv = document.getElementById('lock-dave'); if(lv) lv.style.display='flex';
   }
 
   // Apply player names + family name to DOM
@@ -1984,6 +2135,8 @@ function showProfile(name) {}
   if (ws && activeWarrior) ws.value = activeWarrior;
   setActiveWarrior(activeWarrior);
   refreshWarriorDisplay();
+  refreshHeroCard();
+  checkDesktop();
 
   // First run: show onboarding if no names set
   try {
@@ -2226,7 +2379,7 @@ function applyPlayerNames() {
 <!-- ── ONBOARDING MODAL ──────────────────────────────────────────────── -->
 <div class="ob-overlay hidden" id="ob-modal">
   <div class="ob-box">
-    <div class="ob-icon">🎬</div>
+    <div class="ob-icon">🏆</div>
     <div class="ob-title">Welcome to Chore Royale!</div>
     <div class="ob-sub">Set up your family to get started. You can always change this later.</div>
     <label class="ob-label">Family Name</label>
