@@ -155,7 +155,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 #s-home{background:var(--bg)}
 
 .home-header{
-  padding:env(safe-area-inset-top,16px) 20px 16px;
+  padding:calc(env(safe-area-inset-top,0px) + 8px) 16px 10px;
   background:
     radial-gradient(ellipse 80% 120% at 80% -10%,rgba(16,185,129,.18) 0%,transparent 60%),
     radial-gradient(ellipse 60% 80% at 10% 0%,rgba(124,58,237,.14) 0%,transparent 55%),
@@ -166,9 +166,9 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(16,185,129,.4),rgba(255,215,0,.3),transparent);
 }
-.home-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.home-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .clan-title{
-  font-family:'Fredoka One',cursive;font-size:30px;letter-spacing:.08em;
+  font-family:'Fredoka One',cursive;font-size:22px;letter-spacing:.08em;
   /* Gold embossed banner style */
   background:linear-gradient(180deg,var(--gold-lt) 0%,var(--gold) 45%,var(--gold-dk) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
@@ -285,7 +285,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     radial-gradient(ellipse 70% 60% at 50% 120%,rgba(255,215,0,.06) 0%,transparent 70%),
     linear-gradient(160deg,rgba(124,58,237,.18) 0%,rgba(18,8,58,.9) 100%);
   border:1.5px solid rgba(255,215,0,.22);
-  border-radius:20px;padding:20px;text-align:center;margin-bottom:20px;
+  border-radius:20px;padding:14px 16px;text-align:center;margin-bottom:16px;
   box-shadow:0 0 0 1px rgba(0,0,0,.4),0 16px 40px rgba(0,0,0,.5);
   position:relative;overflow:hidden;
 }
@@ -295,7 +295,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 }
 .spin-hint{
   font-family:'Fredoka One',cursive;font-size:14px;letter-spacing:.14em;
-  color:rgba(255,215,0,.55);margin-bottom:14px;text-transform:uppercase;
+  color:rgba(255,215,0,.55);margin-bottom:8px;text-transform:uppercase;
 }
 .spin-cta{
   width:100%;height:68px;border-radius:16px;border:none;cursor:pointer;
@@ -966,7 +966,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 .player-hero{
   background:linear-gradient(135deg,rgba(106,33,196,.22) 0%,rgba(245,158,11,.1) 100%);
   border:1.5px solid rgba(106,33,196,.45);
-  border-radius:20px;padding:18px 20px;margin-bottom:14px;
+  border-radius:20px;padding:11px 16px;margin-bottom:8px;
   display:flex;align-items:center;gap:16px;
   box-shadow:0 0 30px rgba(106,33,196,.15),0 8px 24px rgba(0,0,0,.4);
   position:relative;overflow:hidden;
@@ -975,7 +975,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   content:'';position:absolute;top:0;left:0;right:0;height:2px;
   background:linear-gradient(90deg,var(--purple),var(--gold));
 }
-.ph-avatar{font-size:46px;flex-shrink:0;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+.ph-avatar{font-size:36px;flex-shrink:0;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
 .ph-info{flex:1;min-width:0}
 .ph-name{
   font-family:'Fredoka One',cursive;font-size:21px;
@@ -999,9 +999,9 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 }
 
 /* ── PLAYER SWITCHER PILLS ────────────────────────────────────── */
-.player-pills{display:flex;gap:8px;margin-bottom:4px}
+.player-pills{display:flex;gap:8px;margin-bottom:0}
 .ppill{
-  flex:1;height:42px;border-radius:12px;
+  flex:1;height:36px;border-radius:12px;
   border:1.5px solid rgba(255,255,255,.1);
   background:rgba(255,255,255,.04);
   display:flex;align-items:center;justify-content:center;gap:5px;
