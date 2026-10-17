@@ -1092,7 +1092,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     <!-- SPIN CTA -->
     <div class="spin-zone">
       <div class="spin-hint" id="spin-hint-text">🎯 Your turn — spin the wheel!</div>
-      <button class="spin-cta" onclick="goTo('s-spin')">
+      <button class="spin-cta" id="spin-cta" onclick="openSpin()">
         ⚡ Spin the Wheel
       </button>
     </div>
@@ -1193,7 +1193,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   </div>
   <div class="chore-actions">
     <button class="btn btn-orange" onclick="goTo('s-proof')">✅ Challenge Accepted!</button>
-    <button class="btn btn-ghost" onclick="rerollChore()">🔄 Re-roll (1 remaining)</button>
+    <button class="btn btn-ghost" id="reroll-btn" onclick="rerollChore()">🔄 Re-roll (1 remaining)</button>
   </div>
 </div>
 
@@ -1401,7 +1401,7 @@ function defaultState() {
     boss: { hp: 0 },
     v: 2,
     lastSpinDate: '',
-    spinUsedToday: false,
+    daily: {},   // per player: { date, chore, rerolls, acceptedAt, finishedAt, done }
     quests: {}
   };
 }
@@ -1448,7 +1448,6 @@ function todayStr() {
 function checkDailyReset() {
   var today = todayStr();
   if (STATE.lastSpinDate !== today) {
-    STATE.spinUsedToday = false;
     // Reset daily quests
     STATE.quests = {};
   }
@@ -1464,6 +1463,12 @@ var FAMILY_NAME = (function(){
   return 'Our Family';
 })();
 var STATE = loadState();
+if (!STATE.daily) STATE.daily = {};
+// Today's spin/chore for a player (null if they haven't spun today)
+function dayEntry(w) {
+  var d = STATE.daily[w || activeWarrior];
+  return (d && d.date === todayStr()) ? d : null;
+}
 var activeWarrior = 'jakob'; // tracks who is currently playing
 checkDailyReset();
 
@@ -1484,7 +1489,6 @@ var CHORES = [
 ];
 
 var currentChore = CHORES[0];
-var rerollsLeft = 1;
 
 /* ── NAVIGATION ─────────────────────────────────────────── */
 
@@ -1502,7 +1506,6 @@ function awardXP(warrior, amount) {
     STATE.warriors[warrior].totalChores++;
   }
   STATE.lastSpinDate = today;
-  STATE.spinUsedToday = true;
   // Update boss HP
   var prevHP = STATE.boss.hp || 0;
   STATE.boss.hp = Math.min(100, prevHP + 3);
@@ -1530,13 +1533,34 @@ function refreshWarriorDisplay() {
   if(sEl) sEl.textContent = best;
   // Boss bar
   if(bf) { bf.style.transition='width .8s'; bf.style.width = STATE.boss.hp + '%'; }
-  // Spin button — disable if used today
+  // Spin button — one spin per player per day
   var spinBtn = document.getElementById('spin-btn');
-  if(spinBtn && STATE.spinUsedToday) {
-    var tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
-    spinBtn.textContent = '🌅 Come back tomorrow!';
-    spinBtn.disabled = true;
+  if(spinBtn && !isSpinning) {
+    var used = !!dayEntry(activeWarrior);
+    spinBtn.textContent = used ? '🌅 Come back tomorrow!' : '🎡 SPIN!';
+    spinBtn.disabled = used;
   }
+  refreshSpinZone();
+}
+
+/* Home spin CTA reflects the active player's day */
+function refreshSpinZone() {
+  var cta = document.getElementById('spin-cta');
+  if (!cta) return;
+  var e = dayEntry(activeWarrior);
+  cta.textContent = !e ? '⚡ Spin the Wheel' : (e.done ? '🌅 Done for today' : '▶ Continue Quest');
+}
+
+function openSpin() {
+  var e = dayEntry(activeWarrior);
+  if (e && !e.done) {
+    currentChore = CHORES[e.chore];
+    updateChoreScreen(currentChore);
+    goTo(e.acceptedAt ? 's-proof' : 's-chore');
+    return;
+  }
+  refreshWarriorDisplay();
+  goTo('s-spin');
 }
 
 
@@ -1570,6 +1594,7 @@ function setActiveWarrior(name) {
   var pnames = {jakob: PLAYER_NAMES.jakob, dean: PLAYER_NAMES.dean, dave: PLAYER_NAMES.dave};
   if (pn) pn.textContent = pnames[name] || 'Player 1';
   refreshHeroCard();
+  if (typeof STATE !== 'undefined') refreshWarriorDisplay();
 }
 
 
@@ -1755,7 +1780,7 @@ var totalRotation = 0;
 var isSpinning = false;
 
 function spinWheel() {
-  if (isSpinning) return;
+  if (isSpinning || dayEntry(activeWarrior)) return;
   isSpinning = true;
   var btn = document.getElementById('spin-btn');
   btn.disabled = true;
@@ -1773,11 +1798,12 @@ function spinWheel() {
   svg.style.transform = 'rotate(' + totalRotation + 'deg)';
 
   currentChore = CHORES[winner];
+  STATE.daily[activeWarrior] = { date: todayStr(), chore: winner, rerolls: 1, acceptedAt: 0, finishedAt: 0, done: false };
+  saveState();
 
   setTimeout(function() {
     isSpinning = false;
-    btn.disabled = false;
-    btn.textContent = '🎡 Spin Again';
+    refreshWarriorDisplay();
     updateChoreScreen(currentChore);
     goTo('s-chore');
   }, 3600);
@@ -1792,16 +1818,24 @@ function updateChoreScreen(chore) {
   document.getElementById('chore-title').textContent = chore.name;
   document.getElementById('chore-xp').textContent = '+' + chore.xp + ' XP';
   document.getElementById('chore-desc').textContent = chore.desc;
-  rerollsLeft = 1;
+  var e = dayEntry(activeWarrior);
+  var rb = document.getElementById('reroll-btn');
+  if (rb) {
+    var left = e ? e.rerolls : 0;
+    rb.textContent = '🔄 Re-roll (' + left + ' remaining)';
+    rb.style.display = (e && e.acceptedAt) ? 'none' : '';
+  }
 }
 
 function rerollChore() {
-  if (rerollsLeft <= 0) return;
-  rerollsLeft--;
-  var newIdx = Math.floor(Math.random() * CHORES.length);
-  currentChore = CHORES[newIdx];
+  var e = dayEntry(activeWarrior);
+  if (!e || e.rerolls <= 0 || e.acceptedAt) return;
+  e.rerolls--;
+  e.chore = Math.floor(Math.random() * CHORES.length);
+  saveState();
+  currentChore = CHORES[e.chore];
   updateChoreScreen(currentChore);
-  document.querySelector('[onclick="rerollChore()"]').textContent = '🔄 Re-roll (0 remaining)';
+  if (typeof renderQuests === 'function') renderQuests();
 }
 
 /* ── PHOTO PROOF ─────────────────────────────────────────── */
@@ -2009,7 +2043,7 @@ function weeklyReset() {
     w[k].lastChoreDate = '';
   });
   STATE.boss.hp = 0;
-  STATE.spinUsedToday = false;
+  STATE.daily = {};
   STATE.lastSpinDate = '';
   _bossDefeatedShown = false;
   saveState();
