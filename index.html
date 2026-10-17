@@ -2964,10 +2964,16 @@ function applyPlayerNames() {
    No SDK, no paid services (Spark free plan). Rules: database.rules.json.
 
    FIREBASE_CONFIG = null  →  same-phone mode only (everything stays local).
-   To switch family sync on, paste the web app's two values:
+   Family sync uses apiKey + databaseURL from the web app config, e.g.:
      { apiKey: 'AIza…', databaseURL: 'https://<project>-default-rtdb.<region>.firebasedatabase.app' }
    (Anonymous sign-in must be enabled in Firebase Auth.)                       */
-var FIREBASE_CONFIG = null;
+var FIREBASE_CONFIG = {
+  apiKey: 'AIzaSyDfbI33A9JownihIz2i1kmjYLZm-nBTmbw',      // Firebase web keys are public by design; the rules protect the data
+  authDomain: 'chore-royale.firebaseapp.com',
+  databaseURL: 'https://chore-royale-default-rtdb.europe-west1.firebasedatabase.app',
+  projectId: 'chore-royale',
+  appId: '1:396689883897:web:4d8adee75c257f1e6bd828'
+};
 if (window.CR_FIREBASE_CONFIG !== undefined) FIREBASE_CONFIG = window.CR_FIREBASE_CONFIG;   // QA harness only (emulator, or null = no sync)
 
 var AUTO_APPROVE_MS = 24 * 60 * 60 * 1000;
