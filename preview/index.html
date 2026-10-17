@@ -1,0 +1,3593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<script>/* PREVIEW build: keep this copy's saved data apart from the live app on the same phone */
+(function(){try{var P='crpv:',S=Storage.prototype,g=S.getItem,st=S.setItem,r=S.removeItem;
+S.getItem=function(k){return g.call(this,P+k)};S.setItem=function(k,v){return st.call(this,P+k,v)};S.removeItem=function(k){return r.call(this,P+k)};}catch(e){}})();</script>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/brand/favicon-16.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Chore Royale">
+<meta property="og:image" content="https://3shamrocksstudio.github.io/chore-wars/assets/brand/lockup.jpg">
+<meta property="og:type" content="website">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1B0B36">
+<title>Chore Royale — Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══ CHORE ROYALE — KNIGHT BRAND (tokens from Dave's knight logo) ═══
+   Royal violet = the armor + plate · Gold = crown, trims, beveled wordmark
+   Teal = the hero glow · Soap bubbles = success. See BRAND.md. */
+:root{
+  /* Royal violet ramp (armor + shield plate) */
+  --royal-950:#0c0419; --royal-900:#14072a; --royal-850:#1b0b36; --royal-800:#231045;
+  --royal-750:#2c1456; --royal-700:#3a1a70; --royal-600:#4f2296; --royal-500:#6a2fc0;
+  --royal-400:#8d55e0; --royal-300:#b493f2; --royal-200:#d9c9fb;
+  --ink:#2a0e4f;                 /* the dark violet outline around the gold wordmark */
+  /* Crown gold ramp (beveled wordmark) */
+  --gold-50:#fff8e1; --gold-200:#ffe79a; --gold-300:#ffd66b; --gold-400:#f4c04b;
+  --gold-500:#e8a93a; --gold-600:#c4841f; --gold-700:#8f5a17; --gold-900:#3b1d02;
+  /* Hero glow teal */
+  --teal-300:#8ff7e9; --teal-400:#3ee6cf; --teal-500:#17c4b0; --teal-700:#0a7377; --teal-900:#052a2a;
+  /* Villain (Balagan's mess) */
+  --mess-400:#ff8a9a; --mess-500:#f2557a;
+
+  /* Semantic */
+  --bg:var(--royal-900); --bg2:var(--royal-850); --bg3:var(--royal-750); --bg-card:var(--royal-800);
+  --bg-glass:rgba(27,11,54,.88);
+  --tx0:#ffffff; --tx1:#e6ddfa; --tx2:#c2b4e6; --tx3:#a593d0;
+  --border:rgba(180,147,242,.18); --border-bright:rgba(180,147,242,.36); --border-gold:rgba(244,192,75,.5);
+  --gold:var(--gold-400); --gold-lt:var(--gold-200); --gold-dk:var(--gold-600);
+  --teal:var(--teal-400); --teal-glow:rgba(62,230,207,.35);
+  --purple:var(--royal-500); --purple-glow:rgba(141,85,224,.45);
+  --red:var(--mess-400);
+  --success:var(--teal-400); --warning:var(--gold-300); --danger:#ff8091; --info:var(--royal-300);
+  /* Player accents (pills, podium) */
+  --jakob:#ffad7a; --dean:var(--teal-400); --dave:var(--royal-300);
+
+  --grad-gold:linear-gradient(180deg,#fff3c0 0%,#ffd66b 24%,#f4c04b 56%,#d9952b 100%);
+  --grad-royal:linear-gradient(180deg,#9a64ea 0%,#6a2fc0 52%,#4f2296 100%);
+  --grad-teal:linear-gradient(180deg,#a8fbef 0%,#3ee6cf 40%,#14a99a 100%);
+  --grad-plate:linear-gradient(180deg,rgba(74,34,140,.62) 0%,rgba(35,16,69,.92) 100%);
+  --scene:
+    radial-gradient(70% 34% at 50% -4%,rgba(23,196,176,.20) 0%,transparent 70%),
+    radial-gradient(110% 60% at 50% 0%,rgba(106,47,192,.42) 0%,transparent 72%),
+    linear-gradient(180deg,#1b0b36 0%,#14072a 55%,#0f0522 100%);
+  --sh-card:0 10px 26px rgba(6,0,18,.5);
+  --bevel-gold:inset 0 2px 0 rgba(255,255,255,.7),inset 0 -4px 0 rgba(143,90,23,.55);
+
+  --display:'Lilita One','Fredoka',system-ui,sans-serif;
+  --font:'Nunito','Fredoka',system-ui,sans-serif;
+  --mono:'Nunito','Fredoka',system-ui,sans-serif;
+  --s1:4px; --s2:8px; --s3:12px; --s4:20px; --s5:28px;
+  --r:18px; --r-sm:12px; --safe:env(safe-area-inset-bottom,16px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{position:relative} /* clip off-screen .screen panels here so mobile browsers don't widen the page */
+body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;background:var(--scene);
+  font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button{font-family:inherit}
+:focus-visible{outline:3px solid var(--gold-300);outline-offset:2px}
+picture{display:contents}
+
+/* Gold beveled text — the wordmark look */
+.gold-text,.topbar-title,.clan-title,.section-title,.sovereign-name,.bd-title,.dw-title,.ob-title,.modal-title,.rankup-rank,.xp-pop-num{
+  background:linear-gradient(180deg,#fff6cf 0%,#ffd66b 38%,#f4c04b 62%,#c4841f 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:var(--gold-300);
+  filter:drop-shadow(0 2px 0 var(--ink)) drop-shadow(0 0 1px var(--ink));
+}
+
+/* ── SCREEN SYSTEM ───────────────────────────────────────── */
+.screen{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  background:var(--scene);
+  transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .35s;overflow:hidden;
+}
+.screen.hidden{transform:translateX(100%);opacity:0;pointer-events:none}
+.screen.exit{transform:translateX(-100%);opacity:0;pointer-events:none}
+/* Soap bubbles + sparkles drifting in the castle air */
+.screen::after{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;opacity:.55;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='640'%3E%3Cdefs%3E%3CradialGradient id='b' cx='35%25' cy='30%25' r='70%25'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='.55'/%3E%3Cstop offset='.18' stop-color='%23fff' stop-opacity='0'/%3E%3Cstop offset='.8' stop-color='%23b8f6ff' stop-opacity='.06'/%3E%3Cstop offset='1' stop-color='%23d9c9fb' stop-opacity='.45'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg fill='url(%23b)'%3E%3Ccircle cx='38' cy='120' r='9'/%3E%3Ccircle cx='330' cy='70' r='6'/%3E%3Ccircle cx='300' cy='300' r='12'/%3E%3Ccircle cx='24' cy='420' r='7'/%3E%3Ccircle cx='190' cy='560' r='5'/%3E%3Ccircle cx='342' cy='520' r='8'/%3E%3C/g%3E%3Cg fill='%23ffd66b' opacity='.7'%3E%3Cpath d='M120 40l1.5 4 4 1.5-4 1.5-1.5 4-1.5-4-4-1.5 4-1.5z'/%3E%3Cpath d='M250 210l1.2 3 3 1.2-3 1.2-1.2 3-1.2-3-3-1.2 3-1.2z'/%3E%3Cpath d='M80 300l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z'/%3E%3Cpath d='M300 600l1.2 3 3 1.2-3 1.2-1.2 3-1.2-3-3-1.2 3-1.2z'/%3E%3C/g%3E%3Cg fill='%23fff' opacity='.35'%3E%3Ccircle cx='200' cy='30' r='1'/%3E%3Ccircle cx='60' cy='220' r='1'/%3E%3Ccircle cx='280' cy='450' r='1'/%3E%3Ccircle cx='140' cy='380' r='1.2'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:360px 640px;
+}
+.screen > *{position:relative;z-index:1;}
+
+/* ── SHARED COMPONENTS ───────────────────────────────────── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 10px;position:relative;z-index:10;
+}
+.topbar-title{font-family:var(--display);font-size:24px;letter-spacing:.02em;text-align:center;line-height:1.1;min-width:0}
+.back-btn{
+  width:40px;height:40px;border-radius:50%;flex-shrink:0;
+  background:radial-gradient(circle at 50% 35%,var(--royal-600),var(--royal-800));
+  border:2px solid var(--border-gold);box-shadow:0 3px 0 var(--ink),inset 0 1px 0 rgba(255,255,255,.18);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gold-200);font-size:18px;font-weight:900;
+}
+.back-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 16px 20px;scrollbar-width:thin;scrollbar-color:rgba(141,85,224,.45) transparent}
+
+/* Buttons — chunky, beveled like the wordmark */
+.btn{
+  width:100%;min-height:56px;padding:0 16px;border-radius:16px;border:2px solid var(--ink);cursor:pointer;
+  font-family:var(--display);font-size:20px;letter-spacing:.02em;color:#fff;line-height:1.1;
+  display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;
+  transition:transform .12s,box-shadow .12s,filter .12s;-webkit-user-select:none;user-select:none;position:relative;
+}
+.btn:active{transform:translateY(3px)}
+.btn-orange,.btn-gold{
+  background:var(--grad-gold);color:var(--gold-900) !important;text-shadow:0 1px 0 rgba(255,248,225,.65);
+  box-shadow:var(--bevel-gold),0 5px 0 var(--ink),0 10px 22px rgba(244,192,75,.22);
+}
+.btn-orange:active,.btn-gold:active{box-shadow:var(--bevel-gold),0 2px 0 var(--ink),0 4px 10px rgba(244,192,75,.18)}
+.btn-purple{
+  background:var(--grad-royal);text-shadow:0 2px 0 rgba(30,8,60,.55);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.3),inset 0 -4px 0 rgba(30,8,60,.4),inset 0 0 0 1px rgba(255,214,107,.35),0 5px 0 var(--ink),0 10px 22px rgba(106,47,192,.3);
+}
+.btn-purple:active{box-shadow:inset 0 2px 0 rgba(255,255,255,.3),inset 0 -4px 0 rgba(30,8,60,.4),0 2px 0 var(--ink)}
+.btn-purple:disabled{filter:saturate(.4);cursor:not-allowed}
+.btn-teal{
+  background:var(--grad-teal);color:var(--teal-900);text-shadow:0 1px 0 rgba(255,255,255,.45);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.6),inset 0 -4px 0 rgba(10,115,119,.45),0 5px 0 var(--ink);
+}
+.btn-ghost{
+  background:linear-gradient(180deg,rgba(79,34,150,.5),rgba(44,20,86,.75));color:var(--tx1);
+  border:2px solid var(--border-bright);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 0 rgba(8,2,22,.7);
+}
+.btn-ghost:active{box-shadow:0 1px 0 rgba(8,2,22,.7)}
+.btn-ghost:disabled{opacity:.5;cursor:not-allowed}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-family:var(--display);font-size:13px}
+
+/* ── BOTTOM NAV ──────────────────────────────────────────── */
+.bottom-nav{
+  display:flex;align-items:stretch;justify-content:space-around;
+  padding:8px 6px calc(8px + var(--safe));
+  background:linear-gradient(180deg,rgba(35,16,69,.96),rgba(20,7,42,.98));
+  border-top:2px solid rgba(244,192,75,.35);
+  box-shadow:0 -8px 24px rgba(6,0,18,.55);position:relative;z-index:10;
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 2px 4px;border-radius:14px;
+  font-size:11px;font-weight:800;letter-spacing:.02em;color:var(--tx3);border:none;background:none;font-family:var(--font);
+  transition:color .15s,background .15s;position:relative;
+}
+.nav-item .ico{font-size:22px;line-height:1;position:relative;display:flex}
+.nav-item .ico svg{width:26px;height:26px;display:block}
+.nav-item.on{color:var(--gold-300);background:radial-gradient(60% 70% at 50% 30%,rgba(244,192,75,.16),transparent 75%)}
+.nav-item.on .ico svg{filter:drop-shadow(0 0 6px rgba(244,192,75,.55))}
+.nav-item.on::after{content:'';position:absolute;top:-10px;left:50%;width:9px;height:9px;transform:translateX(-50%) rotate(45deg);
+  background:var(--royal-400);border:2px solid var(--gold-300);border-radius:2px}
+.nav-badge{position:absolute;top:-5px;right:-12px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;
+  background:var(--grad-gold);color:var(--gold-900);border:2px solid var(--ink);font-family:var(--font);font-size:10px;font-weight:900;line-height:14px;text-align:center}
+
+/* ═══ HOME — the castle ═══════════════════════════════════ */
+.home-header{padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;position:relative}
+.home-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.brand-row{display:flex;align-items:center;gap:10px;min-width:0}
+.home-wordmark{width:92px;height:auto;flex-shrink:0;filter:drop-shadow(0 4px 8px rgba(6,0,18,.6))}
+.brand-row > div{min-width:0}
+.clan-title{font-family:var(--display);font-size:19px;letter-spacing:.01em;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block}
+.clan-sub{font-size:12px;font-weight:700;color:var(--teal-300);margin-top:2px;white-space:nowrap}
+.streak-badge{
+  display:flex;align-items:center;gap:6px;flex-shrink:0;
+  background:linear-gradient(180deg,rgba(74,34,140,.7),rgba(35,16,69,.9));
+  border:2px solid var(--border-gold);border-radius:16px;padding:6px 11px;box-shadow:0 3px 0 var(--ink);
+}
+.streak-fire{font-size:18px}
+.streak-num{font-family:var(--display);font-size:20px;line-height:1;color:var(--gold-300)}
+.streak-lbl{font-size:10px;font-weight:800;color:var(--tx2);white-space:nowrap}
+
+/* Section headers: gem + gold title */
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin:4px 0 10px;gap:10px}
+.section-title{font-family:var(--display);font-size:19px;letter-spacing:.02em;position:relative;padding-left:20px;display:flex;align-items:center;gap:6px}
+.section-title::before{
+  content:'';position:absolute;left:2px;top:50%;width:10px;height:10px;transform:translateY(-50%) rotate(45deg);
+  background:var(--royal-400);border:2px solid var(--gold-300);border-radius:2px;-webkit-text-fill-color:initial;
+}
+.section-title svg{width:20px;height:20px;flex-shrink:0}
+.section-link{font-size:13px;font-weight:800;color:var(--teal-300);cursor:pointer;padding:6px 0}
+
+/* SPIN ZONE — the quest hero banner with the knight */
+.spin-zone{
+  position:relative;overflow:hidden;border-radius:22px;padding:16px 16px 16px;margin-bottom:18px;
+  background:
+    radial-gradient(55% 80% at 82% 30%,rgba(62,230,207,.32) 0%,transparent 70%),
+    linear-gradient(160deg,var(--royal-600) 0%,var(--royal-800) 70%);
+  border:2px solid var(--border-gold);box-shadow:inset 0 0 0 2px var(--ink),var(--sh-card);
+}
+.spin-knight{position:absolute;right:-34px;top:-8px;height:132px;width:auto;pointer-events:none;
+  filter:drop-shadow(0 6px 10px rgba(6,0,18,.6))}
+.spin-copy{position:relative;z-index:1;padding-right:120px;min-height:84px;display:flex;flex-direction:column;justify-content:center;margin-bottom:12px}
+.spin-hint{font-family:var(--display);font-size:18px;line-height:1.15;color:#fff;text-shadow:0 2px 0 var(--ink);margin-bottom:4px}
+.spin-sub{font-size:12.5px;font-weight:700;color:var(--tx1);line-height:1.35}
+.spin-cta{
+  position:relative;z-index:1;width:100%;min-height:62px;border-radius:18px;border:2px solid var(--ink);cursor:pointer;
+  background:var(--grad-gold);font-family:var(--display);font-size:24px;letter-spacing:.02em;color:var(--gold-900);
+  text-shadow:0 1px 0 rgba(255,248,225,.65);display:flex;align-items:center;justify-content:center;gap:10px;padding:0 12px;
+  box-shadow:var(--bevel-gold),0 6px 0 var(--ink),0 12px 26px rgba(244,192,75,.3);
+  animation:spinPulse 3s ease-in-out infinite;transition:transform .12s;
+}
+.spin-cta:active{transform:translateY(4px);box-shadow:var(--bevel-gold),0 2px 0 var(--ink)}
+@keyframes spinPulse{
+  0%,100%{box-shadow:var(--bevel-gold),0 6px 0 var(--ink),0 12px 26px rgba(244,192,75,.25)}
+  50%{box-shadow:var(--bevel-gold),0 6px 0 var(--ink),0 12px 34px rgba(244,192,75,.5),0 0 40px rgba(62,230,207,.2)}
+}
+
+/* QUEST ROWS — small shield plates */
+.quest{
+  display:flex;align-items:center;gap:12px;background:var(--grad-plate);
+  border-radius:16px;padding:12px;margin-bottom:10px;border:1.5px solid var(--border);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 6px 16px rgba(6,0,18,.35);transition:border-color .15s,transform .12s;
+}
+.quest:active{border-color:var(--border-gold)}
+.quest-ico{
+  width:44px;height:44px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;
+  background:radial-gradient(circle at 50% 35%,var(--royal-600),var(--royal-850));
+  border:2px solid rgba(244,192,75,.6);box-shadow:0 2px 0 var(--ink);
+}
+.quest-body{flex:1;min-width:0}
+.quest-name{font-size:15px;font-weight:800;color:var(--tx0);line-height:1.25}
+.quest-meta{font-size:12px;font-weight:700;color:var(--tx2);margin-top:2px;line-height:1.35}
+.quest-check{
+  width:32px;height:32px;border-radius:10px;border:2px solid var(--border-bright);flex-shrink:0;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-weight:900;color:var(--gold-900);background:rgba(12,4,25,.35);
+}
+.quest-check.done{background:var(--grad-gold);border-color:var(--ink);box-shadow:var(--bevel-gold),0 0 12px rgba(244,192,75,.45)}
+
+/* WEEKLY VILLAIN CARD — Balagan's minion vs the family */
+.raid-card{
+  position:relative;overflow:hidden;border-radius:20px;padding:16px;margin-bottom:20px;
+  background:
+    radial-gradient(70% 90% at 100% 0%,rgba(242,85,122,.22) 0%,transparent 65%),
+    linear-gradient(160deg,var(--royal-700) 0%,var(--royal-850) 75%);
+  border:2px solid rgba(255,138,154,.45);box-shadow:inset 0 0 0 2px var(--ink),var(--sh-card);
+}
+.raid-label{font-size:13px;font-weight:900;color:var(--mess-400);margin-bottom:4px;line-height:1.3}
+.raid-name{font-family:var(--display);font-size:22px;color:#fff;margin-bottom:12px;text-shadow:0 2px 0 var(--ink)}
+.boss-bar{
+  height:16px;border-radius:10px;margin-bottom:8px;overflow:hidden;position:relative;
+  background:rgba(12,4,25,.7);border:2px solid var(--ink);box-shadow:inset 0 2px 4px rgba(0,0,0,.5);
+}
+.boss-fill{
+  height:100%;border-radius:8px;background:linear-gradient(90deg,var(--teal-400),var(--gold-300));
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.45),0 0 12px rgba(62,230,207,.5);transition:width .6s cubic-bezier(.4,0,.2,1);
+}
+.raid-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.raid-pct{font-family:var(--display);font-size:15px;color:var(--gold-300)}
+.raid-warriors{font-size:12px;font-weight:700;color:var(--tx2)}
+
+/* ═══ ROYAL WHEEL ════════════════════════════════════════ */
+.wheel-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 20px 24px;position:relative}
+.wheel-wrap::before{content:'';position:absolute;width:min(360px,96vw);height:min(360px,96vw);top:50%;left:50%;transform:translate(-50%,-56%);
+  border-radius:50%;background:radial-gradient(circle,rgba(62,230,207,.28) 0%,rgba(106,47,192,.2) 45%,transparent 70%);pointer-events:none}
+.wheel-hint{font-family:var(--display);font-size:18px;color:var(--tx1);margin-bottom:14px;text-align:center;text-shadow:0 2px 0 var(--ink)}
+#wheel-svg{width:min(300px,80vw);height:min(300px,80vw);transition:transform 0s;
+  filter:drop-shadow(0 0 26px rgba(62,230,207,.35)) drop-shadow(0 12px 22px rgba(6,0,18,.7))}
+#wheel-svg.spinning{transition:transform 3.5s cubic-bezier(0.23,1,0.32,1)}
+.wheel-pointer{
+  width:34px;height:40px;margin-bottom:-18px;position:relative;z-index:2;
+  background:var(--grad-gold);clip-path:polygon(0 0,100% 0,50% 100%);
+  filter:drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 0 8px rgba(244,192,75,.6));
+}
+.spin-btn{
+  margin-top:26px;width:min(260px,80vw);min-height:64px;border-radius:18px;border:2px solid var(--ink);cursor:pointer;
+  background:var(--grad-gold);font-family:var(--display);font-size:24px;color:var(--gold-900);
+  text-shadow:0 1px 0 rgba(255,248,225,.65);box-shadow:var(--bevel-gold),0 6px 0 var(--ink),0 12px 26px rgba(244,192,75,.3);
+  transition:transform .12s,box-shadow .12s;
+}
+.spin-btn:active{transform:translateY(4px);box-shadow:var(--bevel-gold),0 2px 0 var(--ink)}
+.spin-btn:disabled{filter:grayscale(.55) brightness(.8);cursor:not-allowed;animation:none}
+
+/* ═══ QUEST CARD (the chore) ═════════════════════════════ */
+.chore-hero{padding:0 4px 18px;text-align:center}
+.chore-emoji{
+  width:118px;height:118px;margin:4px auto 14px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:60px;line-height:1;position:relative;
+  background:radial-gradient(circle at 50% 35%,var(--royal-500),var(--royal-800) 75%);
+  border:4px solid var(--gold-400);box-shadow:0 0 0 4px var(--ink),0 0 36px rgba(62,230,207,.4),inset 0 -8px 16px rgba(6,0,18,.45);
+  animation:bounceIn .5s cubic-bezier(.36,2,.57,.9);
+}
+@keyframes bounceIn{0%{transform:scale(0)}80%{transform:scale(1.08)}100%{transform:scale(1)}}
+.chore-warrior{
+  display:inline-block;font-size:12px;font-weight:900;letter-spacing:.08em;color:var(--gold-900);margin-bottom:10px;
+  background:var(--grad-gold);border:2px solid var(--ink);border-radius:999px;padding:4px 14px;box-shadow:0 2px 0 var(--ink);
+}
+.chore-title{font-family:var(--display);font-size:30px;color:#fff;line-height:1.1;margin-bottom:10px;text-shadow:0 3px 0 var(--ink)}
+.chore-xp{
+  display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 16px;
+  background:rgba(12,4,25,.5);border:2px solid var(--border-gold);font-family:var(--display);font-size:17px;color:var(--gold-300);
+}
+.chore-body{padding:0}
+.chore-desc{
+  background:var(--grad-plate);border:1.5px solid var(--border);border-radius:16px;padding:14px 16px;
+  font-size:15px;font-weight:700;color:var(--tx1);line-height:1.55;margin-bottom:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+}
+.chore-tips{margin-bottom:16px;background:rgba(12,4,25,.3);border-radius:16px;padding:4px 14px;border:1.5px solid var(--border)}
+.tip{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13.5px;font-weight:700;color:var(--tx1);line-height:1.45}
+.tip:last-child{border-bottom:none}
+.tip-ico{font-size:16px;flex-shrink:0;margin-top:1px}
+.chore-actions{padding:6px 16px calc(14px + var(--safe));display:flex;flex-direction:column;gap:12px}
+
+/* ═══ QUEST TIME / PHOTO PROOF ═══════════════════════════ */
+.proof-zone{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 20px 24px;overflow-y:auto}
+.proof-mascot{width:min(250px,64vw);height:auto;margin:0 0 6px;filter:drop-shadow(0 8px 14px rgba(6,0,18,.6))}
+.proof-cheer{font-family:var(--display);font-size:18px;color:var(--tx1);text-shadow:0 2px 0 var(--ink);margin-bottom:14px;text-align:center}
+.proof-preview{
+  width:100%;max-width:320px;aspect-ratio:4/3;border-radius:20px;overflow:hidden;
+  border:3px dashed rgba(244,192,75,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--grad-plate);margin-bottom:16px;cursor:pointer;transition:border-color .2s;
+}
+.proof-preview.has-photo{border-style:solid;border-color:var(--gold-400)}
+.proof-preview:active{transform:scale(.98)}
+.proof-ico{font-size:46px;margin-bottom:8px}
+.proof-lbl{font-family:var(--display);font-size:18px;color:var(--tx0)}
+.proof-sublbl{font-size:13px;font-weight:700;color:var(--tx2);margin-top:4px}
+#proof-img{width:100%;height:100%;object-fit:cover;display:none}
+.proof-note{font-size:13px;font-weight:700;color:var(--tx2);text-align:center;max-width:300px;line-height:1.55;margin-bottom:18px}
+.proof-actions{width:100%;max-width:340px;display:flex;flex-direction:column;gap:10px}
+
+/* ═══ VICTORY / REWARD ═══════════════════════════════════ */
+.reward-fireworks{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.spark{position:absolute;width:8px;height:8px;border-radius:50%;animation:sparkFly var(--dur,1.5s) ease-out var(--del,0s) both}
+@keyframes sparkFly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
+/* soap bubbles (success) */
+.bubble{
+  position:absolute;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.9) 0 9%,rgba(255,255,255,0) 16%),
+             radial-gradient(circle,rgba(185,246,255,.14) 50%,rgba(230,220,255,.75) 72%,rgba(143,247,233,.7) 86%,rgba(255,255,255,0) 100%);
+  box-shadow:inset 0 0 6px rgba(255,255,255,.25);
+  animation:bubbleUp var(--dur,2.6s) cubic-bezier(.3,.6,.4,1) var(--del,0s) both;
+}
+@keyframes bubbleUp{
+  0%{transform:translate(0,0) scale(.2);opacity:0}
+  15%{opacity:1}
+  80%{opacity:.95}
+  100%{transform:translate(var(--dx,0),var(--dy,-260px)) scale(1);opacity:0}
+}
+.reward-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 20px 20px;text-align:center;position:relative;z-index:1;overflow-y:auto}
+.reward-hero{position:relative;margin-bottom:6px}
+.reward-knight{width:min(240px,62vw);height:auto;display:block;filter:drop-shadow(0 0 28px rgba(62,230,207,.4)) drop-shadow(0 10px 14px rgba(6,0,18,.6));
+  animation:trophyBounce .6s .1s cubic-bezier(.36,2,.57,.9) both}
+.reward-trophy{
+  position:absolute;left:-6px;bottom:4px;width:58px;height:58px;border-radius:50%;font-size:30px;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 35%,var(--royal-500),var(--royal-800));border:3px solid var(--gold-400);box-shadow:0 0 0 3px var(--ink);
+  animation:trophyBounce .6s .35s cubic-bezier(.36,2,.57,.9) both;
+}
+@keyframes trophyBounce{0%{transform:scale(0) rotate(-10deg)}100%{transform:scale(1) rotate(0)}}
+.reward-title{font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:var(--teal-300);margin-bottom:4px}
+.reward-chore{font-family:var(--display);font-size:26px;color:#fff;margin-bottom:14px;line-height:1.15;text-shadow:0 3px 0 var(--ink)}
+.xp-pop{
+  display:inline-flex;align-items:center;gap:10px;border-radius:22px;padding:8px 22px;margin-bottom:18px;
+  background:linear-gradient(180deg,rgba(74,34,140,.85),rgba(35,16,69,.95));border:3px solid var(--gold-400);
+  box-shadow:0 0 0 3px var(--ink),0 0 30px rgba(244,192,75,.25);animation:popIn .5s .4s cubic-bezier(.36,2,.57,.9) both;
+}
+@keyframes popIn{0%{transform:scale(0)}100%{transform:scale(1)}}
+.xp-pop-num{font-family:var(--display);font-size:40px;line-height:1}
+.xp-pop-lbl{font-family:var(--display);font-size:15px;color:var(--tx1);line-height:1.1;text-align:left;max-width:9ch}
+.reward-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:360px;margin-bottom:20px}
+.rstat{background:var(--grad-plate);border:1.5px solid var(--border);border-radius:14px;padding:10px 4px;text-align:center}
+.rstat-n{font-family:var(--display);font-size:20px;color:var(--tx0);line-height:1.1}
+.rstat-l{font-size:10px;font-weight:800;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-top:3px;line-height:1.2}
+.reward-actions{width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px}
+
+/* ── RANK-UP TOAST ── */
+.rankup-toast{
+  position:fixed;bottom:118px;left:50%;transform:translateX(-50%) translateY(20px);z-index:900;pointer-events:none;opacity:0;
+  transition:opacity .3s,transform .3s;width:max-content;max-width:calc(100% - 32px);
+  background:linear-gradient(180deg,var(--royal-600),var(--royal-800));border:3px solid var(--gold-400);
+  border-radius:20px;padding:12px 22px;text-align:center;box-shadow:0 0 0 3px var(--ink),0 14px 36px rgba(6,0,18,.6);
+}
+.rankup-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.rankup-label{font-size:12px;font-weight:900;letter-spacing:.16em;color:var(--teal-300);text-transform:uppercase}
+.rankup-rank{font-family:var(--display);font-size:24px;margin-top:2px;line-height:1.15}
+
+/* ── WEEKLY CROWN (sovereign) ── */
+.sovereign-overlay,.boss-defeated-overlay{
+  position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 20px;text-align:center;opacity:0;pointer-events:none;overflow:hidden;
+  background:radial-gradient(70% 45% at 50% 38%,rgba(62,230,207,.28) 0%,transparent 70%),radial-gradient(120% 80% at 50% 30%,#4f2296 0%,#1b0b36 55%,#0c0419 100%);
+}
+.sovereign-overlay{z-index:950;transition:opacity .4s}
+.sovereign-overlay.show,.boss-defeated-overlay.show{opacity:1;pointer-events:auto}
+.sovereign-crown-rain,.boss-kaboom{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.crown-particle{position:absolute;top:-40px;font-size:24px;animation:crownFall var(--fall-dur,3s) linear var(--fall-del,0s) both}
+@keyframes crownFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(360deg);opacity:0}}
+.sovereign-badge,.bd-roar{
+  font-size:13px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-900);margin-bottom:10px;
+  background:var(--grad-gold);border:2px solid var(--ink);border-radius:999px;padding:5px 14px;box-shadow:0 3px 0 var(--ink);
+  animation:fadeSlideUp .6s .1s ease both;position:relative;z-index:2;
+}
+.sovereign-crown{font-size:60px;line-height:1;margin-bottom:-26px;position:relative;z-index:2;
+  animation:crownDrop .9s .5s cubic-bezier(.36,2.1,.57,.9) both;filter:drop-shadow(0 0 22px rgba(244,192,75,.8))}
+@keyframes crownDrop{0%{transform:translateY(-120px) scale(.4);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
+.overlay-knight{width:min(250px,64vw);height:auto;position:relative;z-index:1;margin-bottom:6px;
+  filter:drop-shadow(0 0 30px rgba(62,230,207,.45)) drop-shadow(0 12px 16px rgba(6,0,18,.7));animation:fadeSlideUp .6s .2s ease both}
+.sovereign-name{font-family:var(--display);font-size:46px;line-height:1.05;margin-bottom:4px;animation:fadeSlideUp .6s .4s ease both;max-width:100%;overflow-wrap:anywhere}
+.sovereign-title{font-size:16px;font-weight:800;color:var(--tx1);margin-bottom:18px;animation:fadeSlideUp .6s .5s ease both}
+.sovereign-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:330px;margin-bottom:22px;animation:fadeSlideUp .6s .6s ease both}
+.sov-stat{background:var(--grad-plate);border:2px solid var(--border-gold);border-radius:14px;padding:10px 6px}
+.sov-stat-n{font-family:var(--display);font-size:26px;color:var(--gold-300);line-height:1.1}
+.sov-stat-l{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--tx2);margin-top:3px}
+.sovereign-actions,.bd-actions{display:flex;flex-direction:column;gap:12px;width:100%;max-width:300px;animation:fadeSlideUp .6s .7s ease both;position:relative;z-index:2}
+@keyframes fadeSlideUp{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
+
+/* ── VILLAIN BEATEN ── */
+.boss-defeated-overlay{z-index:960;transition:opacity .5s}
+.kaboom-particle{position:absolute;border-radius:50%;animation:kaboomFly var(--k-dur,1.5s) ease-out var(--k-del,0s) both}
+.kaboom-particle.bubble{animation:kaboomFly var(--k-dur,1.5s) ease-out var(--k-del,0s) both}
+@keyframes kaboomFly{0%{transform:translate(0,0) scale(.3);opacity:1}100%{transform:translate(var(--k-x),var(--k-y)) scale(1.1);opacity:0}}
+.bd-icon{position:absolute;left:-4px;bottom:14px;z-index:3;width:56px;height:56px;border-radius:50%;font-size:28px;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 35%,var(--royal-500),var(--royal-800));border:3px solid var(--gold-400);box-shadow:0 0 0 3px var(--ink);animation:trophyBounce .6s .6s cubic-bezier(.36,2,.57,.9) both}
+.bd-title{font-family:var(--display);font-size:46px;line-height:1;margin-bottom:8px;animation:fadeSlideUp .6s .4s ease both}
+.bd-subtitle{font-size:16px;font-weight:700;color:var(--tx1);margin-bottom:18px;max-width:320px;line-height:1.45;animation:fadeSlideUp .6s .5s ease both}
+.bd-reward{background:var(--grad-plate);border:3px solid var(--gold-400);box-shadow:0 0 0 3px var(--ink);border-radius:18px;padding:14px 26px;margin-bottom:22px;animation:fadeSlideUp .6s .6s ease both}
+.bd-reward-label{font-size:12px;font-weight:900;color:var(--teal-300);letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}
+.bd-reward-name{font-family:var(--display);font-size:28px;color:#fff;text-shadow:0 2px 0 var(--ink)}
+
+/* Crown-the-champion button */
+.crown-btn{
+  width:100%;min-height:58px;padding:0 16px;border-radius:18px;border:2px solid var(--ink);cursor:pointer;margin-top:16px;
+  background:var(--grad-gold);font-family:var(--display);font-size:21px;color:var(--gold-900);text-shadow:0 1px 0 rgba(255,248,225,.65);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  box-shadow:var(--bevel-gold),0 5px 0 var(--ink),0 10px 24px rgba(244,192,75,.25);transition:transform .12s;
+}
+.crown-btn:active{transform:translateY(3px);box-shadow:var(--bevel-gold),0 2px 0 var(--ink)}
+
+/* ═══ RANKS / LEADERBOARD ═══════════════════════════════ */
+.lb-podium{display:flex;align-items:flex-end;justify-content:center;gap:10px;padding:26px 16px 0}
+.podium-spot{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;flex:1;max-width:108px}
+.podium-av{
+  width:54px;height:54px;border-radius:50%;font-size:28px;display:flex;align-items:center;justify-content:center;position:relative;
+  background:radial-gradient(circle at 50% 35%,var(--royal-500),var(--royal-800));border:3px solid var(--royal-300);box-shadow:0 0 0 3px var(--ink);
+}
+.podium-1 .podium-av{width:66px;height:66px;font-size:34px;border-color:var(--gold-400);box-shadow:0 0 0 3px var(--ink),0 0 24px rgba(244,192,75,.5)}
+.podium-1 .podium-av::before{content:'👑';position:absolute;top:-26px;font-size:26px;filter:drop-shadow(0 2px 0 var(--ink))}
+.podium-name{font-family:var(--display);font-size:15px;color:var(--tx0);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:4px}
+.podium-xp{font-size:13px;font-weight:900;color:var(--tx2)}
+.podium-block{
+  width:100%;display:flex;align-items:center;justify-content:center;border-radius:14px 14px 0 0;
+  font-family:var(--display);font-size:28px;color:#fff;text-shadow:0 2px 0 var(--ink);
+  background:linear-gradient(180deg,var(--royal-500),var(--royal-750));border:2px solid var(--ink);border-bottom:none;
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.2);
+}
+.podium-1 .podium-block{height:96px;background:linear-gradient(180deg,#ffe79a,#f4c04b 40%,#c4841f);color:var(--gold-900);text-shadow:0 1px 0 rgba(255,248,225,.6)}
+.podium-2 .podium-block{height:72px;background:linear-gradient(180deg,#d9c9fb,#8d55e0 60%,#4f2296)}
+.podium-3 .podium-block{height:54px;background:linear-gradient(180deg,#8ff7e9,#3ee6cf 55%,#17c4b0);color:var(--teal-900);text-shadow:0 1px 0 rgba(255,255,255,.5)}
+.podium-1 .podium-xp{color:var(--gold-300)}
+.lb-divider{height:3px;background:linear-gradient(90deg,transparent,var(--gold-400),transparent);opacity:.7}
+.lb-list{padding:16px 16px 4px}
+.lb-row{
+  display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:10px;border-radius:16px;
+  background:var(--grad-plate);border:1.5px solid var(--border);box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+}
+.lb-row:first-child{border-color:var(--border-gold);box-shadow:inset 0 0 0 1px rgba(244,192,75,.25),0 0 18px rgba(244,192,75,.12)}
+.lb-rank{width:26px;font-family:var(--display);font-size:18px;color:var(--tx2);text-align:center;flex-shrink:0}
+.lb-av{width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;
+  background:radial-gradient(circle at 50% 35%,var(--royal-600),var(--royal-850));border:2px solid rgba(180,147,242,.5)}
+.lb-info{flex:1;min-width:0}
+.lb-name{font-family:var(--display);font-size:18px;color:var(--tx0);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-streak{font-size:12px;font-weight:700;color:var(--tx2);margin-top:1px}
+.lb-xp{font-family:var(--display);font-size:22px;color:var(--tx1)}
+.lb-row:nth-child(1) .lb-xp{color:var(--gold-300)}
+.prize-card{background:var(--grad-plate);border:2px solid var(--border-gold);border-radius:18px;padding:14px 16px;text-align:center;box-shadow:inset 0 0 0 2px var(--ink)}
+.prize-title{font-family:var(--display);font-size:18px;color:var(--gold-300);margin-bottom:4px}
+.prize-desc{font-size:13.5px;font-weight:700;color:var(--tx1);line-height:1.45}
+.prize-bar{margin-top:10px;height:14px;background:rgba(12,4,25,.7);border:2px solid var(--ink);border-radius:8px;overflow:hidden}
+#lb-boss-fill{width:0%;height:100%;background:linear-gradient(90deg,var(--teal-400),var(--gold-300));border-radius:6px;transition:width .8s;box-shadow:inset 0 2px 0 rgba(255,255,255,.4)}
+#lb-boss-text{font-size:13px;font-weight:700;color:var(--tx2);margin-top:6px;line-height:1.4}
+
+/* Flash between screens */
+.transition-overlay{position:fixed;inset:0;background:var(--royal-500);z-index:1000;opacity:0;pointer-events:none;transition:opacity .2s}
+.transition-overlay.flash{opacity:1}
+
+/* ═══ PARENT GATE (PIN) ════════════════════════════════ */
+.pin-zone{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--s3) var(--s4) var(--s4)}
+.pin-crest{width:84px;height:84px;border-radius:50%;object-fit:cover;object-position:50% 12%;margin-bottom:10px;
+  border:3px solid var(--gold-400);box-shadow:0 0 0 3px var(--ink),0 0 26px rgba(62,230,207,.35);background:var(--royal-700)}
+.pin-title{font-family:var(--display);font-size:26px;color:#fff;margin-bottom:var(--s1);text-align:center;text-shadow:0 2px 0 var(--ink)}
+.pin-sub{font-size:14px;font-weight:700;color:var(--tx2);margin-bottom:var(--s4);text-align:center;max-width:30ch;line-height:1.45}
+.pin-dots{display:flex;gap:14px;margin-bottom:var(--s4)}
+.pin-dot{width:18px;height:18px;transform:rotate(45deg);border-radius:4px;border:2px solid var(--royal-300);background:rgba(12,4,25,.5);transition:background .15s,border-color .15s}
+.pin-dot.filled{background:var(--grad-gold);border-color:var(--ink);box-shadow:0 0 10px rgba(244,192,75,.6)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:min(280px,82vw)}
+.pin-key{height:62px;border-radius:50%/50%;border-radius:999px;
+  background:radial-gradient(circle at 50% 30%,var(--royal-600),var(--royal-800));border:2px solid rgba(180,147,242,.4);
+  box-shadow:0 4px 0 var(--ink),inset 0 1px 0 rgba(255,255,255,.18);
+  color:#fff;font-family:var(--display);font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .1s}
+.pin-key:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink);border-color:var(--gold-400)}
+.pin-key.del{font-size:20px;color:var(--gold-200)}
+.pin-result{margin-top:var(--s3);font-size:14px;font-weight:800;min-height:20px;text-align:center}
+.pin-result.ok{color:var(--teal-300)}
+.pin-result.err{color:var(--danger)}
+.pin-hint{margin-top:var(--s3);font-size:13px;font-weight:700;color:var(--tx2);cursor:pointer;text-decoration:underline;text-align:center;padding:6px}
+
+/* ── PLUS (premium) ── */
+.premium-badge{display:inline-flex;align-items:center;gap:4px;margin-left:6px;vertical-align:middle;background:var(--grad-gold);color:var(--gold-900);
+  -webkit-text-fill-color:var(--gold-900);font-family:var(--font);font-size:10px;font-weight:900;letter-spacing:.08em;padding:3px 8px;border-radius:50px;border:1.5px solid var(--ink)}
+#upgrade-banner{display:none !important}  /* one player per phone: no "unlock players" upsell */
+.upgrade-banner{
+  border-radius:18px;padding:12px 14px;margin:0 0 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;
+  background:radial-gradient(60% 120% at 100% 50%,rgba(244,192,75,.22),transparent 70%),linear-gradient(160deg,var(--royal-600),var(--royal-800));
+  border:2px solid var(--border-gold);box-shadow:inset 0 0 0 2px var(--ink);
+}
+#appr-banner{background:radial-gradient(60% 120% at 100% 50%,rgba(62,230,207,.25),transparent 70%),linear-gradient(160deg,var(--royal-600),var(--royal-800));border-color:rgba(62,230,207,.6)}
+.ub-text{font-size:14px;font-weight:900;color:#fff;line-height:1.35}
+.ub-price{font-size:12px;color:var(--tx1);margin-top:2px;font-weight:700}
+.ub-btn{background:var(--grad-gold);color:var(--gold-900);font-family:var(--display);font-size:15px;padding:8px 16px;border-radius:50px;white-space:nowrap;
+  border:2px solid var(--ink);box-shadow:var(--bevel-gold),0 3px 0 var(--ink)}
+.modal-bg{position:fixed;inset:0;background:rgba(8,2,22,.82);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-bg.hidden{display:none}
+.modal-box{
+  background:radial-gradient(80% 40% at 50% 0%,rgba(62,230,207,.18),transparent 70%),linear-gradient(180deg,var(--royal-700),var(--royal-850));
+  border:3px solid var(--gold-400);box-shadow:0 0 0 3px var(--ink),0 24px 60px rgba(6,0,18,.7);
+  border-radius:24px;padding:22px 20px;width:100%;max-width:340px;text-align:center;max-height:calc(100% - 20px);overflow-y:auto;
+}
+.modal-crest{width:150px;height:auto;margin:-6px auto 6px;display:block}
+.modal-title{font-family:var(--display);font-size:24px;margin-bottom:6px}
+.modal-sub{font-size:14px;color:var(--tx1);line-height:1.55;margin-bottom:18px}
+.modal-price{font-family:var(--display);font-size:30px;color:#fff;margin-bottom:4px;text-shadow:0 2px 0 var(--ink)}
+.modal-price-sub{font-size:13px;font-weight:700;color:var(--tx2);margin-bottom:16px;line-height:1.45}
+.modal-features{text-align:left;margin-bottom:18px;list-style:none;display:flex;flex-direction:column;gap:8px;background:rgba(12,4,25,.35);border-radius:14px;padding:12px 14px;border:1.5px solid var(--border)}
+.modal-features li{font-size:14px;font-weight:700;color:var(--tx1);display:flex;align-items:center;gap:10px}
+.modal-features li::before{content:'';width:8px;height:8px;flex-shrink:0;transform:rotate(45deg);background:var(--gold-400);border:1.5px solid var(--ink);border-radius:1px}
+.modal-wa-btn{
+  width:100%;min-height:52px;background:linear-gradient(180deg,#3fe07f,#1fae5a);color:#04210f;border:2px solid var(--ink);border-radius:16px;
+  font-family:var(--display);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.45),0 4px 0 var(--ink);
+}
+.modal-wa-btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--ink)}
+.modal-code-row{display:flex;gap:8px;margin-bottom:8px}
+.modal-code-input{flex:1;height:48px;padding:0 14px;background:var(--royal-950);border:2px solid var(--border-bright);color:var(--tx0);font-family:var(--display);font-size:18px;letter-spacing:.2em;text-align:center;border-radius:12px}
+.modal-code-btn{height:48px;padding:0 18px;background:var(--grad-gold);color:var(--gold-900);font-weight:900;border:2px solid var(--ink);border-radius:12px;cursor:pointer}
+.modal-close{font-size:14px;font-weight:800;color:var(--tx2);cursor:pointer;text-decoration:underline;padding:8px;display:inline-block}
+.modal-result{font-size:13px;font-weight:700;min-height:18px;text-align:center;margin-bottom:8px}
+.modal-result.ok{color:var(--teal-300)} .modal-result.err{color:var(--danger)}
+.premium-star{color:var(--gold)}
+
+/* ── ONBOARDING ── */
+.ob-overlay{position:fixed;inset:0;z-index:300;background:radial-gradient(70% 40% at 50% 10%,rgba(62,230,207,.18),transparent 70%),rgba(8,2,22,.9);
+  display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
+.ob-overlay.hidden{display:none}
+.ob-box{
+  background:linear-gradient(180deg,var(--royal-750),var(--royal-850));border:3px solid var(--gold-400);
+  box-shadow:0 0 0 3px var(--ink),0 24px 60px rgba(6,0,18,.7);
+  border-radius:26px;padding:12px 20px 18px;width:100%;max-width:350px;text-align:center;margin:auto;
+}
+.ob-icon{margin:-4px auto 2px;line-height:0}
+.ob-lockup{width:min(190px,50vw);height:auto;display:block;margin:4px auto 2px;filter:drop-shadow(0 0 22px rgba(62,230,207,.35)) drop-shadow(0 8px 14px rgba(6,0,18,.6))}
+.ob-title{font-family:var(--display);font-size:24px;margin-bottom:4px;line-height:1.15}
+.ob-sub{font-size:14px;font-weight:700;color:var(--tx1);line-height:1.45;margin-bottom:12px}
+.ob-field{width:100%;height:48px;padding:0 14px;margin-bottom:8px;
+  background:var(--royal-950);border:2px solid rgba(180,147,242,.35);border-radius:14px;color:var(--tx0);
+  font-family:var(--font);font-weight:800;font-size:16px;outline:none;box-sizing:border-box;transition:border-color .15s,box-shadow .15s}
+.ob-field:focus{border-color:var(--gold-400);box-shadow:0 0 0 3px rgba(244,192,75,.25)}
+.ob-field::placeholder{color:var(--tx3);font-weight:700}
+.ob-label{font-size:12px;font-weight:900;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;text-align:left;margin:6px 0 4px 2px;display:block}
+.ob-btn{width:100%;min-height:56px;background:var(--grad-gold);color:var(--gold-900);border:2px solid var(--ink);border-radius:16px;
+  font-family:var(--display);font-size:21px;cursor:pointer;margin-top:12px;text-shadow:0 1px 0 rgba(255,248,225,.65);
+  box-shadow:var(--bevel-gold),0 5px 0 var(--ink),0 10px 22px rgba(244,192,75,.25)}
+.ob-btn:active{transform:translateY(3px);box-shadow:var(--bevel-gold),0 2px 0 var(--ink)}
+.ob-skip{font-size:13.5px;font-weight:800;color:var(--tx1);cursor:pointer;text-decoration:underline;text-underline-offset:3px;margin-top:12px;display:block;line-height:1.4}
+.ob-skip + .ob-skip{color:var(--tx2);margin-top:8px}
+
+/* ── DESKTOP WALL ── */
+#desktop-wall{position:fixed;inset:0;z-index:9999;background:var(--scene);display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px}
+.dw-icon{line-height:0;margin-bottom:12px}
+.dw-icon img{width:260px;height:auto;filter:drop-shadow(0 0 30px rgba(62,230,207,.35)) drop-shadow(0 10px 18px rgba(6,0,18,.6))}
+.dw-title{font-family:var(--display);font-size:28px;margin-bottom:10px}
+.dw-sub{font-size:15px;font-weight:700;color:var(--tx1);line-height:1.6;max-width:320px}
+
+/* ── PLAYER HERO CARD (your knight) ── */
+.player-hero{
+  position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;border-radius:20px;padding:12px 14px;margin-bottom:10px;
+  background:radial-gradient(60% 100% at 0% 50%,rgba(62,230,207,.18),transparent 70%),linear-gradient(160deg,var(--royal-700),var(--royal-850));
+  border:2px solid var(--border-gold);box-shadow:inset 0 0 0 2px var(--ink),var(--sh-card);
+}
+.ph-avatar{
+  width:58px;height:58px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:30px;
+  background:radial-gradient(circle at 50% 35%,var(--royal-500),var(--royal-850));border:3px solid var(--gold-400);box-shadow:0 0 0 3px var(--ink);
+}
+.ph-info{flex:1;min-width:0}
+.ph-name{font-family:var(--display);font-size:22px;color:#fff;display:block;line-height:1.1;text-shadow:0 2px 0 var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-rank{font-size:12px;font-weight:900;color:var(--gold-300);text-transform:uppercase;letter-spacing:.07em;display:inline-block;margin:3px 0 6px}
+.ph-xp{font-size:12px;font-weight:900;color:var(--tx1);float:right;margin-top:3px}
+.ph-bar-wrap{height:12px;background:rgba(12,4,25,.7);border:2px solid var(--ink);border-radius:8px;overflow:hidden;clear:both}
+.ph-bar{height:100%;border-radius:6px;background:var(--grad-gold);box-shadow:inset 0 2px 0 rgba(255,255,255,.55);transition:width .6s cubic-bezier(.4,0,.2,1);width:50%}
+
+/* ── SPEED RUN TIMER ── */
+.speed-pill{
+  display:inline-flex;align-items:center;gap:6px;margin-top:10px;border-radius:999px;padding:7px 16px;
+  background:linear-gradient(180deg,rgba(62,230,207,.22),rgba(23,196,176,.08));border:2px solid var(--teal-400);
+  font-size:15px;font-weight:900;color:var(--teal-300);font-variant-numeric:tabular-nums;box-shadow:0 0 16px rgba(62,230,207,.25);
+}
+.speed-pill.late{background:rgba(255,255,255,.06);border-color:var(--border-bright);color:var(--tx1);box-shadow:none}
+#proof-timer{margin:0 0 16px;font-family:var(--display);font-size:22px;font-weight:400;padding:10px 20px;border-width:3px;letter-spacing:.01em}
+
+/* ── PLAYER SWITCHER (same phone) ── */
+.player-pills{display:flex;gap:8px}
+.ppill{
+  flex:1;min-width:0;height:38px;border-radius:12px;border:2px solid var(--border);background:rgba(12,4,25,.35);
+  display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer;padding:0 6px;
+  font-family:var(--display);font-size:14px;color:var(--tx2);transition:all .15s;position:relative;overflow:hidden;white-space:nowrap;
+}
+.ppill span{overflow:hidden;text-overflow:ellipsis}
+.ppill:active{transform:scale(.96)}
+.ppill.active{border-color:var(--gold-400);background:linear-gradient(180deg,var(--royal-600),var(--royal-800));color:#fff;box-shadow:0 2px 0 var(--ink),0 0 12px rgba(244,192,75,.25)}
+.ppill.locked{opacity:.6}
+.ppill-lock{font-size:10px;position:absolute;top:3px;right:5px}
+
+/* ── FAMILY ── */
+.cr-toast{position:fixed;left:50%;bottom:108px;transform:translateX(-50%) translateY(16px);z-index:980;opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;width:max-content;max-width:calc(100% - 32px);
+  background:linear-gradient(180deg,var(--royal-600),var(--royal-800));border:2px solid var(--gold-400);
+  border-radius:16px;padding:12px 18px;font-size:15px;font-weight:900;color:#fff;text-align:center;line-height:1.35;
+  box-shadow:0 0 0 2px var(--ink),0 12px 30px rgba(6,0,18,.6)}
+.cr-toast::before,.cr-toast::after{content:'';position:absolute;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.9) 0 10%,transparent 18%),radial-gradient(circle,transparent 55%,rgba(217,201,251,.6) 75%,rgba(143,247,233,.5) 88%,transparent 100%)}
+.cr-toast::before{width:16px;height:16px;left:-8px;top:-10px}
+.cr-toast::after{width:11px;height:11px;right:-4px;top:-14px}
+.cr-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.fam-stack{display:flex;flex-direction:column;gap:12px;margin-bottom:18px}
+.fam-note{font-size:13px;font-weight:700;color:var(--tx2);line-height:1.5;margin:-4px 0 12px}
+.fam-name{font-family:var(--display);font-size:22px;color:#fff;text-shadow:0 2px 0 var(--ink)}
+.fam-code{font-family:var(--display);font-size:34px;letter-spacing:.16em;text-align:center;margin:8px auto 4px;padding:6px 14px 6px 20px;display:inline-block;
+  color:var(--gold-300);background:rgba(12,4,25,.55);border:2px dashed var(--gold-400);border-radius:14px}
+.fam-sync{font-size:13px;font-weight:800;color:var(--teal-300)}
+.fam-row{display:flex;gap:8px;margin-bottom:8px}
+.fam-row .ob-field{margin:0;flex:1;min-width:0}
+.fam-sel{height:46px;border-radius:12px;background:var(--royal-950);border:2px solid rgba(180,147,242,.35);color:var(--tx0);
+  font-family:var(--font);font-weight:800;font-size:14px;padding:0 8px;max-width:150px}
+.quest .fam-sel{height:38px}
+.mini-btn{min-height:38px;min-width:44px;padding:0 12px;border-radius:12px;border:2px solid var(--border-bright);cursor:pointer;
+  background:rgba(79,34,150,.45);color:var(--tx0);font-family:var(--font);font-size:14px;font-weight:900;flex-shrink:0;box-shadow:0 3px 0 var(--ink)}
+.mini-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.mini-btn.ok{background:var(--grad-teal);border-color:var(--ink);color:var(--teal-900)}
+.mini-btn:disabled{opacity:.4;cursor:not-allowed}
+.quest .quest-actions{display:flex;gap:6px;flex-shrink:0;align-items:center}
+.quest.wrap{flex-wrap:wrap}
+.appr-thumb{width:100%;max-height:180px;object-fit:cover;border-radius:12px;margin-top:4px;border:2px solid var(--border-gold)}
+.appr-reject{display:flex;gap:6px;width:100%}
+.appr-reject .ob-field{height:40px;margin:0;font-size:14px;flex:1;min-width:0}
+.toggle{width:50px;height:30px;border-radius:15px;background:rgba(12,4,25,.6);border:2px solid var(--border-bright);cursor:pointer;position:relative;flex-shrink:0}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--tx2);transition:left .15s,background .15s}
+.toggle.on{background:var(--grad-teal);border-color:var(--ink)}
+.toggle.on::after{left:23px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+
+@media (max-width:370px){
+  .home-wordmark{width:78px}
+  .clan-title{font-size:17px}
+  .spin-copy{padding-right:104px}
+  .spin-knight{height:118px;right:-40px}
+  .chore-title{font-size:27px}
+  .reward-stats{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-height:740px){
+  .reward-knight,.overlay-knight{width:min(180px,50vw)}
+  .proof-mascot{width:min(190px,52vw)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<!-- ── DESKTOP WALL (mobile-only enforcement) ──────────────── -->
+<div id="desktop-wall">
+  <div class="dw-icon"><picture><source srcset="assets/brand/lockup.webp" type="image/webp"><img class="dw-lockup" src="assets/brand/lockup.png" alt="Chore Royale" width="520" height="604" decoding="async"></picture></div>
+  <div class="dw-title">Chore Royale™ is mobile-only</div>
+  <div class="dw-sub">Open it on your phone, brave knight — the castle fits in the palm of your hand.</div>
+</div>
+
+<!-- Flash transition overlay -->
+<div class="transition-overlay" id="flash"></div>
+
+<!-- ═══ SCREEN 1: HOME ═══════════════════════════════════ -->
+<div class="screen" id="s-home">
+  <div class="home-header">
+    <div class="home-top">
+      <div class="brand-row">
+        <picture><source srcset="assets/brand/wordmark.webp" type="image/webp"><img class="home-wordmark" src="assets/brand/wordmark.png" alt="Chore Royale" width="440" height="259" decoding="async"></picture>
+        <div>
+          <div class="clan-title" id="family-title">Our Family 👑</div>
+          <div class="clan-sub" id="clan-sub"></div>
+        </div>
+      </div>
+      <div class="streak-badge">
+        <span class="streak-fire">🔥</span>
+        <div>
+          <div class="streak-num" id="clan-streak">0</div>
+          <div class="streak-lbl">Day Streak</div>
+        </div>
+      </div>
+    </div>
+    <!-- PLAYER HERO CARD -->
+    <div class="player-hero">
+      <div class="ph-avatar" id="hero-av">🌟</div>
+      <div class="ph-info">
+        <span class="ph-name" id="hero-name">Player 1</span>
+        <span class="ph-rank" id="hero-rank">🧽 Squire</span>
+        <span class="ph-xp" id="hero-xp">0 XP</span>
+        <div class="ph-bar-wrap"><div class="ph-bar" id="hero-bar-fill" style="width:10%"></div></div>
+      </div>
+    </div>
+    <!-- PLAYER SWITCHER PILLS -->
+    <div class="player-pills">
+      <button class="ppill active" data-player="jakob" onclick="switchPlayer('jakob')">
+        <span>🌟</span><span id="ppill-name-jakob">Player 1</span>
+      </button>
+      <button class="ppill locked" data-player="dean" onclick="switchPlayer('dean')">
+        <span>⭐</span><span id="ppill-name-dean">Player 2</span>
+        <span class="ppill-lock">🔒</span>
+      </button>
+      <button class="ppill locked" data-player="dave" onclick="switchPlayer('dave')">
+        <span>💫</span><span id="ppill-name-dave">Player 3</span>
+        <span class="ppill-lock">🔒</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="body">
+
+
+    <!-- UPGRADE BANNER (hidden for premium users) -->
+    <div class="upgrade-banner" id="upgrade-banner" onclick="openPremiumModal()" style="display:none">
+      <div>
+        <div class="ub-text">⭐ Unlock All Players</div>
+        <div class="ub-price">3 players · Coming soon</div>
+      </div>
+      <div class="ub-btn">Details</div>
+    </div>
+    <!-- APPROVALS WAITING (parents) -->
+    <div class="upgrade-banner" id="appr-banner" onclick="openFamily()" style="display:none">
+      <div>
+        <div class="ub-text" id="appr-banner-text">✅ Chores waiting for approval</div>
+        <div class="ub-price">One tap to approve</div>
+      </div>
+      <div class="ub-btn">Review</div>
+    </div>
+    <!-- Hidden select for JS compatibility -->
+    <select id="warrior-select" onchange="onWarriorSelect(this)" style="display:none">
+      <option value="jakob" id="opt-jakob">Player 1</option>
+      <option value="dean" id="opt-dean">Player 2</option>
+      <option value="dave" id="opt-dave">Player 3</option>
+    </select>
+    <!-- SPIN CTA -->
+    <div class="spin-zone">
+      <picture><source srcset="assets/brand/knight.webp" type="image/webp"><img class="spin-knight" src="assets/brand/knight.png" alt="" width="440" height="289" decoding="async"></picture>
+      <div class="spin-copy">
+        <div class="spin-hint" id="spin-hint-text">🌟 Your turn!</div>
+        <div class="spin-sub">Balagan made a mess. Spin the wheel to pick today’s quest!</div>
+      </div>
+      <button class="spin-cta" id="spin-cta" onclick="openSpin()">
+        ⚡ Spin the Wheel
+      </button>
+    </div>
+
+    <!-- RAID BOSS -->
+    <div class="section-hd">
+      <div class="section-title">Beat Balagan</div>
+      <div class="section-link" onclick="goTo('s-leaderboard')" style="cursor:pointer">Details</div>
+    </div>
+    <div class="raid-card">
+      <div class="raid-label" id="goal-villain">🏆 Family Goal Progress</div>
+      <div class="raid-name" id="goal-reward-name">🍕 Pizza Night</div>
+      <div class="boss-bar"><div class="boss-fill" id="boss-fill" style="width:0%"></div></div>
+      <div class="raid-meta">
+        <span class="raid-pct" id="goal-pct">0% complete</span>
+        <span class="raid-warriors" id="goal-players"></span>
+      </div>
+    </div>
+
+    <!-- TODAY'S QUESTS — one row per player, from saved daily state -->
+    <div class="section-hd" id="quests-hd">
+      <div class="section-title"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="15.6" cy="7.4" rx="4.3" ry="5.6" transform="rotate(42 15.6 7.4)" fill="currentColor"/><path d="M12.4 11 4 19.6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg>Today's Quests</div>
+    </div>
+    <div id="quest-list"></div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item on" onclick="showTab('home')"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2 21V9.5h3V6h2.2v3.5h2.2V4h2.2v2h.8V4h2.2v5.5h2.2V6H19v3.5h3V21h-7.6v-4.6a2.4 2.4 0 0 0-4.8 0V21z"/></svg></span>Castle</button>
+    <button class="nav-item" onclick="showTab('missions')"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="15.6" cy="7.4" rx="4.3" ry="5.6" transform="rotate(42 15.6 7.4)" fill="currentColor"/><path d="M12.4 11 4 19.6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg></span>Quests</button>
+    <button class="nav-item" onclick="goTo('s-leaderboard')"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2.5 7.5 7 11l5-7 5 7 4.5-3.5L20 18H4zM4 19.5h16V22H4z"/></svg></span>Ranks</button>
+    <button class="nav-item" onclick="openFamily()"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2 4 5.2v6.1c0 5 3.4 9.3 8 10.7 4.6-1.4 8-5.7 8-10.7V5.2zm0 13.7-3.6-3.4a2.1 2.1 0 0 1 3-3l.6.6.6-.6a2.1 2.1 0 0 1 3 3z"/></svg><span class="nav-badge" style="display:none"></span></span>Family</button>
+  </nav>
+</div>
+
+<!-- ═══ SCREEN 2: SPIN WHEEL ═════════════════════════════ -->
+<div class="screen hidden" id="s-spin">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="topbar-title">Royal Wheel</div>
+    <div style="width:38px"></div>
+  </div>
+  <div class="wheel-wrap">
+    <div class="wheel-hint">Spin for today’s quest!</div>
+    <div class="wheel-pointer"></div>
+    <svg id="wheel-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <!-- 8 segments -->
+    </svg>
+    <button class="spin-btn" id="spin-btn" onclick="spinWheel()">🎡 SPIN!</button>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 3: CHORE ASSIGNMENT ══════════════════════ -->
+<div class="screen hidden" id="s-chore">
+  <div class="topbar">
+    <button class="back-btn" onclick="goTo('s-spin')">←</button>
+    <div class="topbar-title">Your Quest</div>
+    <div style="width:38px"></div>
+  </div>
+  <div class="body" style="padding-top:0">
+    <div class="chore-hero">
+      <span class="chore-emoji" id="chore-emoji">🧹</span>
+      <div class="chore-warrior" id="chore-warrior">🌟 PLAYER 1'S TURN</div>
+      <div class="chore-title" id="chore-title">Clean the Living Room</div>
+      <div class="chore-xp">⭐ <span id="chore-xp">+30 XP</span></div>
+      <div><div class="speed-pill cd-timer" id="chore-timer" style="display:none"></div></div>
+    </div>
+    <div class="chore-body">
+      <div class="chore-desc" id="chore-desc">Make sure the whole living room is clean — pick up toys, cushions back in place, and vacuum the carpet.</div>
+      <div class="chore-tips">
+        <div class="tip" id="speed-tip" style="display:none"><span class="tip-ico">⚡</span><span id="speed-tip-text"></span></div>
+        <div class="tip"><span class="tip-ico">✅</span>Tidy all surfaces first</div>
+        <div class="tip"><span class="tip-ico">✅</span>Vacuum or sweep floor</div>
+        <div class="tip" id="photo-tip"><span class="tip-ico">📸</span><span>A parent asked for a photo — +<span class="bonus-xp">15</span> bonus XP</span></div>
+        <div class="tip"><span class="tip-ico">👍</span><span>Tap Done and a parent approves it</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="chore-actions">
+    <button class="btn btn-orange" id="accept-btn" onclick="acceptChore()">🥄 Quest Accepted!</button>
+    <button class="btn btn-ghost" id="reroll-btn" onclick="rerollChore()">🔄 Re-roll (1 remaining)</button>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 4: PHOTO PROOF ════════════════════════════ -->
+<div class="screen hidden" id="s-proof">
+  <div class="topbar">
+    <button class="back-btn" onclick="goTo('s-chore')">←</button>
+    <div class="topbar-title" id="proof-title">Photo Proof</div>
+    <div style="width:38px"></div>
+  </div>
+  <div class="proof-zone">
+    <picture><source srcset="assets/brand/knight.webp" type="image/webp"><img class="proof-mascot" src="assets/brand/knight.png" alt="Sir Spoonalot" width="440" height="289" decoding="async"></picture>
+    <div class="proof-cheer">You’ve got this, knight!</div>
+    <div class="speed-pill cd-timer" id="proof-timer" style="display:none"></div>
+    <div class="proof-preview" id="proof-preview" onclick="takeFakePhoto()">
+      <img id="proof-img" src="" alt="">
+      <span class="proof-ico" id="proof-ico">📸</span>
+      <div class="proof-lbl" id="proof-lbl">Tap to take photo</div>
+      <div class="proof-sublbl" id="proof-sublbl">Show the completed chore</div>
+    </div>
+    <input type="file" id="proof-file" accept="image/*" capture="environment" style="display:none" onchange="onProofFile(this)">
+    <div class="proof-note" id="proof-note">📸 A parent asked for a photo of this one — it earns +<span class="bonus-xp">15</span> bonus XP.</div>
+    <div class="proof-note" id="proof-status" style="display:none;color:var(--gold)"></div>
+    <div class="proof-actions">
+      <button class="btn btn-orange" id="submit-proof-btn" onclick="finishQuest()">✅ Done — send for approval</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 5: REWARD ══════════════════════════════════ -->
+<div class="screen hidden" id="s-reward">
+  <div class="reward-fireworks" id="fireworks"></div>
+  <div class="reward-body">
+    <div class="reward-hero">
+      <picture><source srcset="assets/brand/knight.webp" type="image/webp"><img class="reward-knight" src="assets/brand/knight.png" alt="" width="440" height="289" decoding="async"></picture>
+      <div class="reward-trophy" id="reward-trophy">🏆</div>
+    </div>
+    <div class="reward-title" id="reward-title">Quest Complete!</div>
+    <div class="reward-chore" id="reward-chore">Clean the Living Room</div>
+    <div class="xp-pop">
+      <div class="xp-pop-num" id="reward-xp">+45</div>
+      <div class="xp-pop-lbl" id="xp-pop-lbl">XP EARNED</div>
+    </div>
+    <div class="speed-pill" id="reward-speed" style="display:none;margin:-10px 0 18px"></div>
+    <div class="proof-note" id="reward-breakdown" style="margin:-12px 0 18px"></div>
+    <div class="reward-stats">
+      <div class="rstat">
+        <div class="rstat-n" id="rw-streak">🔥 0</div>
+        <div class="rstat-l">Day Streak</div>
+      </div>
+      <div class="rstat">
+        <div class="rstat-n" id="rw-total">0</div>
+        <div class="rstat-l">Total XP</div>
+      </div>
+      <div class="rstat">
+        <div class="rstat-n" id="rw-chores" style="color:var(--gold-300)">0</div>
+        <div class="rstat-l">Chores Done</div>
+      </div>
+      <div class="rstat">
+        <div class="rstat-n" id="rw-goal" style="color:var(--teal-300)">0%</div>
+        <div class="rstat-l">Family Goal</div>
+      </div>
+    </div>
+    <div class="reward-actions">
+      <button class="btn btn-orange" onclick="goTo('s-leaderboard')">👑 See the Ranks</button>
+      <button class="btn btn-ghost" onclick="goTo('s-home')">🏰 Back to the Castle</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 6: LEADERBOARD ════════════════════════════ -->
+<div class="screen hidden" id="s-leaderboard">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="topbar-title">This Week’s Ranks</div>
+    <div style="width:38px"></div>
+  </div>
+
+  <div class="lb-podium">
+    <div class="podium-spot podium-2">
+      <div class="podium-av" id="pod-av-2">⭐</div>
+      <div class="podium-name" id="pod-name-2">Player 2</div>
+      <div class="podium-xp">0</div>
+      <div class="podium-block">2</div>
+    </div>
+    <div class="podium-spot podium-1">
+      <div class="podium-av" id="pod-av-1">💫</div>
+      <div class="podium-name" id="pod-name-1">Player 3</div>
+      <div class="podium-xp">0</div>
+      <div class="podium-block">1</div>
+    </div>
+    <div class="podium-spot podium-3">
+      <div class="podium-av" id="pod-av-3">🌟</div>
+      <div class="podium-name" id="pod-name-3">Player 1</div>
+      <div class="podium-xp">0</div>
+      <div class="podium-block">3</div>
+    </div>
+  </div>
+
+  <div class="lb-divider"></div>
+
+  <div class="lb-list">
+    <div class="lb-row">
+      <div class="lb-rank">👑</div>
+      <div class="lb-av">👑</div>
+      <div class="lb-info">
+        <div class="lb-name">Player 3</div>
+        <div class="lb-streak">🔥 0 day streak</div>
+      </div>
+      <div class="lb-xp">0</div>
+    </div>
+    <div class="lb-row">
+      <div class="lb-rank">2</div>
+      <div class="lb-av">⚔️</div>
+      <div class="lb-info">
+        <div class="lb-name">Player 1</div>
+        <div class="lb-streak">🔥 0 day streak</div>
+      </div>
+      <div class="lb-xp">0</div>
+    </div>
+    <div class="lb-row">
+      <div class="lb-rank">3</div>
+      <div class="lb-av">🛡️</div>
+      <div class="lb-info">
+        <div class="lb-name">Player 2</div>
+        <div class="lb-streak">🔥 0 day streak</div>
+      </div>
+      <div class="lb-xp">0</div>
+    </div>
+  </div>
+
+  <div class="body" style="padding-top:0">
+    <div class="prize-card">
+      <div class="prize-title">🎁 This week’s family reward</div>
+      <div class="prize-desc" id="lb-goal-desc">Finish quests together to drive Balagan out and win the reward!</div>
+      <div class="prize-bar"><div id="lb-boss-fill"></div></div>
+      <div id="lb-boss-text">0%</div>
+    </div>
+    <button class="crown-btn" onclick="showSovereignProclamation()">
+      <span style="font-size:22px">👑</span> Crown this week’s champion
+    </button>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="goTo('s-home');"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2 21V9.5h3V6h2.2v3.5h2.2V4h2.2v2h.8V4h2.2v5.5h2.2V6H19v3.5h3V21h-7.6v-4.6a2.4 2.4 0 0 0-4.8 0V21z"/></svg></span>Castle</button>
+    <button class="nav-item" onclick="showTab('missions')"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="15.6" cy="7.4" rx="4.3" ry="5.6" transform="rotate(42 15.6 7.4)" fill="currentColor"/><path d="M12.4 11 4 19.6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg></span>Quests</button>
+    <button class="nav-item on"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2.5 7.5 7 11l5-7 5 7 4.5-3.5L20 18H4zM4 19.5h16V22H4z"/></svg></span>Ranks</button>
+    <button class="nav-item" onclick="openFamily()"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2 4 5.2v6.1c0 5 3.4 9.3 8 10.7 4.6-1.4 8-5.7 8-10.7V5.2zm0 13.7-3.6-3.4a2.1 2.1 0 0 1 3-3l.6.6.6-.6a2.1 2.1 0 0 1 3 3z"/></svg><span class="nav-badge" style="display:none"></span></span>Family</button>
+  </nav>
+</div>
+
+<!-- ── RANK-UP TOAST ── -->
+<div class="rankup-toast" id="rankup-toast">
+  <div class="rankup-label">⬆ New rank!</div>
+  <div class="rankup-rank" id="rankup-rank-name">All-Star</div>
+</div>
+
+<!-- ── SOVEREIGN PROCLAMATION ── -->
+<div class="sovereign-overlay" id="sovereign-overlay">
+  <div class="sovereign-crown-rain" id="crown-rain"></div>
+  <div class="sovereign-badge">👑 This week’s Crown</div>
+  <div class="sovereign-crown">👑</div>
+  <picture><source srcset="assets/brand/knight.webp" type="image/webp"><img class="overlay-knight" src="assets/brand/knight.png" alt="" width="440" height="289" decoding="async"></picture>
+  <div class="sovereign-name" id="sov-name">Player 3</div>
+  <div class="sovereign-title" id="sov-title">🛡️ Top knight of the castle!</div>
+  <div class="sovereign-stats">
+    <div class="sov-stat">
+      <div class="sov-stat-n" id="sov-xp">0</div>
+      <div class="sov-stat-l">XP</div>
+    </div>
+    <div class="sov-stat">
+      <div class="sov-stat-n" id="sov-chores">0</div>
+      <div class="sov-stat-l">Chores Done</div>
+    </div>
+    <div class="sov-stat">
+      <div class="sov-stat-n" id="sov-streak">0</div>
+      <div class="sov-stat-l">Day Streak</div>
+    </div>
+  </div>
+  <div class="sovereign-actions">
+    <button class="btn btn-gold" id="sov-fresh" onclick="hideSovereignAndReset()">🎯 Start Fresh Week</button>
+    <button class="btn btn-ghost" onclick="hideSovereign()">Keep celebrating! 🎉</button>
+  </div>
+</div>
+
+<!-- ── BOSS DEFEATED ── -->
+<div class="boss-defeated-overlay" id="boss-defeated-overlay">
+  <div class="boss-kaboom" id="kaboom-particles"></div>
+  <div class="bd-roar">✨ Balagan retreats!</div>
+  <div class="reward-hero"><picture><source srcset="assets/brand/knight.webp" type="image/webp"><img class="overlay-knight" src="assets/brand/knight.png" alt="" width="440" height="289" decoding="async"></picture><div class="bd-icon">🏰</div></div>
+  <div class="bd-title">VICTORY!</div>
+  <div class="bd-subtitle" id="bd-subtitle">The family crushed it — reward is yours!</div>
+  <div class="bd-reward">
+    <div class="bd-reward-label">🎁 Family Reward Unlocked</div>
+    <div class="bd-reward-name" id="bd-reward-name">🍕 Pizza Night!</div>
+  </div>
+  <div class="bd-actions">
+    <button class="btn btn-gold" onclick="hideBossDefeated()">🎉 Claim Your Reward!</button>
+  </div>
+</div>
+
+<script>
+/* ── PERSISTENCE ─────────────────────────────────────────── */
+var SAVE_KEY = 'choreroyal_v1';
+
+function defaultState() {
+  return {
+    warriors: {
+      jakob: { xp: 0, wxp: 0, streak: 0, lastChoreDate: '', totalChores: 0 },
+      dean:  { xp: 0, wxp: 0, streak: 0, lastChoreDate: '', totalChores: 0 },
+      dave:  { xp: 0, wxp: 0, streak: 0, lastChoreDate: '', totalChores: 0 }
+    },
+    boss: { hp: 0, week: '', count: 0, chores: {}, prev: {} },
+    settings: {},   // restDay (0–6, -1 none), spinTime 'HH:MM', autoApprove
+    pardons: {},    // { player: { 'YYYY-MM-DD': true } } — Royal Pardons
+    v: 2,
+    lastSpinDate: '',
+    daily: {},   // per player: { date, chore, rerolls, acceptedAt, finishedAt, done }
+    quests: {}
+  };
+}
+
+function loadState() {
+  try {
+    var raw = localStorage.getItem(SAVE_KEY);
+    if (raw) {
+      var s = JSON.parse(raw);
+      // Merge with defaults so new fields always exist
+      var def = defaultState();
+      if (!s.v) stripDemoSeed(s);
+      var ws = s.warriors || {};
+      Object.keys(def.warriors).forEach(function(k){
+        Object.assign(def.warriors[k], ws[k] || {});
+        if (ws[k] && ws[k].wxp === undefined) def.warriors[k].wxp = ws[k].xp || 0;   // xp is now lifetime; this week = what they had
+      });
+      var out = Object.assign(def, s, { warriors: def.warriors, v: 2 });
+      return out;
+    }
+  } catch(e) {}
+  return defaultState();
+}
+
+// Older builds seeded new families with demo XP/streaks. Remove that seed once.
+function stripDemoSeed(s) {
+  var seed = { jakob:{xp:2840,streak:8,tc:23}, dean:{xp:1920,streak:5,tc:11}, dave:{xp:4100,streak:12,tc:41} };
+  var played = 0;
+  Object.keys(seed).forEach(function(k){
+    var w = s.warriors && s.warriors[k]; if (!w) return;
+    if (w.xp >= seed[k].xp) w.xp -= seed[k].xp;
+    if (w.streak >= seed[k].streak) w.streak -= seed[k].streak;
+    if (w.totalChores >= seed[k].tc) w.totalChores -= seed[k].tc;
+    played += w.totalChores || 0;
+  });
+  if (s.boss) s.boss.hp = s.boss.hp >= 68 ? s.boss.hp - 68 : Math.min(s.boss.hp || 0, played * 3);
+}
+
+function saveState() {
+  if (FAM && FAM.on) { FAM.pushLocal(); return; }
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(STATE)); } catch(e) {}
+}
+
+/* Day keys are the phone's LOCAL calendar day (Israel), never UTC. */
+function todayStr() {
+  var d = new Date(), pad = function(n){ return (n < 10 ? '0' : '') + n; };
+  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+}
+/* Whole-day number of a day key (days since 1970-01-01) — the rules range-check it against server time */
+function dayNum(key) { var p = key.split('-'); return Math.round(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
+
+function checkDailyReset() {
+  var today = todayStr();
+  if (STATE.lastSpinDate !== today) {
+    // Reset daily quests
+    STATE.quests = {};
+  }
+}
+
+/* Player names — customizable via onboarding */
+var PLAYER_NAMES = (function(){
+  try { var n = localStorage.getItem('cr_names'); if(n) return JSON.parse(n); } catch(e){}
+  return {jakob:'Player 1',dean:'Player 2',dave:'Player 3'};
+})();
+var FAMILY_NAME = (function(){
+  try { var f = localStorage.getItem('cr_family'); if(f) return f; } catch(e){}
+  return 'Our Family';
+})();
+var STATE = loadState();
+if (!STATE.daily) STATE.daily = {};
+if (!STATE.approvals) STATE.approvals = {};
+if (!STATE.proof) STATE.proof = {};
+if (!STATE.settings) STATE.settings = {};
+if (!STATE.pardons) STATE.pardons = {};
+/* Family sync hook — set by the family script below (null/off = same-phone mode) */
+var FAM = null;
+var PICONS = {jakob:'🌟', dean:'⭐', dave:'💫'};
+function allKeys() { return (FAM && FAM.on) ? FAM.ids() : ['jakob','dean','dave']; }
+function isParentPlayer(k) { return !!(FAM && FAM.on && FAM.role(k) === 'parent'); }
+function needsProof(idx) { return !!(STATE.proof && STATE.proof[idx]); }
+
+/* ── STREAKS: Rest Day + Royal Pardon ───────────────────────
+   A streak continues when every day between two chores is the family's
+   Rest Day or was pardoned by a parent. Weekly resets never touch it. */
+function addDays(d, n) { var t = new Date(d + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); }
+function dayOfWeek(d) { return new Date(d + 'T00:00:00Z').getUTCDay(); }
+function weekStart(d) { return addDays(d, -dayOfWeek(d)); }            // weeks run Sunday → Saturday
+function restDay() { var r = STATE.settings && STATE.settings.restDay; return (r === undefined || r === null) ? 6 : +r; }  // default Saturday
+function isPardoned(pid, d) { var p = STATE.pardons && STATE.pardons[pid]; return !!(p && p[d]); }
+function dayCovered(pid, d) { return dayOfWeek(d) === restDay() || isPardoned(pid, d); }
+function gapCovered(pid, from, to) {
+  if (!from || from >= to) return false;
+  var d = addDays(from, 1);
+  for (var i = 0; d < to; i++, d = addDays(d, 1)) { if (i >= 9 || !dayCovered(pid, d)) return false; }
+  return true;
+}
+function nextStreak(w, pid, date) { return gapCovered(pid, w.lastChoreDate, date) ? (w.streak || 0) + 1 : 1; }
+function liveStreak(pid) {
+  var w = STATE.warriors[pid], t = todayStr();
+  if (!w || !w.streak) return 0;
+  return (w.lastChoreDate === t || gapCovered(pid, w.lastChoreDate, t)) ? w.streak : 0;
+}
+/* Days since the last chore that would break the streak (up to yesterday) */
+function missedDays(pid) {
+  var w = STATE.warriors[pid], out = [], t = todayStr();
+  if (!w || !w.streak || !w.lastChoreDate) return out;
+  for (var d = addDays(w.lastChoreDate, 1), i = 0; d < t && i < 8; i++, d = addDays(d, 1)) if (!dayCovered(pid, d)) out.push(d);
+  return out;
+}
+function pardonUsedInWeek(pid, d) {
+  var p = (STATE.pardons && STATE.pardons[pid]) || {}, ws = weekStart(d);
+  return Object.keys(p).some(function(x){ return p[x] && weekStart(x) === ws; });
+}
+
+/* ── FAMILY GOAL: one villain a week, sized to the family ── */
+var MINIONS = ['🐰 Dust Bunny Swarm','🐉 Dish Dragon','🐙 Bathtub Kraken','👹 Trash Troll','🧦 Sock Goblin','🥀 Wilt Wraith','🐾 Mud Mutt','👻 Smudge Ghost'];
+function bossWeek() {                      // same-phone mode: roll the week over
+  var b = STATE.boss || (STATE.boss = {}), ws = weekStart(todayStr());
+  if (b.week !== ws) { b.prev = (b.week === addDays(ws, -7)) ? (b.chores || {}) : {}; b.week = ws; b.count = 0; b.chores = {}; }
+  return b;
+}
+function goalPlayers() {
+  if (FAM && FAM.on) return Math.max(1, FAM.linked());
+  return isPremium() ? 3 : 1;
+}
+// One chore per player per day; aim for two thirds of the days that aren't the Rest Day.
+function goalTarget() { return Math.max(3, Math.ceil(goalPlayers() * (restDay() >= 0 ? 6 : 7) * 2 / 3)); }
+function goalCount() { return (STATE.boss && STATE.boss.count) || 0; }
+function goalPct() { return Math.min(100, Math.round(goalCount() * 100 / goalTarget())); }
+function villain() {
+  var b = STATE.boss || {}, prev = b.prev || {}, seed = Math.floor(Date.parse((b.week || weekStart(todayStr())) + 'T00:00:00Z') / 604800000);
+  if (!Object.keys(prev).length) return MINIONS[seed % MINIONS.length];
+  var best = 0, min = Infinity;
+  for (var j = 0; j < CHORES.length; j++) {           // the chore the family did least last week
+    var i = (seed + j) % CHORES.length, c = prev[i] || 0;
+    if (c < min) { min = c; best = i; }
+  }
+  return MINIONS[best];
+}
+// Today's spin/chore for a player (null if they haven't spun today)
+function dayEntry(w) {
+  var d = STATE.daily[w || activeWarrior];
+  return (d && d.date === todayStr()) ? d : null;
+}
+var activeWarrior = 'jakob'; // tracks who is currently playing
+checkDailyReset();
+
+/* ── STATE ─────────────────────────────────────────────── */
+var currentScreen = 's-home';
+var navHistory = [];
+
+var CHORES = [
+  {emoji:'🧹',name:'Clean the Living Room',xp:30,bonus:15,mins:15,desc:'Make sure the whole living room is clean — pick up toys, cushions back in place, and vacuum the carpet.'},
+  {emoji:'🍽️',name:'Wash All the Dishes',xp:20,bonus:10,mins:20,desc:'Wash every dish, pot and utensil. Dry them and put them back in the cupboard.'},
+  {emoji:'🛁',name:'Clean the Bathroom',xp:35,bonus:15,desc:'Scrub the sink, toilet and shower. Wipe surfaces and replace the towels.'},
+  {emoji:'🗑️',name:'Take Out the Trash',xp:15,bonus:5,mins:10,desc:'Empty all bins in the house. Take bags to the outdoor bin.'},
+  {emoji:'🧺',name:'Do the Laundry',xp:25,bonus:10,desc:'Put clothes in the machine, add detergent, set the right cycle. Move to dryer when done.'},
+  {emoji:'🌿',name:'Water the Plants',xp:10,bonus:5,mins:10,desc:'Water all indoor plants and the balcony plants. Check soil is moist, not soaked.'},
+  {emoji:'🐕',name:'Walk the Dog',xp:20,bonus:10,desc:'Take the dog for a full walk around the block. Clean up after them.'},
+  {emoji:'🪟',name:'Clean the Windows',xp:30,bonus:15,desc:'Use glass cleaner on all windows and glass doors. Wipe until no streaks.'},
+];
+
+var currentChore = CHORES[0];
+
+/* ── NAVIGATION ─────────────────────────────────────────── */
+
+function awardXP(warrior, amount, chore) {
+  if (!STATE.warriors[warrior]) return;
+  var oldXP = STATE.warriors[warrior].xp;
+  STATE.warriors[warrior].xp += amount;                                    // lifetime → rank
+  STATE.warriors[warrior].wxp = (STATE.warriors[warrior].wxp || 0) + amount; // this week → leaderboard
+  var newXP = STATE.warriors[warrior].xp;
+  var today = todayStr();
+  if (STATE.warriors[warrior].lastChoreDate !== today) {
+    STATE.warriors[warrior].streak = nextStreak(STATE.warriors[warrior], warrior, today);
+    STATE.warriors[warrior].lastChoreDate = today;
+    STATE.warriors[warrior].totalChores++;
+  }
+  STATE.lastSpinDate = today;
+  // Family Goal: count this week's approved chores
+  var b = bossWeek(), prevHP = goalPct();
+  b.count = (b.count || 0) + 1;
+  if (chore !== undefined && chore !== null) b.chores[chore] = (b.chores[chore] || 0) + 1;
+  STATE.boss.hp = goalPct();
+  saveState();
+  refreshWarriorDisplay();
+  refreshLeaderboard();
+  // Check rank-up
+  checkRankUp(warrior, oldXP, newXP);
+  // Check boss defeated (only first time crossing 100)
+  if (prevHP < 100) checkBossDefeated();
+}
+
+function refreshWarriorDisplay() {
+  var w = STATE.warriors;
+  var keys = allKeys().filter(function(k){ return w[k]; });
+  var sEl = document.getElementById('clan-streak');
+  var bf = document.getElementById('boss-fill');
+  // Best streak of clan
+  var best = Math.max.apply(null, [0].concat(keys.map(function(k){ return liveStreak(k); })));
+  if(sEl) sEl.textContent = best;
+  // Family Goal vs this week's villain
+  if (!(FAM && FAM.on)) bossWeek();
+  STATE.boss.hp = goalPct();
+  if(bf) { bf.style.transition='width .8s'; bf.style.width = STATE.boss.hp + '%'; }
+  var gp = document.getElementById('goal-pct');
+  if(gp) gp.textContent = goalCount() + ' / ' + goalTarget() + ' chores · ' + STATE.boss.hp + '%';
+  var gl = document.getElementById('goal-villain');
+  if(gl) gl.textContent = STATE.boss.hp >= 100 ? '🏆 You beat the ' + villain() + '!' : '😈 Balagan sent the ' + villain();
+  var gpl = document.getElementById('goal-players');
+  if(gpl) {
+    var active = keys.filter(function(k){ return w[k].totalChores > 0; }).length;
+    gpl.textContent = active ? '⭐ ' + active + ' player' + (active > 1 ? 's' : '') + ' crushing it' : '⭐ Spin to get started';
+  }
+  // Spin button — one spin per player per day
+  var spinBtn = document.getElementById('spin-btn');
+  if(spinBtn && !isSpinning) {
+    var used = !!dayEntry(activeWarrior);
+    spinBtn.textContent = used ? '🌅 Come back tomorrow!' : '🎡 SPIN!';
+    spinBtn.disabled = used;
+  }
+  refreshSpinZone();
+  renderQuests();
+  if (typeof renderBadges === 'function') renderBadges();
+}
+
+/* Home spin CTA reflects the active player's day */
+function refreshSpinZone() {
+  var cta = document.getElementById('spin-cta');
+  if (!cta) return;
+  var e = dayEntry(activeWarrior);
+  cta.textContent = !e ? '⚡ Spin the Wheel' : (e.done ? '🌅 Done for today' : e.status === 'pending' ? '⏳ Waiting for approval' : e.status === 'rejected' ? '↩ Redo Quest' : '▶ Continue Quest');
+}
+
+function openSpin() {
+  var e = dayEntry(activeWarrior);
+  if (e && e.status === 'pending' && !e.done) { crToast('⏳ Sent — waiting for a parent to approve'); return; }
+  if (e && !e.done) {
+    currentChore = CHORES[e.chore];
+    updateChoreScreen(currentChore);
+    goTo(e.acceptedAt ? 's-proof' : 's-chore');
+    return;
+  }
+  refreshWarriorDisplay();
+  goTo('s-spin');
+}
+
+
+function onWarriorSelect(sel) {
+  var name = sel.value;
+  if((name === 'dean' || name === 'dave') && !isPremium()) {
+    sel.value = activeWarrior || 'jakob';
+    openPremiumModal();
+    return;
+  }
+  setActiveWarrior(name);
+}
+
+function setActiveWarrior(name) {
+  activeWarrior = name;
+  // Update visual emphasis on warrior cards
+  document.querySelectorAll('.warrior').forEach(function(w) {
+    w.style.opacity = '1';
+  });
+  // Highlight selected warrior's card
+  var colors = {jakob: 'rgba(106,33,196,.4)', dean: 'rgba(245,158,11,.4)', dave: 'rgba(124,58,237,.4)'};
+  var card = document.querySelector('.w-' + (name === 'dave' ? 'v' : name.charAt(0)));
+  if (card) card.style.borderColor = colors[name] || '';
+  // Update chore warrior label
+  var wl = document.getElementById('chore-warrior');
+  var pLabel = (PICONS[name]||'🌟') + ' ' + (PLAYER_NAMES[name]||'Player').toUpperCase() + "'S TURN";
+  if (wl) wl.textContent = pLabel;
+  // Update pin warrior name
+  var pn = document.getElementById('pin-warrior-name');
+  var pnames = {jakob: PLAYER_NAMES.jakob, dean: PLAYER_NAMES.dean, dave: PLAYER_NAMES.dave};
+  if (pn) pn.textContent = pnames[name] || 'Player 1';
+  refreshHeroCard();
+  if (typeof STATE !== 'undefined') refreshWarriorDisplay();
+}
+
+
+/* ── DESKTOP WALL CHECK ───────────────────────────────────── */
+function checkDesktop() {
+  var wall = document.getElementById('desktop-wall');
+  if (!wall) return;
+  wall.style.display = Math.min(window.innerWidth, screen.width) > 520 ? 'flex' : 'none';
+}
+window.addEventListener('resize', checkDesktop);
+
+/* ── PLAYER SWITCHER ─────────────────────────────────────── */
+function switchPlayer(name) {
+  if ((name === 'dean' || name === 'dave') && !isPremium()) {
+    openPremiumModal();
+    return;
+  }
+  var ws = document.getElementById('warrior-select');
+  if (ws) ws.value = name;
+  setActiveWarrior(name);
+}
+
+/* ── HERO CARD REFRESH ───────────────────────────────────── */
+function refreshHeroCard() {
+  var name = activeWarrior || 'jakob';
+  var w = STATE.warriors[name] || {xp:0};
+  var icon = PICONS[name] || '🌟';
+  var pname = PLAYER_NAMES[name] || 'Player';
+
+  // Get current rank
+  var rank = RANKS[0];
+  for (var i = RANKS.length - 1; i >= 0; i--) {
+    if (w.xp >= RANKS[i].min) { rank = RANKS[i]; break; }
+  }
+
+  // XP bar progress to next rank
+  var nextIdx = -1;
+  for (var j = 0; j < RANKS.length; j++) {
+    if (RANKS[j].min > w.xp) { nextIdx = j; break; }
+  }
+  var pct = 100;
+  if (nextIdx > 0) {
+    var prevMin = RANKS[nextIdx - 1].min;
+    var nextMin = RANKS[nextIdx].min;
+    pct = Math.min(100, Math.round((w.xp - prevMin) / (nextMin - prevMin) * 100));
+  } else if (nextIdx === 0) {
+    pct = 5;
+  }
+
+  // Update hero card
+  var avEl = document.getElementById('hero-av');
+  var nmEl = document.getElementById('hero-name');
+  var rkEl = document.getElementById('hero-rank');
+  var xpEl = document.getElementById('hero-xp');
+  var barEl = document.getElementById('hero-bar-fill');
+  if (avEl) avEl.textContent = icon;
+  if (nmEl) nmEl.textContent = pname;
+  if (rkEl) rkEl.textContent = rank.icon + ' ' + rank.name;
+  if (xpEl) xpEl.textContent = w.xp.toLocaleString() + ' XP';
+  if (barEl) { barEl.style.transition = 'width .6s'; barEl.style.width = pct + '%'; }
+
+  // Update pills — active state + lock state
+  document.querySelectorAll('.ppill').forEach(function(pill) {
+    var pn = pill.dataset.player;
+    pill.classList.toggle('active', pn === name);
+    var isLocked = (pn === 'dean' || pn === 'dave') && !isPremium();
+    pill.classList.toggle('locked', isLocked);
+    var lockEl = pill.querySelector('.ppill-lock');
+    if (lockEl) lockEl.style.display = isLocked ? '' : 'none';
+  });
+
+  // Update pill name labels from PLAYER_NAMES
+  var p1n = document.getElementById('ppill-name-jakob');
+  var p2n = document.getElementById('ppill-name-dean');
+  var p3n = document.getElementById('ppill-name-dave');
+  if (p1n) p1n.textContent = PLAYER_NAMES.jakob || 'Player 1';
+  if (p2n) p2n.textContent = PLAYER_NAMES.dean || 'Player 2';
+  if (p3n) p3n.textContent = PLAYER_NAMES.dave || 'Player 3';
+
+  // Update spin zone hint dynamically
+  var sh = document.getElementById('spin-hint-text');
+  if (sh) sh.textContent = icon + ' ' + pname + "’s turn, brave knight!";
+}
+
+function goTo(id) {
+  var from = document.getElementById(currentScreen);
+  var to = document.getElementById(id);
+  if (!to || id === currentScreen) return;
+
+  navHistory.push(currentScreen);
+
+  // Flash effect
+  var flash = document.getElementById('flash');
+  flash.style.background = id === 's-reward' ? '#6a21c4' : 'var(--bg)';
+  flash.classList.add('flash');
+  setTimeout(function() { flash.classList.remove('flash'); }, 200);
+
+  // Exit current
+  from.classList.add('exit');
+  setTimeout(function() { from.classList.remove('exit'); from.classList.add('hidden'); }, 350);
+
+  // Enter new
+  to.classList.remove('hidden');
+  to.style.transform = 'translateX(100%)';
+  to.style.opacity = '0';
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      to.style.transform = '';
+      to.style.opacity = '';
+    });
+  });
+  currentScreen = id;
+  if (typeof onScreenChange === 'function') onScreenChange(id);
+
+  if (id === 's-reward') launchFireworks();
+  if (id === 's-leaderboard') refreshLeaderboard();
+}
+
+function goBack() {
+  if (navHistory.length === 0) return;
+  var prev = navHistory.pop();
+  var from = document.getElementById(currentScreen);
+  var to = document.getElementById(prev);
+
+  to.classList.remove('hidden');
+  to.style.transform = 'translateX(-100%)';
+  to.style.opacity = '0';
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      to.style.transform = '';
+      to.style.opacity = '';
+    });
+  });
+
+  from.style.transform = 'translateX(100%)';
+  from.style.opacity = '0';
+  setTimeout(function() { from.style.transform = ''; from.style.opacity = ''; from.classList.add('hidden'); }, 350);
+  currentScreen = prev;
+  if (typeof onScreenChange === 'function') onScreenChange(prev);
+}
+
+/* ── SPIN WHEEL ─────────────────────────────────────────── */
+// Draw the wheel
+(function drawWheel() {
+  var svg = document.getElementById('wheel-svg');
+  var NS = 'http://www.w3.org/2000/svg';
+  var n = CHORES.length;
+  var angle = 360 / n;
+  var cx = 100, cy = 100, r = 88;
+  function el(tag, attrs) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); svg.appendChild(e); return e; }
+  // gradients: royal violet + deep violet segments, gold rim, gem hub
+  var defs = el('defs', {});
+  defs.innerHTML =
+    '<radialGradient id="wg-a" cx="50%" cy="50%" r="60%"><stop offset="0" stop-color="#9a64ea"/><stop offset="1" stop-color="#5a26a8"/></radialGradient>' +
+    '<radialGradient id="wg-b" cx="50%" cy="50%" r="60%"><stop offset="0" stop-color="#3a1a70"/><stop offset="1" stop-color="#1d0b3a"/></radialGradient>' +
+    '<linearGradient id="wg-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3c0"/><stop offset=".35" stop-color="#ffd66b"/><stop offset=".7" stop-color="#f4c04b"/><stop offset="1" stop-color="#c4841f"/></linearGradient>' +
+    '<radialGradient id="wg-gem" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#d9c9fb"/><stop offset=".45" stop-color="#8d55e0"/><stop offset="1" stop-color="#3a1a70"/></radialGradient>';
+  el('circle', { cx: cx, cy: cy, r: 99, fill: '#2a0e4f' });
+  el('circle', { cx: cx, cy: cy, r: 97, fill: 'url(#wg-gold)' });
+  el('circle', { cx: cx, cy: cy, r: 90, fill: '#2a0e4f' });
+
+  CHORES.forEach(function(c, i) {
+    var start = (i * angle - 90) * Math.PI / 180;
+    var end = ((i + 1) * angle - 90) * Math.PI / 180;
+    var x1 = cx + r * Math.cos(start), y1 = cy + r * Math.sin(start);
+    var x2 = cx + r * Math.cos(end), y2 = cy + r * Math.sin(end);
+    el('path', { d: 'M'+cx+','+cy+' L'+x1+','+y1+' A'+r+','+r+' 0 0,1 '+x2+','+y2+' Z',
+                 fill: i % 2 ? 'url(#wg-b)' : 'url(#wg-a)', stroke: '#f4c04b', 'stroke-width': '1.4' });
+    var mid = (start + end) / 2;
+    var t = el('text', { x: cx + (r * 0.66) * Math.cos(mid), y: cy + (r * 0.66) * Math.sin(mid),
+                         'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': '19' });
+    t.textContent = c.emoji;
+    // rim studs (light bulbs) on each divider
+    el('circle', { cx: cx + 93.5 * Math.cos(start), cy: cy + 93.5 * Math.sin(start), r: 2.6, fill: '#fff8e1', stroke: '#c4841f', 'stroke-width': '.8' });
+  });
+  // hub: gold ring + violet gem
+  el('circle', { cx: cx, cy: cy, r: 19, fill: '#2a0e4f' });
+  el('circle', { cx: cx, cy: cy, r: 17, fill: 'url(#wg-gold)' });
+  el('path', { d: 'M100 87 L111 100 L100 113 L89 100 Z', fill: 'url(#wg-gem)', stroke: '#2a0e4f', 'stroke-width': '1.5' });
+  el('path', { d: 'M100 87 L104 100 L100 113', fill: 'none', stroke: 'rgba(255,255,255,.35)', 'stroke-width': '1' });
+})();
+
+var totalRotation = 0;
+var isSpinning = false;
+
+function spinWheel() {
+  if (isSpinning || dayEntry(activeWarrior)) return;
+  isSpinning = true;
+  var btn = document.getElementById('spin-btn');
+  btn.disabled = true;
+  btn.textContent = '🌀 Spinning...';
+
+  var n = CHORES.length;
+  var winner = Math.floor(Math.random() * n);
+  var segment = 360 / n;
+  // Point the pointer at winner
+  var targetDeg = 1800 + (360 - winner * segment - segment / 2);
+  totalRotation += targetDeg;
+
+  var svg = document.getElementById('wheel-svg');
+  svg.style.transition = 'transform 3.5s cubic-bezier(0.23,1,0.32,1)';
+  svg.style.transform = 'rotate(' + totalRotation + 'deg)';
+
+  currentChore = CHORES[winner];
+  STATE.daily[activeWarrior] = { date: todayStr(), day: dayNum(todayStr()), chore: winner, rerolls: 1, acceptedAt: 0, finishedAt: 0, done: false };
+  saveState();
+
+  setTimeout(function() {
+    isSpinning = false;
+    refreshWarriorDisplay();
+    updateChoreScreen(currentChore);
+    goTo('s-chore');
+  }, 3600);
+}
+
+function updateChoreScreen(chore) {
+  var icon = PICONS[activeWarrior] || '🌟';
+  var pname = (PLAYER_NAMES[activeWarrior] || 'Player 1').toUpperCase();
+  document.getElementById('chore-emoji').textContent = chore.emoji;
+  document.getElementById('chore-warrior').textContent = icon + ' ' + pname + '\'S TURN';
+  document.getElementById('chore-title').textContent = chore.name;
+  document.getElementById('chore-xp').textContent = '+' + chore.xp + ' XP';
+  document.getElementById('chore-desc').textContent = chore.desc;
+  document.querySelectorAll('.bonus-xp').forEach(function(el){ el.textContent = chore.bonus; });
+  var st = document.getElementById('speed-tip');
+  if (st) {
+    st.style.display = chore.mins ? '' : 'none';
+    if (chore.mins) document.getElementById('speed-tip-text').textContent =
+      'Speed Run! Finish within ' + chore.mins + ' min for +' + speedBonus(chore) + ' bonus XP. Late is OK — you still get full XP.';
+  }
+  var ptip = document.getElementById('photo-tip');
+  if (ptip) ptip.style.display = needsProof(CHORES.indexOf(chore)) ? '' : 'none';
+  refreshProofScreen();
+  var ab = document.getElementById('accept-btn');
+  var e0 = dayEntry(activeWarrior);
+  if (ab) ab.textContent = (e0 && e0.acceptedAt) ? '▶ Continue' : (chore.mins ? '⏱ Start the Speed Run!' : '🥄 Quest Accepted!');
+  tickTimers();
+  var e = dayEntry(activeWarrior);
+  var rb = document.getElementById('reroll-btn');
+  if (rb) {
+    var left = e ? e.rerolls : 0;
+    rb.textContent = '🔄 Re-roll (' + left + ' remaining)';
+    rb.style.display = (e && e.acceptedAt) ? 'none' : '';
+  }
+}
+
+function rerollChore() {
+  var e = dayEntry(activeWarrior);
+  if (!e || e.rerolls <= 0 || e.acceptedAt) return;
+  e.rerolls--;
+  e.chore = Math.floor(Math.random() * CHORES.length);
+  saveState();
+  currentChore = CHORES[e.chore];
+  updateChoreScreen(currentChore);
+  if (typeof renderQuests === 'function') renderQuests();
+}
+
+/* ── TIMED CHORES ────────────────────────────────────────── */
+// Timers are stored as timestamps (acceptedAt/finishedAt) so they survive reloads.
+function speedBonus(chore) { return chore.mins ? Math.round(chore.xp * 0.5) : 0; }
+
+function acceptChore() {
+  var e = dayEntry(activeWarrior);
+  if (e && !e.acceptedAt) { e.acceptedAt = e.acceptedLocal = Date.now(); saveState(); }   // *Local = this phone's own clock
+  updateChoreScreen(currentChore);
+  goTo('s-proof');
+}
+
+function timeLeftMs(e, chore) {
+  if (!e || !e.acceptedAt || !chore.mins) return null;
+  var end = e.acceptedAt + chore.mins * 60000;
+  return end - (e.finishedAt || Date.now());
+}
+
+/* Speed Run proof. Family mode: the bonus needs the phone's own start/finish times.
+   Server stamps catch a phone clock changed while online; a quest queued offline is
+   stamped on reconnect, so there only the phone's times count. Missing → no bonus. */
+function provenLeftMs(e, c) {
+  if (!e || !c.mins || !e.acceptedAt) return null;
+  if (!(FAM && FAM.on)) return timeLeftMs(e, c);              // same phone: one clock
+  var aL = e.acceptedLocal, fL = e.finishedLocal || (e.finishedAt ? 0 : Date.now());
+  if (!aL || !fL || fL < aL) return null;
+  var dev = fL - aL, srv = (e.finishedAt || Date.now()) - e.acceptedAt;
+  return c.mins * 60000 - Math.max(dev, srv);
+}
+
+function fmtMs(ms) {
+  var t = Math.max(0, Math.ceil(ms / 1000));
+  var m = Math.floor(t / 60), sec = t % 60;
+  return m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+function tickTimers() {
+  var e = dayEntry(activeWarrior);
+  var chore = e ? CHORES[e.chore] : null;
+  var els = document.querySelectorAll('.cd-timer');
+  els.forEach(function(el) {
+    if (!chore || !chore.mins || e.done) { el.style.display = 'none'; return; }
+    el.style.display = '';
+    var left = timeLeftMs(e, chore);
+    if (left === null) { el.className = 'speed-pill cd-timer'; el.textContent = '⏱ ' + chore.mins + ' min Speed Run'; return; }
+    el.className = 'speed-pill cd-timer' + (left <= 0 ? ' late' : '');
+    el.textContent = left > 0 ? '⏱ ' + fmtMs(left) + ' left for ⚡ +' + speedBonus(chore) + ' XP' : "⏰ Time's up — finish anyway for full XP!";
+  });
+}
+setInterval(tickTimers, 1000);
+
+/* ── DONE → PARENT APPROVAL ──────────────────────────────── */
+// Default: the player taps Done and a parent approves (or sends it back).
+// Photo proof only when a parent switched on "ask for proof" for that chore.
+var proofData = '';
+
+function takeFakePhoto() {           // name kept for the existing onclick: opens the camera
+  var inp = document.getElementById('proof-file');
+  if (inp) { inp.value = ''; inp.click(); }
+}
+
+function onProofFile(inp) {
+  var f = inp.files && inp.files[0];
+  if (!f) return;
+  var img = new Image();
+  var url = URL.createObjectURL(f);
+  img.onload = function() {
+    var max = 480, sc = Math.min(1, max / Math.max(img.width, img.height));
+    var cv = document.createElement('canvas');
+    cv.width = Math.round(img.width * sc); cv.height = Math.round(img.height * sc);
+    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+    URL.revokeObjectURL(url);
+    proofData = cv.toDataURL('image/jpeg', 0.6);
+    var pi = document.getElementById('proof-img');
+    pi.src = proofData; pi.style.display = 'block';
+    document.getElementById('proof-preview').classList.add('has-photo');
+    document.getElementById('proof-ico').style.display = 'none';
+    document.getElementById('proof-lbl').style.display = 'none';
+    document.getElementById('proof-sublbl').style.display = 'none';
+  };
+  img.onerror = function() { URL.revokeObjectURL(url); crToast("Couldn't read that photo — try again"); };
+  img.src = url;
+}
+
+function resetProof() {
+  proofData = '';
+  var pi = document.getElementById('proof-img');
+  if (pi) { pi.removeAttribute('src'); pi.style.display = 'none'; }
+  var pv = document.getElementById('proof-preview'); if (pv) pv.classList.remove('has-photo');
+  ['proof-ico','proof-lbl','proof-sublbl'].forEach(function(id){ var el = document.getElementById(id); if (el) el.style.display = ''; });
+}
+
+/* Quest screen: shows the photo box only when the parent asked for proof */
+function refreshProofScreen() {
+  var e = dayEntry(activeWarrior);
+  var idx = e ? e.chore : CHORES.indexOf(currentChore);
+  var ask = needsProof(idx), self = isParentPlayer(activeWarrior);
+  var show = function(id, on){ var el = document.getElementById(id); if (el) el.style.display = on ? '' : 'none'; };
+  show('proof-preview', ask); show('proof-note', ask);
+  var t = document.getElementById('proof-title'); if (t) t.textContent = ask ? 'Photo Proof' : 'Quest Time';
+  var b = document.getElementById('submit-proof-btn');
+  if (b) b.textContent = self ? '✅ Done!' : ask ? '📤 Send photo for approval' : '✅ Done — send for approval';
+  var st = document.getElementById('proof-status');
+  if (st) {
+    var rej = e && e.status === 'rejected';
+    st.style.display = rej ? '' : 'none';
+    st.textContent = rej ? '↩ Sent back' + (e.reason ? ': “' + e.reason + '”' : '') + ' — fix it and tap Done again.' : '';
+  }
+}
+
+function stopClock() {
+  var e = dayEntry(activeWarrior);
+  if (e && e.acceptedAt && !e.finishedAt) { e.finishedAt = e.finishedLocal = Date.now(); saveState(); }
+}
+
+function finishQuest() {
+  var e = dayEntry(activeWarrior);
+  if (!e) { goTo('s-home'); return; }
+  if (e.done) { completeChore(false); return; }
+  if (e.status === 'pending') { crToast('⏳ Already sent — waiting for a parent'); return; }
+  if (needsProof(e.chore) && !proofData) { crToast('📸 This one needs a photo — tap the box'); return; }
+  stopClock();
+  if (isParentPlayer(activeWarrior)) { completeChore(!!proofData); resetProof(); return; }  // parents' own chores count right away
+  submitForApproval(e);
+}
+
+function submitForApproval(e) {
+  var photo = !!proofData;
+  e.status = 'pending'; delete e.reason; e.photo = photo;
+  var id = 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  var rec = { pid: activeWarrior, date: e.date, day: dayNum(e.date), chore: e.chore, photo: photo };
+  if (FAM && FAM.on) {
+    saveState();
+    FAM.submit(id, rec, proofData);
+  } else {
+    rec.at = Date.now();
+    if (photo) rec.img = proofData;
+    STATE.approvals[id] = rec;
+    saveState();
+  }
+  var a = awardFor(e, photo);
+  resetProof();
+  refreshWarriorDisplay();
+  fillReward(a, true);
+  goTo('s-reward');
+}
+
+/* XP for a finished day entry: chore + photo bonus (if proof) + ⚡ speed bonus */
+function awardFor(e, photo) {
+  var c = CHORES[e.chore] || CHORES[0];
+  var left = provenLeftMs(e, c);
+  var speed = (left !== null && left > 0) ? speedBonus(c) : 0;
+  var ph = photo ? c.bonus : 0;
+  return { chore: c, base: c.xp, photo: ph, speed: speed, total: c.xp + ph + speed, left: left };
+}
+
+/* The only place XP is granted (parent approval, or a parent's own chore) */
+function grantAward(pid, e, a, id) {
+  if (FAM && FAM.on) { FAM.grant(pid, e, a, id); return; }
+  awardXP(pid, a.total, e.chore);
+  e.done = true; e.awarded = a.total; e.speedRun = a.speed > 0; e.status = 'approved'; delete e.reason;
+  if (a.speed) STATE.warriors[pid].speedRuns = (STATE.warriors[pid].speedRuns || 0) + 1;
+  saveState();
+}
+
+/* Parent decisions (same-phone mode; family mode routes through FAM) */
+function approveChore(id, quiet) {
+  if (FAM && FAM.on) { FAM.approve(id, quiet); return; }
+  var r = STATE.approvals[id]; if (!r) return;
+  var e = STATE.daily[r.pid];
+  if (!e || e.date !== r.date) e = { date: r.date, chore: r.chore, acceptedAt: 0, finishedAt: 0 };
+  var a = awardFor(e, r.photo);
+  delete STATE.approvals[id];
+  grantAward(r.pid, e, a, id);
+  refreshWarriorDisplay(); refreshLeaderboard();
+  if (!quiet) crToast('✅ ' + (PLAYER_NAMES[r.pid] || 'Player') + ' +' + a.total + ' XP');
+}
+
+function rejectChore(id, reason) {
+  if (FAM && FAM.on) { FAM.reject(id, reason); return; }
+  var r = STATE.approvals[id]; if (!r) return;
+  var e = STATE.daily[r.pid];
+  if (e && e.date === r.date && !e.done) { e.status = 'rejected'; e.reason = reason || ''; e.finishedAt = 0; e.finishedLocal = 0; }
+  delete STATE.approvals[id];
+  saveState();
+  refreshWarriorDisplay();
+}
+
+/* Single place that awards a finished chore and fills the reward screen.
+   Used for a parent's own chore (no one else to approve it). */
+function completeChore(photoVerified) {
+  var e = dayEntry(activeWarrior);
+  if (e && e.done) { goTo('s-reward'); return; }
+  if (!e) { goTo('s-home'); return; }
+  var a = awardFor(e, photoVerified);
+  grantAward(activeWarrior, e, a, null);
+  refreshWarriorDisplay();
+  refreshLeaderboard();
+  fillReward(a, false);
+  goTo('s-reward');
+}
+
+function fillReward(a, pending) {
+  var parts = [a.base + ' chore'];
+  if (a.photo) parts.push(a.photo + ' 📸 photo');
+  if (a.speed) parts.push(a.speed + ' ⚡ speed');
+  var rs = document.getElementById('reward-speed');
+  if (rs) {
+    rs.style.display = a.left === null ? 'none' : '';
+    rs.className = 'speed-pill' + (a.speed ? '' : ' late');
+    rs.textContent = a.speed ? '⚡ SPEED RUN! Beat the clock with ' + fmtMs(a.left) + ' to spare' : '⏱ Done! Beat the clock next time for ⚡ bonus XP';
+  }
+  var w = STATE.warriors[activeWarrior] || {streak:0, xp:0, totalChores:0};
+  var who = (FAM && FAM.on && FAM.parentName()) || 'a parent';
+  document.getElementById('reward-trophy').textContent = pending ? '📨' : '🏆';
+  document.getElementById('reward-title').textContent = pending ? 'Sent to ' + who + ' ✓' : 'Quest Complete!';
+  document.getElementById('xp-pop-lbl').textContent = pending ? 'XP WHEN APPROVED' : 'XP EARNED';
+  document.getElementById('reward-chore').textContent = a.chore.name;
+  document.getElementById('reward-xp').textContent = '+' + a.total;
+  document.getElementById('reward-breakdown').textContent = parts.length > 1 ? parts.join(' + ') + ' XP' : '';
+  document.getElementById('rw-streak').textContent = '🔥 ' + liveStreak(activeWarrior);
+  document.getElementById('rw-total').textContent = w.xp.toLocaleString();
+  document.getElementById('rw-chores').textContent = w.totalChores;
+  document.getElementById('rw-goal').textContent = (STATE.boss.hp || 0) + '%';
+}
+
+/* ── FIREWORKS ───────────────────────────────────────────── */
+function launchFireworks() {
+  var fw = document.getElementById('fireworks');
+  fw.innerHTML = '';
+  // Success = soap bubbles rising (plus a few gold sparks)
+  for (var i = 0; i < 26; i++) {
+    var s = document.createElement('div');
+    var bub = i % 4 !== 0, size = bub ? 10 + ((i * 7) % 26) : 7;
+    s.className = bub ? 'bubble' : 'spark';
+    s.style.width = s.style.height = size + 'px';
+    s.style.left = (8 + ((i * 37) % 84)) + '%';
+    s.style.top = (bub ? 62 + ((i * 13) % 30) : 25 + ((i * 11) % 30)) + '%';
+    if (!bub) s.style.background = i % 8 ? '#ffd66b' : '#3ee6cf';
+    s.style.setProperty('--dx', (((i * 29) % 80) - 40) + 'px');
+    s.style.setProperty('--dy', (bub ? -(220 + (i * 17) % 200) : ((i * 23) % 160) - 80) + 'px');
+    s.style.setProperty('--dur', (bub ? 2.2 + (i % 5) * 0.35 : 1.2 + (i % 3) * 0.3) + 's');
+    s.style.setProperty('--del', ((i % 9) * 0.12) + 's');
+    fw.appendChild(s);
+  }
+}
+
+/* ── WIN MECHANICS ───────────────────────────────────────── */
+
+// Rank system — XP thresholds
+var RANKS = [                          // knights of the household realm
+  { min: 0,    name: 'Squire',      icon: '🧽' },
+  { min: 500,  name: 'Knight',      icon: '🛡️' },
+  { min: 1200, name: 'Mess Buster', icon: '🥄' },
+  { min: 2500, name: 'Royal Guard', icon: '🏰' },
+  { min: 4500, name: 'Champion',    icon: '🏆' },
+  { min: 7000, name: 'Legend',      icon: '👑' }
+];
+
+function getWarriorRank(xp) {
+  var rank = RANKS[0];
+  for (var i = 0; i < RANKS.length; i++) {
+    if (xp >= RANKS[i].min) rank = RANKS[i];
+  }
+  return rank;
+}
+
+function checkRankUp(warrior, oldXP, newXP) {
+  var oldRank = getWarriorRank(oldXP);
+  var newRank = getWarriorRank(newXP);
+  if (newRank.min > oldRank.min) {
+    showRankUpToast(PLAYER_NAMES[warrior] || warrior, newRank);
+  }
+}
+
+function showRankUpToast(name, rank) {
+  var toast = document.getElementById('rankup-toast');
+  var rankEl = document.getElementById('rankup-rank-name');
+  if (!toast || !rankEl) return;
+  rankEl.textContent = rank.icon + ' ' + name + ' is now ' + rank.name + '!';
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 3200);
+}
+
+// Boss defeated logic
+var _bossDefeatedShown = false;
+
+function checkBossDefeated() {
+  if (STATE.boss.hp >= 100 && !_bossDefeatedShown) {
+    _bossDefeatedShown = true;
+    // Small delay so XP animation settles first
+    setTimeout(showBossDefeated, 800);
+  }
+}
+
+function showBossDefeated() {
+  var overlay = document.getElementById('boss-defeated-overlay');
+  if (!overlay) return;
+  var sub = document.getElementById('bd-subtitle');
+  if (sub) sub.textContent = 'The family beat the ' + villain() + ' — reward is yours!';
+  launchKaboom();
+  overlay.classList.add('show');
+}
+
+function hideBossDefeated() {
+  var overlay = document.getElementById('boss-defeated-overlay');
+  if (overlay) overlay.classList.remove('show');
+  _bossDefeatedShown = false;
+  // The villain stays beaten until the new week brings the next one.
+  refreshWarriorDisplay();
+}
+
+function launchKaboom() {
+  var container = document.getElementById('kaboom-particles');
+  if (!container) return;
+  container.innerHTML = '';
+  var colors = ['bubble','#ffd66b','bubble','#8d55e0','bubble','#3ee6cf'];
+  var cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+  for (var i = 0; i < 80; i++) {
+    var s = document.createElement('div');
+    var col = colors[Math.floor(Math.random() * colors.length)];
+    s.className = 'kaboom-particle' + (col === 'bubble' ? ' bubble' : '');
+    var size = col === 'bubble' ? 12 + Math.random() * 22 : 6 + Math.random() * 8;
+    var angle = (Math.random() * Math.PI * 2);
+    var dist = 150 + Math.random() * 300;
+    s.style.cssText = [
+      'left:' + cx + 'px', 'top:' + cy + 'px',
+      'width:' + size + 'px', 'height:' + size + 'px',
+      col === 'bubble' ? '' : 'background:' + col,
+      '--k-x:' + (Math.cos(angle) * dist) + 'px',
+      '--k-y:' + (Math.sin(angle) * dist) + 'px',
+      '--k-dur:' + (0.8 + Math.random() * 1.2) + 's',
+      '--k-del:' + (Math.random() * 0.3) + 's'
+    ].join(';');
+    container.appendChild(s);
+  }
+}
+
+// Sovereign proclamation
+function showSovereignProclamation() {
+  var w = STATE.warriors;
+  // Find winner (highest XP)
+  var keys = allKeys().filter(function(k){ return w[k]; });
+  var top = keys[0];
+  keys.forEach(function(k){ if ((w[k].wxp || 0) > (w[top].wxp || 0)) top = k; });
+  var topName = PLAYER_NAMES[top];
+  var topXP = w[top].wxp || 0;
+  var topChores = w[top].totalChores;
+  var topStreak = liveStreak(top);
+
+  // Populate overlay
+  var nameEl = document.getElementById('sov-name');
+  var xpEl = document.getElementById('sov-xp');
+  var chEl = document.getElementById('sov-chores');
+  var stEl = document.getElementById('sov-streak');
+  if (nameEl) nameEl.textContent = topName;
+  if (xpEl) xpEl.textContent = topXP.toLocaleString();
+  if (chEl) chEl.textContent = topChores;
+  if (stEl) stEl.textContent = topStreak;
+
+  var overlay = document.getElementById('sovereign-overlay');
+  var fresh = document.getElementById('sov-fresh');
+  if (fresh) fresh.style.display = (FAM && FAM.on && !FAM.isParent()) ? 'none' : '';
+  if (overlay) overlay.classList.add('show');
+  launchCrownRain();
+}
+
+function hideSovereign() {
+  var overlay = document.getElementById('sovereign-overlay');
+  if (overlay) overlay.classList.remove('show');
+}
+
+function hideSovereignAndReset() {
+  hideSovereign();
+  weeklyReset();
+}
+
+function weeklyReset() {
+  if (FAM && FAM.on) { FAM.weeklyReset(); return; }
+  // New weekly leaderboard. Lifetime XP (rank), streaks and today's quests stay.
+  var w = STATE.warriors;
+  Object.keys(w).forEach(function(k) { w[k].wxp = 0; });
+  saveState();
+  refreshWarriorDisplay();
+  refreshLeaderboard();
+  // Quick victory flash
+  var flash = document.getElementById('flash');
+  if (flash) {
+    flash.style.background = '#6a21c4';
+    flash.classList.add('flash');
+    setTimeout(function() { flash.classList.remove('flash'); }, 300);
+  }
+}
+
+function launchCrownRain() {
+  var container = document.getElementById('crown-rain');
+  if (!container) return;
+  container.innerHTML = '';
+  var symbols = ['👑', '✨', '🥄', '⭐', '🛡️', '👑'];
+  for (var i = 0; i < 20; i++) {
+    var p = document.createElement('div');
+    p.className = 'crown-particle';
+    p.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    p.style.left = (Math.random() * 100) + '%';
+    p.style.setProperty('--fall-dur', (2 + Math.random() * 2) + 's');
+    p.style.setProperty('--fall-del', (Math.random() * 1.5) + 's');
+    container.appendChild(p);
+  }
+}
+
+// Refresh leaderboard with live state
+function refreshLeaderboard() {
+  var w = STATE.warriors;
+  // Sort warriors by XP
+  var sorted = allKeys().filter(function(k){ return w[k]; }).map(function(k) {
+    return { key:k, name:PLAYER_NAMES[k], icon:PICONS[k] || '🌟', xp:w[k].wxp || 0, streak:liveStreak(k), totalChores:w[k].totalChores };
+  }).sort(function(a, b) { return b.xp - a.xp; });
+
+  // Podium (positions: 2nd, 1st, 3rd visually)
+  var order = [sorted[1], sorted[0], sorted[2]];
+  var podSpots = document.querySelectorAll('.podium-spot');
+  podSpots.forEach(function(spot, i) {
+    var d = order[i];
+    spot.style.visibility = d ? '' : 'hidden';
+    if (!d) return;
+    spot.querySelector('.podium-av').textContent = d.icon;
+    spot.querySelector('.podium-name').textContent = d.name;
+    spot.querySelector('.podium-xp').textContent = d.xp.toLocaleString();
+  });
+
+  // List rows — one per player
+  var lbList = document.querySelector('.lb-list');
+  var rows = document.querySelectorAll('.lb-row');
+  for (var ri = rows.length; ri < sorted.length; ri++) lbList.appendChild(rows[0].cloneNode(true));
+  rows = document.querySelectorAll('.lb-row');
+  rows.forEach(function(row, i) { row.style.display = sorted[i] ? '' : 'none'; row.querySelector('.lb-rank').textContent = i === 0 ? '👑' : (i + 1); });
+  rows.forEach(function(row, i) {
+    var d = sorted[i];
+    if (!d) return;
+    row.querySelector('.lb-av').textContent = d.icon;
+    row.querySelector('.lb-name').textContent = d.name;
+    row.querySelector('.lb-xp').textContent = d.xp.toLocaleString();
+    var streak = row.querySelector('.lb-streak');
+    var sr = (w[d.key].speedRuns || 0);
+    if (streak) streak.textContent = '🔥 ' + d.streak + ' day streak · ✅ ' + d.totalChores + ' chores' + (sr ? ' · ⚡ ' + sr : '');
+  });
+
+  // Boss bar on leaderboard
+  var lbFill = document.getElementById('lb-boss-fill');
+  var lbText = document.getElementById('lb-boss-text');
+  var hp = goalPct();
+  if (lbFill) lbFill.style.width = hp + '%';
+  if (lbText) {
+    var left = Math.max(0, goalTarget() - goalCount());
+    lbText.textContent = hp >= 100
+      ? '100% — the ' + villain() + ' is beaten! Enjoy your reward!'
+      : hp + '% — ' + left + ' more chore' + (left !== 1 ? 's' : '') + ' to beat the ' + villain() + '!';
+  }
+}
+
+/* ── TODAY'S QUESTS (real per-player status) ─────────────── */
+function renderQuests() {
+  var list = document.getElementById('quest-list');
+  if (!list) return;
+  var keys = (FAM && FAM.on) ? allKeys() : isPremium() ? ['jakob','dean','dave'] : ['jakob'];
+  list.innerHTML = '';
+  keys.forEach(function(k) {
+    var e = dayEntry(k);
+    var c = e ? CHORES[e.chore] : null;
+    var row = document.createElement('div');
+    row.className = 'quest';
+    row.style.cursor = 'pointer';
+    var meta;
+    var mine = !(FAM && FAM.on) || k === activeWarrior;
+    if (!e) meta = 'Not spun yet' + (mine ? ' · tap to spin' : '');
+    else if (e.done) meta = '+' + (e.awarded || c.xp) + ' XP earned' + (e.speedRun ? ' · ⚡ Speed Run' : '');
+    else if (e.status === 'pending') meta = '⏳ waiting for approval';
+    else if (e.status === 'rejected') meta = '↩ sent back' + (e.reason ? ': ' + e.reason : '');
+    else meta = '+' + c.xp + ' XP' + (e.acceptedAt ? ' · in progress' : mine ? ' · tap to accept' : '');
+    row.innerHTML = '<span class="quest-ico"></span><div class="quest-body"><div class="quest-name"></div><div class="quest-meta"></div></div><div class="quest-check"></div>';
+    row.querySelector('.quest-ico').textContent = c ? c.emoji : '🎡';
+    row.querySelector('.quest-name').textContent = c ? c.name : 'Daily spin';
+    row.querySelector('.quest-meta').textContent = (PICONS[k] || '') + ' ' + (PLAYER_NAMES[k] || '') + ' · ' + meta;
+    var chk = row.querySelector('.quest-check');
+    if (e && e.done) { chk.classList.add('done'); chk.textContent = '✓'; }
+    else if (e && e.status === 'pending') chk.textContent = '⏳';
+    if (FAM && FAM.on && k !== activeWarrior) { row.style.cursor = 'default'; list.appendChild(row); return; }
+    row.onclick = function() {
+      if (k !== activeWarrior) switchPlayer(k);
+      if (!(e && e.done)) openSpin();
+    };
+    list.appendChild(row);
+  });
+}
+
+/* ── TAB HANDLING ───────────────────────────────────────── */
+function showTab(tab) {
+  if (currentScreen !== 's-home') goTo('s-home');
+  if (tab === 'missions') {
+    setTimeout(function(){
+      var hd = document.getElementById('quests-hd');
+      if (hd) hd.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 360);
+  }
+}
+
+// Init — refresh display from saved state on load
+(function initDisplay(){
+
+  // Apply premium UI state
+  var banner = document.getElementById('upgrade-banner');
+  if(banner) banner.style.display = isPremium() ? 'none' : 'flex';
+  if(isPremium()) {
+    var premBadge = document.createElement('span');
+    premBadge.className = 'premium-badge';
+    premBadge.textContent = '★ PREMIUM';
+    var clanTitle = document.querySelector('.clan-title');
+    if(clanTitle) clanTitle.appendChild(premBadge);
+    // Remove lock labels from select
+    var ws = document.getElementById('warrior-select');
+    if(ws) { ws.options[1].text = '🛡️ ' + (PLAYER_NAMES.dean || 'Player 2'); ws.options[2].text = '👑 ' + (PLAYER_NAMES.dave || 'Player 3'); }
+    // Hide lock overlays
+    var ld = document.getElementById('lock-dean'); if(ld) ld.style.display='none';
+    var lv = document.getElementById('lock-dave'); if(lv) lv.style.display='none';
+  }
+
+  // Apply player names + family name to DOM
+  var ftEl = document.getElementById('family-title');
+  if(ftEl) ftEl.textContent = FAMILY_NAME + ' 👑';
+  var subEl = document.getElementById('clan-sub');
+  if(subEl) {
+    var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var now = new Date();
+    subEl.textContent = days[now.getDay()] + ' · ' + now.getDate() + ' ' + months[now.getMonth()];
+  }
+  // Player name displays
+  var wNames = {jakob: PLAYER_NAMES.jakob||'Player 1', dean: PLAYER_NAMES.dean||'Player 2', dave: PLAYER_NAMES.dave||'Player 3'};
+  var wn1 = document.getElementById('wname-jakob'); if(wn1) wn1.textContent = wNames.jakob;
+  var wn2 = document.getElementById('wname-dean'); if(wn2) wn2.textContent = wNames.dean;
+  var wn3 = document.getElementById('wname-dave'); if(wn3) wn3.textContent = wNames.dave;
+  // Select options
+  var op1 = document.getElementById('opt-jakob'); if(op1) op1.text = '🌟 ' + wNames.jakob;
+  var op2 = document.getElementById('opt-dean'); if(op2) op2.text = '⭐ ' + wNames.dean + (isPremium()?'':' 🔒');
+  var op3 = document.getElementById('opt-dave'); if(op3) op3.text = '💫 ' + wNames.dave + (isPremium()?'':' 🔒');
+
+  // Restore warrior select if state exists
+  var ws = document.getElementById('warrior-select');
+  if (ws && activeWarrior) ws.value = activeWarrior;
+  setActiveWarrior(activeWarrior);
+  refreshWarriorDisplay();
+  refreshHeroCard();
+  checkDesktop();
+
+  // First run: show onboarding if no names set
+  try {
+    if (!localStorage.getItem('cr_names') && !localStorage.getItem('cr_onboarded') && !/[?&]join=/.test(location.search) && !localStorage.getItem('cr_fam_link')) {
+      setTimeout(showOnboarding, 400);
+    }
+  } catch(e) {}
+})();
+
+/* ── PARENT PIN ──────────────────────────────────────────────── */
+// No default PIN: the parent sets their own the first time it's needed.
+var pinEntry = '';
+var pinMode = 'verify';   // 'verify' | 'set' | 'confirm' | 'old'
+var pinDraft = '';
+var pinThen = null;       // what a correct PIN unlocks
+
+function getParentPIN() {
+  return STATE.parentPIN || '';
+}
+/* Family mode: each parent has their own PIN (hashed, synced); same phone: the local PIN */
+function hasParentPIN() { return (FAM && FAM.on) ? FAM.hasPin() : !!getParentPIN(); }
+function pinMatches(p) { return (FAM && FAM.on) ? FAM.pinMatches(p) : Promise.resolve(p === getParentPIN()); }
+function savePIN(p) { if (FAM && FAM.on) FAM.setPin(p); else { STATE.parentPIN = p; saveState(); } }
+
+function setPinMode(mode) {
+  pinMode = mode; pinEntry = ''; updatePinDots();
+  var t = document.getElementById('pin-title');
+  var sv = document.getElementById('pin-sub-verify');
+  var ss = document.getElementById('pin-sub-set');
+  var h = document.getElementById('pin-hint');
+  var texts = {
+    set: ['Create Parent PIN', 'Parents: choose a 4-digit PIN. You will use it to approve chores on this phone.'],
+    confirm: ['Confirm PIN', 'Enter the same 4 digits again.'],
+    old: ['Current PIN', 'Enter the current parent PIN to change it.']
+  };
+  if (t) t.textContent = texts[mode] ? texts[mode][0] : 'Parent PIN';
+  if (ss) { ss.textContent = texts[mode] ? texts[mode][1] : ''; ss.style.display = texts[mode] ? '' : 'none'; }
+  if (sv) sv.style.display = texts[mode] ? 'none' : '';
+  if (h) h.style.display = (mode === 'verify') ? '' : 'none';
+}
+
+function pinKey(n) {
+  if (!n || pinEntry.length >= 4) return;
+  pinEntry += n;
+  updatePinDots();
+  if (pinEntry.length === 4) {
+    setTimeout(pinMode === 'verify' ? checkPIN : handlePinSetup, 120);
+  }
+}
+
+function pinFlash(msg, ok, then) {
+  var res = document.getElementById('pin-result');
+  res.textContent = msg;
+  res.className = 'pin-result ' + (ok ? 'ok' : 'err');
+  setTimeout(function(){ res.textContent = ''; res.className = 'pin-result'; pinEntry = ''; updatePinDots(); if (then) then(); }, ok ? 700 : 1200);
+}
+
+function handlePinSetup() {
+  if (pinMode === 'old') {
+    pinMatches(pinEntry).then(function(ok) {
+      if (ok) pinFlash('✓ OK', true, function(){ setPinMode('set'); });
+      else pinFlash('Wrong PIN — try again', false);
+    });
+  } else if (pinMode === 'set') {
+    pinDraft = pinEntry; setPinMode('confirm');
+  } else if (pinMode === 'confirm') {
+    if (pinEntry === pinDraft) {
+      savePIN(pinDraft); pinDraft = '';
+      pinFlash('✓ PIN saved!', true, function(){
+        setPinMode('verify');
+        var fn = pinThen; pinThen = null;     // just set it: you're in
+        if (fn) fn();
+      });
+    } else {
+      pinDraft = '';
+      pinFlash("PINs didn't match — start again", false, function(){ setPinMode('set'); });
+    }
+  }
+}
+
+function pinDel() {
+  pinEntry = pinEntry.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pin-result').textContent = '';
+  document.getElementById('pin-result').className = 'pin-result';
+}
+
+function updatePinDots() {
+  for (var i = 0; i < 4; i++) {
+    var dot = document.getElementById('pd' + i);
+    if (dot) dot.classList.toggle('filled', i < pinEntry.length);
+  }
+}
+
+function checkPIN() {
+  var res = document.getElementById('pin-result');
+  pinMatches(pinEntry).then(function(ok) { pinResult(res, ok); });
+}
+function pinResult(res, ok) {
+  if (ok) {
+    res.textContent = '✓ Verified!';
+    res.className = 'pin-result ok';
+    setTimeout(function() {
+      pinEntry = '';
+      updatePinDots();
+      res.textContent = '';
+      res.className = 'pin-result';
+      var fn = pinThen; pinThen = null;
+      if (fn) fn();
+    }, 800);
+  } else {
+    res.textContent = 'Wrong PIN — try again';
+    res.className = 'pin-result err';
+    setTimeout(function() {
+      pinEntry = '';
+      updatePinDots();
+      res.textContent = '';
+      res.className = 'pin-result';
+    }, 1200);
+  }
+}
+
+// Changing the PIN requires the current PIN. A forgotten PIN can only be
+// cleared by erasing all game data on this device (no silent bypass).
+function showPinHelp() {
+  if (confirm('Change the parent PIN?\n\nOK = I know the current PIN\nCancel = I forgot it')) {
+    setPinMode('old');
+    return;
+  }
+  if (FAM && FAM.on) {
+    alert("Forgot your PIN?\n\nAsk the other parent to open Family → Players and tap “Reset PIN” next to your name, then set a new one here.\n\nOnly parent? Leave the family on this phone and create a new one.");
+    return;
+  }
+  if (confirm('Forgot the parent PIN?\n\nThe only way to reset it is to ERASE ALL Chore Royale data on this device: every player\'s XP, streaks, names and the PIN. This cannot be undone.\n\nErase everything?')) {
+    try {
+      ['choreroyal_v1','cr_names','cr_family','cr_onboarded'].forEach(function(k){ localStorage.removeItem(k); });
+    } catch(e) {}
+    location.reload();
+  }
+}
+
+
+/* ── PREMIUM SYSTEM ──────────────────────────────────────────────── */
+// No client-side unlock codes: Premium is "coming soon" until real payments exist.
+// Families that already unlocked on an older build keep their saved cr_premium flag.
+
+function isPremium() {
+  try { return localStorage.getItem('cr_premium') === 'true'; } catch(e){ return false; }
+}
+
+function unlockPremium() {
+  try {
+    localStorage.setItem('cr_premium','true');
+    document.getElementById('premium-modal').classList.add('hidden');
+    // Unlock all warriors
+    document.querySelectorAll('.warrior').forEach(function(w){ w.style.opacity='1'; w.style.pointerEvents='auto'; });
+    var ld = document.getElementById('lock-dean'); if(ld) ld.style.display='none';
+    var lv = document.getElementById('lock-dave'); if(lv) lv.style.display='none';
+    var ws = document.getElementById('warrior-select');
+    if(ws) { ws.options[1].text = '🛡️ ' + (PLAYER_NAMES.dean || 'Player 2'); ws.options[2].text = '👑 ' + (PLAYER_NAMES.dave || 'Player 3'); }
+    var ubanner = document.getElementById('upgrade-banner'); if(ubanner) ubanner.style.display='none';
+    // Show all chores
+    STATE.premiumUnlocked = true;
+    saveState();
+    // Celebrate
+    setTimeout(function(){ showPremiumCelebration(); }, 200);
+  } catch(e){}
+}
+
+function showPremiumCelebration() {
+  var s = document.createElement('div');
+  s.style.cssText='position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);flex-direction:column;gap:12px;';
+  s.innerHTML='<div style="font-size:64px">🏆</div><div style="font-family:var(--font);font-size:24px;font-weight:800;color:#FFD700;text-align:center">Premium Unlocked!<br><span style="font-size:14px;color:rgba(255,255,255,.7);font-weight:400">All warriors, all chores, 2x XP</span></div>';
+  document.body.appendChild(s);
+  setTimeout(function(){ document.body.removeChild(s); }, 2200);
+}
+
+function openPremiumModal() {
+  document.getElementById('premium-modal').classList.remove('hidden');
+}
+
+function closePremiumModal() {
+  document.getElementById('premium-modal').classList.add('hidden');
+}
+
+// Apply premium state on load
+(function applyPremiumState(){
+  if(!isPremium()) return;
+  try {
+    STATE.premiumUnlocked = true;
+    // Will be applied in initDisplay
+  } catch(e){}
+})();
+
+/* ── ONBOARDING ──────────────────────────────────────────────────── */
+function showOnboarding() {
+  var modal = document.getElementById('ob-modal');
+  if (modal) modal.classList.remove('hidden');
+  // Pre-fill if names exist
+  var p1 = document.getElementById('ob-p1');
+  var p2 = document.getElementById('ob-p2');
+  var p3 = document.getElementById('ob-p3');
+  var fam = document.getElementById('ob-family');
+  if(p1 && PLAYER_NAMES.jakob !== 'Player 1') p1.value = PLAYER_NAMES.jakob;
+  if(p2 && PLAYER_NAMES.dean !== 'Player 2') p2.value = PLAYER_NAMES.dean;
+  if(p3 && PLAYER_NAMES.dave !== 'Player 3') p3.value = PLAYER_NAMES.dave;
+  if(fam) fam.value = FAMILY_NAME !== 'Our Family' ? FAMILY_NAME : '';
+}
+
+function saveOnboarding() {
+  var p1 = (document.getElementById('ob-p1').value||'').trim() || 'Player 1';
+  var p2 = (document.getElementById('ob-p2').value||'').trim() || 'Player 2';
+  var p3 = (document.getElementById('ob-p3').value||'').trim() || 'Player 3';
+  var fam = (document.getElementById('ob-family').value||'').trim() || 'Our Family';
+  try {
+    PLAYER_NAMES.jakob = p1; PLAYER_NAMES.dean = p2; PLAYER_NAMES.dave = p3;
+    FAMILY_NAME = fam;
+    localStorage.setItem('cr_names', JSON.stringify(PLAYER_NAMES));
+    localStorage.setItem('cr_family', FAMILY_NAME);
+    localStorage.setItem('cr_onboarded','1');
+  } catch(e){}
+  applyPlayerNames();
+  document.getElementById('ob-modal').classList.add('hidden');
+}
+
+function skipOnboarding() {
+  try { localStorage.setItem('cr_onboarded','1'); } catch(e){}
+  document.getElementById('ob-modal').classList.add('hidden');
+}
+
+function applyPlayerNames() {
+  var ftEl = document.getElementById('family-title');
+  if(ftEl) ftEl.textContent = (FAMILY_NAME||'Our Family') + ' 👑';
+  var wn1 = document.getElementById('wname-jakob'); if(wn1) wn1.textContent = PLAYER_NAMES.jakob||'Player 1';
+  var wn2 = document.getElementById('wname-dean'); if(wn2) wn2.textContent = PLAYER_NAMES.dean||'Player 2';
+  var wn3 = document.getElementById('wname-dave'); if(wn3) wn3.textContent = PLAYER_NAMES.dave||'Player 3';
+  var op1 = document.getElementById('opt-jakob'); if(op1) op1.text = '🌟 ' + (PLAYER_NAMES.jakob||'Player 1');
+  var op2 = document.getElementById('opt-dean'); if(op2) op2.text = '⭐ ' + (PLAYER_NAMES.dean||'Player 2') + (isPremium()?'':' 🔒');
+  var op3 = document.getElementById('opt-dave'); if(op3) op3.text = '💫 ' + (PLAYER_NAMES.dave||'Player 3') + (isPremium()?'':' 🔒');
+  refreshLeaderboard();
+  refreshHeroCard();
+  renderQuests();
+}
+
+</script>
+
+<!-- ═══ SCREEN 7: PARENT VERIFY ═══════════════════════════════ -->
+<div class="screen hidden" id="s-parent">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="topbar-title">Parents Only</div>
+    <div style="width:38px"></div>
+  </div>
+  <div class="pin-zone">
+    <img class="pin-crest" src="assets/apple-touch-icon.png" alt="" width="180" height="180">
+    <div class="pin-title" id="pin-title">Parent PIN</div>
+    <div class="pin-sub" id="pin-sub-set" style="display:none"></div>
+    <div class="pin-sub" id="pin-sub-verify">Parents only — enter your PIN to approve chores</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key" onclick="pinKey('')">⠀</button>
+      <button class="pin-key" onclick="pinKey('0')">0</button>
+      <button class="pin-key del" onclick="pinDel()">⌫</button>
+    </div>
+    <div class="pin-result" id="pin-result"></div>
+    <div class="pin-hint" id="pin-hint" onclick="showPinHelp()">Change or forgot PIN?</div>
+  </div>
+</div>
+
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/chore-wars/preview/sw.js',{scope:'/chore-wars/preview/'}).catch(()=>{});</script>
+
+
+<!-- ── ONBOARDING MODAL ──────────────────────────────────────────────── -->
+<div class="ob-overlay hidden" id="ob-modal">
+  <div class="ob-box">
+    <div class="ob-icon"><picture><source srcset="assets/brand/lockup.webp" type="image/webp"><img class="ob-lockup" src="assets/brand/lockup.png" alt="Chore Royale" width="520" height="604" decoding="async"></picture></div>
+    <div class="ob-title">Welcome, brave knights!</div>
+    <div class="ob-sub">Name your castle and its knights. You can change this any time.</div>
+    <label class="ob-label">Family (your castle)</label>
+    <input class="ob-field" id="ob-family" placeholder="e.g. The Smiths" maxlength="20">
+    <label class="ob-label">Knight 1</label>
+    <input class="ob-field" id="ob-p1" placeholder="Player 1" maxlength="12">
+    <label class="ob-label">Knight 2 (optional)</label>
+    <input class="ob-field" id="ob-p2" placeholder="Player 2" maxlength="12">
+    <label class="ob-label">Knight 3 (optional)</label>
+    <input class="ob-field" id="ob-p3" placeholder="Player 3" maxlength="12">
+    <button class="ob-btn" onclick="saveOnboarding()">🛡️ Let's Play!</button>
+    <span class="ob-skip" onclick="skipOnboarding(); openFamily()">📱 Each player on their own phone? Set up a family</span>
+    <span class="ob-skip" onclick="skipOnboarding()">Skip — use defaults</span>
+  </div>
+</div>
+
+<!-- ── PREMIUM MODAL ───────────────────────────────────────────── -->
+<div class="modal-bg hidden" id="premium-modal" onclick="if(event.target===this)closePremiumModal()">
+  <div class="modal-box">
+    <picture><source srcset="assets/brand/wordmark.webp" type="image/webp"><img class="modal-crest" src="assets/brand/wordmark.png" alt="Chore Royale" width="440" height="259" decoding="async"></picture>
+    <div class="modal-title">Chore Royale Plus</div>
+    <div class="modal-price">Coming soon</div>
+    <div class="modal-price-sub">Plus isn't ready yet. When it is, one parent unlocks it once for every phone in the family. Everything you play today stays free.</div>
+    <ul class="modal-features">
+      <li>Custom Quests — write your own family's quests</li>
+      <li>Seasonal Armor — new looks for every knight</li>
+      <li>Family Chronicle — your castle's history book</li>
+      <li>Villain Packs — Big Boss Balagan and new minions</li>
+    </ul>
+    <div class="modal-close" onclick="closePremiumModal()">Close</div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 8: FAMILY (own phone per player) ═══════════════ -->
+<div class="screen hidden" id="s-family">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="topbar-title">Family</div>
+    <div style="width:38px"></div>
+  </div>
+  <div class="body">
+    <!-- same-phone mode -->
+    <div id="fam-local">
+      <div class="chore-desc">📱 Everyone plays on <b>this phone</b> right now. Want each player on their own phone? Create a family and share the code on WhatsApp.</div>
+      <div class="fam-note" id="fam-off-note" style="display:none">Family sync isn't switched on in this version yet — same-phone play works as usual.</div>
+      <div class="fam-stack">
+        <button class="btn btn-purple" id="fam-create-open" onclick="famPanel('create')">👑 Create a family</button>
+        <button class="btn btn-ghost" id="fam-join-open" onclick="famPanel('join')">🔑 Join with a code</button>
+      </div>
+    </div>
+    <!-- create -->
+    <div id="fam-create" style="display:none">
+      <div class="section-hd"><div class="section-title">New family</div></div>
+      <label class="ob-label">Family name</label>
+      <input class="ob-field" id="fc-name" maxlength="24" placeholder="e.g. The Smiths">
+      <label class="ob-label">Players — first names or nicknames only</label>
+      <div id="fc-rows"></div>
+      <button class="mini-btn" id="fc-add" onclick="famAddRow('', 'kid')">＋ Add player</button>
+      <div class="fam-note" style="margin-top:10px">The first row is you. Kids join from their own phones and tap their name.</div>
+      <div class="fam-stack">
+        <button class="btn btn-purple" id="fc-go" onclick="famCreate()">🚀 Create family</button>
+        <button class="btn btn-ghost" onclick="famPanel('local')">Cancel</button>
+      </div>
+      <div class="pin-result err" id="fc-msg"></div>
+    </div>
+    <!-- join -->
+    <div id="fam-join" style="display:none">
+      <div class="section-hd"><div class="section-title">Join a family</div></div>
+      <label class="ob-label">Family code</label>
+      <div class="fam-row">
+        <input class="ob-field" id="fj-code" maxlength="6" placeholder="ABC234" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase;letter-spacing:.2em;font-family:var(--mono)">
+        <button class="mini-btn ok" style="height:46px" onclick="famLookup()">Find</button>
+      </div>
+      <div id="fj-found" style="display:none">
+        <div class="chore-desc" id="fj-fam" style="text-align:center"></div>
+        <div class="ob-label">Who are you?</div>
+        <div id="fj-players"></div>
+      </div>
+      <div class="pin-result" id="fj-msg"></div>
+      <div class="fam-stack"><button class="btn btn-ghost" onclick="famPanel('local')">Cancel</button></div>
+    </div>
+    <!-- waiting for a parent to let a second parent in -->
+    <div id="fam-wait" style="display:none">
+      <div class="chore-desc" id="fw-text">⏳ Waiting for a parent in the family to let you in…</div>
+      <div class="fam-stack"><button class="btn btn-ghost" onclick="famCancelRequest()">Cancel</button></div>
+    </div>
+    <!-- in a family -->
+    <div id="fam-in" style="display:none">
+      <div class="chore-desc" style="text-align:center">
+        <div id="fi-name" class="fam-name"></div>
+        <div class="fam-code" id="fi-code"></div>
+        <div class="fam-sync" id="fi-sync"></div>
+      </div>
+      <div class="fam-stack">
+        <button class="modal-wa-btn" style="margin:0" onclick="famShareWA()">💬 Invite on WhatsApp</button>
+        <button class="btn btn-ghost" style="height:44px;font-size:16px" onclick="famCopyLink()">🔗 Copy invite link</button>
+      </div>
+    </div>
+    <!-- Spin o'clock: daily reminder for every phone -->
+    <div id="fam-clock" style="display:none">
+      <div class="section-hd"><div class="section-title">Spin o'clock</div></div>
+      <div class="quest"><span class="quest-ico">⏰</span><div class="quest-body"><div class="quest-name" id="fk-time">Every day at 17:00</div><div class="quest-meta" id="fk-rest"></div></div></div>
+      <div class="fam-stack">
+        <button class="btn btn-ghost" style="height:44px;font-size:16px" onclick="addSpinToCalendar()">📅 Add to my calendar</button>
+        <button class="btn btn-ghost" style="height:44px;font-size:16px" id="fk-notify" onclick="enableSpinReminder()">🔔 Remind me on this phone</button>
+      </div>
+    </div>
+    <!-- parent area: approvals + ask-for-proof -->
+    <div id="fam-lock" style="display:none" class="fam-stack">
+      <button class="btn btn-ghost" onclick="famUnlock()">🔒 Parent area — approvals <span id="fl-count"></span></button>
+    </div>
+    <div id="fam-parent" style="display:none">
+      <div class="section-hd"><div class="section-title">Approvals</div></div>
+      <div id="fp-list"></div>
+      <div class="section-hd" style="margin-top:14px"><div class="section-title">Royal Pardon</div></div>
+      <div class="fam-note">Missed a day? Forgive one per player each week and the streak lives on.</div>
+      <div id="fp-pardon"></div>
+      <div class="section-hd" style="margin-top:14px"><div class="section-title">House rules</div></div>
+      <div id="fp-rules"></div>
+      <div class="section-hd" style="margin-top:14px"><div class="section-title">Today's recap</div></div>
+      <div class="chore-desc" id="fp-recap" style="white-space:pre-line;font-size:13px;line-height:1.55"></div>
+      <div class="fam-stack"><button class="modal-wa-btn" style="margin:0" onclick="famShareRecap()">💬 Share recap on WhatsApp</button></div>
+      <div class="section-hd" style="margin-top:14px"><div class="section-title">Ask for proof</div></div>
+      <div class="fam-note">Off: they tap Done, you approve. On: they also send a photo (+bonus XP).</div>
+      <div id="fp-proof"></div>
+    </div>
+    <div id="fam-players-wrap" style="display:none">
+      <div class="section-hd" style="margin-top:14px"><div class="section-title">Players</div></div>
+      <div id="fi-players"></div>
+      <div class="fam-row" id="fi-add" style="display:none">
+        <input class="ob-field" id="fi-add-name" maxlength="16" placeholder="Add a player">
+        <button class="mini-btn ok" style="height:46px" onclick="famAddPlayer()">＋</button>
+      </div>
+      <div class="fam-stack" style="margin-top:12px"><button class="btn btn-ghost" style="height:44px;font-size:16px" onclick="famLeave()">🚪 Leave family on this phone</button></div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="goTo('s-home')"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2 21V9.5h3V6h2.2v3.5h2.2V4h2.2v2h.8V4h2.2v5.5h2.2V6H19v3.5h3V21h-7.6v-4.6a2.4 2.4 0 0 0-4.8 0V21z"/></svg></span>Castle</button>
+    <button class="nav-item" onclick="showTab('missions')"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="15.6" cy="7.4" rx="4.3" ry="5.6" transform="rotate(42 15.6 7.4)" fill="currentColor"/><path d="M12.4 11 4 19.6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg></span>Quests</button>
+    <button class="nav-item" onclick="goTo('s-leaderboard')"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2.5 7.5 7 11l5-7 5 7 4.5-3.5L20 18H4zM4 19.5h16V22H4z"/></svg></span>Ranks</button>
+    <button class="nav-item on"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2 4 5.2v6.1c0 5 3.4 9.3 8 10.7 4.6-1.4 8-5.7 8-10.7V5.2zm0 13.7-3.6-3.4a2.1 2.1 0 0 1 3-3l.6.6.6-.6a2.1 2.1 0 0 1 3 3z"/></svg><span class="nav-badge" style="display:none"></span></span>Family</button>
+  </nav>
+</div>
+<div class="cr-toast" id="cr-toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ═══ FAMILY SYNC — every player on their own phone ══════════════════════
+   Firebase Realtime Database over REST + Server-Sent Events, anonymous auth.
+   No SDK, no paid services (Spark free plan). Rules: database.rules.json.
+
+   FIREBASE_CONFIG = null  →  same-phone mode only (everything stays local).
+   Family sync uses apiKey + databaseURL from the web app config, e.g.:
+     { apiKey: 'AIza…', databaseURL: 'https://<project>-default-rtdb.<region>.firebasedatabase.app' }
+   (Anonymous sign-in must be enabled in Firebase Auth.)                       */
+var FIREBASE_CONFIG = {
+  apiKey: 'AIzaSyDfbI33A9JownihIz2i1kmjYLZm-nBTmbw',      // Firebase web keys are public by design; the rules protect the data
+  authDomain: 'chore-royale.firebaseapp.com',
+  databaseURL: 'https://chore-royale-default-rtdb.europe-west1.firebasedatabase.app',
+  projectId: 'chore-royale',
+  appId: '1:396689883897:web:4d8adee75c257f1e6bd828'
+};
+if (window.CR_FIREBASE_CONFIG !== undefined) FIREBASE_CONFIG = window.CR_FIREBASE_CONFIG;   // QA harness only (emulator, or null = no sync)
+
+var AUTO_APPROVE_MS = 24 * 60 * 60 * 1000;
+
+/* ── SPIN O'CLOCK — daily reminder: calendar (.ics) everywhere, notification where the browser can ── */
+function spinTime() { var t = STATE.settings && STATE.settings.spinTime; return /^\d\d:\d\d$/.test(t || '') ? t : '17:00'; }
+function nextSpinAt() {
+  var p = spinTime().split(':'), d = new Date();
+  d.setHours(+p[0], +p[1], 0, 0);
+  if (d.getTime() <= Date.now()) d.setDate(d.getDate() + 1);
+  return d;
+}
+function spinIcs() {
+  var p = spinTime().split(':'), d = new Date(), pad = function(n){ return (n < 10 ? '0' : '') + n; };
+  var start = d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + 'T' + p[0] + p[1] + '00';   // floating = phone's local time
+  var stamp = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
+  var url = location.origin + location.pathname;
+  return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//3Shamrocks Studio//Chore Royale//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+    'BEGIN:VEVENT', 'UID:spin-oclock-' + Date.now().toString(36) + '@chore-royale', 'DTSTAMP:' + stamp, 'DTSTART:' + start,
+    'DURATION:PT15M', 'RRULE:FREQ=DAILY', "SUMMARY:🎡 Spin o'clock! — Chore Royale", 'DESCRIPTION:Time to spin the wheel 👑 ' + url, 'URL:' + url,
+    'BEGIN:VALARM', 'ACTION:DISPLAY', "DESCRIPTION:🎡 Spin o'clock!", 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n') + '\r\n';
+}
+function addSpinToCalendar() {
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([spinIcs()], { type: 'text/calendar;charset=utf-8' }));
+  a.download = 'chore-royale-spin-oclock.ics';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
+  crToast("📅 Open the file to add Spin o'clock to your calendar");
+}
+function spinReminderOn() { try { return localStorage.getItem('cr_spin_remind') === '1'; } catch(e) { return false; } }
+var _spinT = null;
+function scheduleSpinReminder() {
+  clearTimeout(_spinT);
+  if (!spinReminderOn() || !('Notification' in window) || Notification.permission !== 'granted') return;
+  var at = nextSpinAt();
+  // Notification Triggers (where a browser supports them) fire even when the app is closed
+  if (window.TimestampTrigger && 'showTrigger' in Notification.prototype && navigator.serviceWorker) {
+    navigator.serviceWorker.getRegistration().then(function(reg) {
+      if (reg) reg.showNotification("🎡 Spin o'clock!", { tag: 'spin-oclock', body: 'Time to spin the wheel 👑', icon: 'icon-192.png', showTrigger: new TimestampTrigger(at.getTime()) });
+    }).catch(function(){});
+    return;
+  }
+  _spinT = setTimeout(fireSpinReminder, Math.min(at.getTime() - Date.now(), 2147483000));   // while the app is open
+}
+function fireSpinReminder() {
+  if (!dayEntry(activeWarrior)) {        // one nudge a day, only if you haven't spun yet
+    var title = "🎡 Spin o'clock!", opts = { tag: 'spin-oclock', body: 'Balagan sent the ' + villain() + ' — spin the wheel!', icon: 'icon-192.png' };
+    var plain = function(){ try { new Notification(title, opts); } catch(e) {} };
+    if (navigator.serviceWorker) navigator.serviceWorker.getRegistration().then(function(reg){ if (reg) reg.showNotification(title, opts); else plain(); }).catch(plain);
+    else plain();
+  }
+  setTimeout(scheduleSpinReminder, 1000);
+}
+function enableSpinReminder() {
+  if (!('Notification' in window)) { crToast("This phone can't do browser reminders — use Add to my calendar"); return; }
+  Notification.requestPermission().then(function(p) {
+    if (p !== 'granted') { crToast('Notifications are off for this app — use Add to my calendar'); return; }
+    try { localStorage.setItem('cr_spin_remind', '1'); } catch(e) {}
+    scheduleSpinReminder();
+    if (typeof renderFamily === 'function') renderFamily();
+    crToast('🔔 This phone will nudge you at ' + spinTime() + ' when Chore Royale is open. For a sure alarm, add it to your calendar too.');
+  });
+}
+
+var _toastT = null;
+function crToast(msg) {
+  var t = document.getElementById('cr-toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(_toastT);
+  _toastT = setTimeout(function(){ t.classList.remove('show'); }, 3200);
+}
+
+(function familySync() {
+  var CFG = FIREBASE_CONFIG;
+  var LSK = { link:'cr_fam_link', cache:'cr_fam_cache', out:'cr_fam_outbox', auth:'cr_fb_auth', req:'cr_fam_request', pin:'cr_fam_pin' };
+  var SV = { '.sv': 'timestamp' };
+  var ICONS = ['🌟','⭐','💫','🚀','🦄','🐯'];
+  var CODE_ABC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  function lsGet(k) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch(e) { return null; } }
+  function lsSet(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
+  function clone(o) { return o == null ? o : JSON.parse(JSON.stringify(o)); }
+  function rnd(n, abc) {
+    abc = abc || 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    var a = new Uint32Array(n), s = '';
+    (window.crypto || window.msCrypto).getRandomValues(a);
+    for (var i = 0; i < n; i++) s += abc[a[i] % abc.length];
+    return s;
+  }
+  function resolveSV(v) {   // optimistic copy: server timestamps → local clock
+    if (v && typeof v === 'object') {
+      if (v['.sv'] === 'timestamp') return Date.now();
+      var o = Array.isArray(v) ? [] : {};
+      Object.keys(v).forEach(function(k){ o[k] = resolveSV(v[k]); });
+      return o;
+    }
+    return v;
+  }
+  function prune(v) {        // in the database, null means "not there"
+    if (!v || typeof v !== 'object') return v;
+    var out = Array.isArray(v) ? [] : {}, any = false;
+    Object.keys(v).forEach(function(k){ var c = prune(v[k]); if (c !== null && c !== undefined) { out[k] = c; any = true; } });
+    return any ? out : null;
+  }
+  function setAt(obj, parts, val) {
+    val = prune(val);
+    var o = obj;
+    for (var i = 0; i < parts.length - 1; i++) {
+      if (!o[parts[i]] || typeof o[parts[i]] !== 'object') o[parts[i]] = {};
+      o = o[parts[i]];
+    }
+    if (val === null || val === undefined) delete o[parts[parts.length - 1]];
+    else o[parts[parts.length - 1]] = val;
+  }
+  function split(p) { return String(p).split('/').filter(Boolean); }
+  function $(id) { return document.getElementById(id); }
+  function show(id, on) { var el = $(id); if (el) el.style.display = on ? '' : 'none'; }
+
+  var link = CFG ? lsGet(LSK.link) : null;       // { fid, pid, code }
+  var mirror = link ? lsGet(LSK.cache) : null;   // last known family tree
+  var outbox = link ? (lsGet(LSK.out) || []) : [];
+  var auth = lsGet(LSK.auth);
+  var online = false, es = null, retryT = null, projT = null, firstProjection = true;
+  var panel = 'local', parentUnlocked = false, rejectOpen = null, rejectDraft = '';
+  var proofCache = {}, lookup = null, pollT = null;
+  var LOCAL = { STATE: STATE, NAMES: PLAYER_NAMES, ICONS: PICONS, FAMILY: FAMILY_NAME };
+
+  /* ── anonymous auth (Identity Toolkit REST) ── */
+  var signing = null;
+  function authUrl(svc) { return (CFG.authEmulator ? CFG.authEmulator + '/' : 'https://') + svc + '?key=' + encodeURIComponent(CFG.apiKey); }
+  function okJson(r) { if (!r.ok) { var e = new Error('HTTP ' + r.status); e.status = r.status; throw e; } return r.json(); }
+  function signIn() {
+    if (auth && auth.idToken && auth.exp - Date.now() > 300000) return Promise.resolve(auth);
+    if (signing) return signing;
+    var p = (auth && auth.refreshToken)
+      ? fetch(authUrl('securetoken.googleapis.com/v1/token'), { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          body:'grant_type=refresh_token&refresh_token=' + encodeURIComponent(auth.refreshToken) }).then(okJson)
+          .then(function(r){ return { uid:r.user_id, idToken:r.id_token, refreshToken:r.refresh_token, exp:Date.now() + (+r.expires_in) * 1000 }; })
+      : fetch(authUrl('identitytoolkit.googleapis.com/v1/accounts:signUp'), { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ returnSecureToken: true }) }).then(okJson)
+          .then(function(r){ return { uid:r.localId, idToken:r.idToken, refreshToken:r.refreshToken, exp:Date.now() + (+r.expiresIn) * 1000 }; });
+    signing = p.then(function(a){ auth = a; lsSet(LSK.auth, a); signing = null; return a; },
+                     function(e){ signing = null; throw e; });
+    return signing;
+  }
+
+  /* ── database REST ── */
+  function dbUrl(path, a) {
+    var u = CFG.databaseURL.replace(/\/$/, '') + '/' + path + '.json?auth=' + encodeURIComponent(a.idToken);
+    return CFG.ns ? u + '&ns=' + encodeURIComponent(CFG.ns) : u;
+  }
+  function req(method, path, body) {
+    return signIn().then(function(a){
+      return fetch(dbUrl(path, a), { method: method, body: body === undefined ? undefined : JSON.stringify(body) }).then(okJson);
+    });
+  }
+  function famPath(p) { return 'families/' + link.fid + (p ? '/' + p : ''); }
+
+  /* ── outbox: writes survive being offline and replay in order ── */
+  var flushing = false, authRetries = 0;
+  function enqueue(op) { outbox.push(op); lsSet(LSK.out, outbox); flush(); }
+  function flush() {
+    if (flushing || !outbox.length || !link) return;
+    flushing = true;
+    var op = outbox[0];
+    req(op.m, op.p, op.v).then(function(res) {
+      outbox.shift(); lsSet(LSK.out, outbox); flushing = false; authRetries = 0;
+      if (mirror && op.p.indexOf(famPath('')) === 0 && res !== null) {    // keep the server's timestamps
+        var parts = split(op.p.slice(famPath('').length));
+        if (op.m === 'PATCH') Object.keys(op.v).forEach(function(k) {    // only the paths we wrote
+          var v = res, ks = split(k);
+          if (Object.prototype.hasOwnProperty.call(res, k)) v = res[k];
+          else for (var i = 0; i < ks.length && v != null; i++) v = v[ks[i]];
+          if (v !== undefined) setAt(mirror, parts.concat(ks), v);
+        });
+        else if (op.m === 'PUT' && parts.length) setAt(mirror, parts, res);
+        scheduleProject();
+      }
+      setOnline(true); flush();
+    }, function(err) {
+      flushing = false;
+      if (err.status === 401 && authRetries++ < 2) { if (auth) auth.exp = 0; setTimeout(flush, 300); return; }
+      if (err.status) { outbox.shift(); lsSet(LSK.out, outbox); resync(); flush(); return; }  // refused by the rules → drop, reload truth
+      setOnline(false); clearTimeout(flush._t); flush._t = setTimeout(flush, 5000);
+    });
+  }
+  function applyOp(op) {
+    if (!mirror || op.p.indexOf(famPath('')) !== 0) return;
+    var base = split(op.p.slice(famPath('').length));
+    if (op.m === 'PATCH') Object.keys(op.v).forEach(function(k){ setAt(mirror, base.concat(split(k)), resolveSV(op.v[k])); });
+    else if (base.length) setAt(mirror, base, op.m === 'DELETE' ? null : resolveSV(op.v));
+  }
+  function patchFam(u) {
+    var op = { m:'PATCH', p: famPath(''), v: u };
+    applyOp(op); project();
+    enqueue(op);
+  }
+
+  /* ── live stream (SSE) ── */
+  function closeStream() { if (es) { es.close(); es = null; } }
+  function openStream() {
+    if (!link || typeof EventSource === 'undefined') return;
+    closeStream(); clearTimeout(retryT);
+    signIn().then(function(a) {
+      if (!link) return;
+      es = new EventSource(dbUrl(famPath(''), a));
+      es.addEventListener('put', function(ev){ onEvent(ev, false); });
+      es.addEventListener('patch', function(ev){ onEvent(ev, true); });
+      es.addEventListener('keep-alive', function(){ setOnline(true); });
+      es.addEventListener('cancel', function(){ closeStream(); checkMembership(); });
+      es.addEventListener('auth_revoked', function(){ closeStream(); if (auth) auth.exp = 0; openStream(); });
+      es.onopen = function(){ setOnline(true); flush(); };
+      es.onerror = function(){ setOnline(false); closeStream(); retryT = setTimeout(openStream, 4000); };
+    }, function() { setOnline(false); retryT = setTimeout(openStream, 5000); });
+  }
+  function onEvent(ev, isPatch) {
+    var msg; try { msg = JSON.parse(ev.data); } catch(e) { return; }
+    if (!msg) return;
+    var parts = split(msg.path);
+    if (!parts.length && !isPatch) mirror = msg.data;
+    else {
+      mirror = mirror || {};
+      if (isPatch) Object.keys(msg.data || {}).forEach(function(k){ setAt(mirror, parts.concat(split(k)), msg.data[k]); });
+      else setAt(mirror, parts, msg.data);
+    }
+    setOnline(true);
+    if (!mirror || !mirror.members || !auth || !mirror.members[auth.uid]) { checkMembership(); return; }
+    outbox.forEach(applyOp);          // writes not yet confirmed stay visible
+    scheduleProject();
+  }
+  function resync() {
+    if (!link) return;
+    req('GET', famPath('')).then(function(d) {
+      if (!d) { checkMembership(); return; }
+      mirror = d; outbox.forEach(applyOp); project();
+    }, function(){});
+  }
+  function checkMembership() {
+    if (!link || !auth) return;
+    req('GET', famPath('members/' + auth.uid)).then(function(m) {
+      if (!m) { crToast('This phone was unlinked from the family'); leaveLocal(); }
+      else { retryT = setTimeout(openStream, 3000); }
+    }, function(){ retryT = setTimeout(openStream, 5000); });
+  }
+  function setOnline(v) {
+    if (online === v) return;
+    online = v;
+    var s = $('fi-sync');
+    if (s) s.textContent = v ? '🟢 Synced with the family' : "📴 Offline — changes sync when you're back";
+  }
+
+  /* ── projection: family tree → the game's STATE ── */
+  // XP, streaks, chores and the family goal are computed from the approvals ledger,
+  // so two parents approving at once can never overwrite each other.
+  // xp = lifetime (rank) · wxp = since the last "Start Fresh Week" · streaks never reset.
+  function derive(m, ids) {
+    var resetAt = (m.meta || {}).resetAt || 0;
+    var ws = weekStart(todayStr()), pws = addDays(ws, -7);
+    var W = {}, boss = { week: ws, count: 0, chores: {}, prev: {} };
+    ids.forEach(function(p) {
+      var b = (m.base || {})[p] || {}, fresh = (b.at || 0) >= resetAt;
+      W[p] = { xp: b.xp || 0, wxp: fresh ? (b.wxp !== undefined ? b.wxp : b.xp || 0) : 0, streak: b.streak || 0,
+               lastChoreDate: b.lastChoreDate || '', totalChores: b.totalChores || 0, speedRuns: b.speedRuns || 0 };
+    });
+    var L = m.ledger || {};
+    Object.keys(L).map(function(k){ return L[k]; }).filter(function(e){ return e && W[e.pid]; })
+      .sort(function(a, b){ return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.at || 0) - (b.at || 0); })
+      .forEach(function(e) {
+        var w = W[e.pid];
+        if (w.lastChoreDate !== e.date && e.date > (w.lastChoreDate || '')) {
+          w.streak = nextStreak(w, e.pid, e.date); w.lastChoreDate = e.date; w.totalChores++;
+        }
+        w.xp += e.xp || 0;
+        if ((e.at || 0) >= resetAt) w.wxp += e.xp || 0;
+        if (e.speed) w.speedRuns++;
+        if (e.date >= ws) { boss.count++; boss.chores[e.chore] = (boss.chores[e.chore] || 0) + 1; }
+        else if (e.date >= pws) boss.prev[e.chore] = (boss.prev[e.chore] || 0) + 1;
+      });
+    return { w: W, boss: boss };
+  }
+  function scheduleProject() { clearTimeout(projT); projT = setTimeout(project, 30); }
+  function project() {
+    clearTimeout(projT);
+    if (!mirror || !link || !mirror.players) return;
+    lsSet(LSK.cache, mirror);
+    var m = mirror, players = m.players, ids = Object.keys(players).sort();
+    var names = {}, icons = {};
+    ids.forEach(function(p, i){ names[p] = players[p].name; icons[p] = players[p].icon || ICONS[i % ICONS.length]; });
+    var old = FAM.on ? STATE : null;
+    var oldMe = old && old.daily ? clone(old.daily[link.pid]) : null;
+    STATE = { v: 2, warriors: {}, boss: {}, daily: clone(m.daily || {}), approvals: clone(m.approvals || {}),
+              proof: clone((m.settings || {}).proof || {}), settings: clone(m.settings || {}), pardons: clone(m.pardons || {}),
+              lastSpinDate: '', quests: {} };
+    var d = derive(m, ids);          // after settings/pardons are in place (Rest Day, Royal Pardon)
+    STATE.warriors = d.w; STATE.boss = d.boss;
+    PLAYER_NAMES = names; PICONS = icons; FAMILY_NAME = (m.meta && m.meta.name) || 'Our Family';
+    activeWarrior = link.pid;
+    FAM.on = true;
+    STATE.boss.hp = goalPct();
+    if (old && !firstProjection) notify(old, oldMe, m);
+    firstProjection = false;
+    paint();
+  }
+  function notify(old, oldMe, m) {
+    var me = link.pid, now = STATE.daily[me];
+    if (oldMe && now && oldMe.date === now.date && oldMe.status !== now.status) {
+      if (now.status === 'approved' && now.done) crToast('✅ Approved! +' + (now.awarded || 0) + ' XP');
+      if (now.status === 'rejected') crToast('↩ Sent back' + (now.reason ? ': ' + now.reason : '') + ' — fix it and tap Done again');
+    }
+    allKeys().forEach(function(k) {
+      var a = old.warriors[k], b = STATE.warriors[k];
+      if (a && b && b.xp > a.xp) checkRankUp(k, a.xp, b.xp);
+    });
+    if ((old.boss.hp || 0) < 100 && STATE.boss.hp >= 100 && old.boss.week === STATE.boss.week) checkBossDefeated();
+    if (FAM.isParent()) {
+      Object.keys(STATE.approvals).forEach(function(id) {
+        if (old.approvals[id]) return;
+        var r = STATE.approvals[id], c = CHORES[r.chore];
+        if (r.pid !== me && c) crToast('📨 ' + (PLAYER_NAMES[r.pid] || 'Someone') + ' finished ' + c.name);
+      });
+    }
+  }
+  function paint() {
+    var ft = $('family-title'); if (ft) ft.textContent = FAMILY_NAME + ' 👑';
+    var pills = document.querySelector('.player-pills'); if (pills) pills.style.display = FAM.on ? 'none' : '';
+    var ub = $('upgrade-banner'); if (ub) ub.style.display = FAM.on ? 'none' : (isPremium() ? 'none' : 'flex');
+    refreshHeroCard(); refreshWarriorDisplay(); refreshLeaderboard();
+    if (currentScreen === 's-chore' || currentScreen === 's-proof') {
+      var e = dayEntry(activeWarrior);
+      if (e) { currentChore = CHORES[e.chore]; updateChoreScreen(currentChore); }
+    }
+    renderBadges();
+    if (currentScreen === 's-family') renderFamily();
+    setTimeout(autoApproveDue, 400);
+  }
+
+  /* ── public hook used by the game ── */
+  FAM = {
+    on: false,
+    ids: function(){ return mirror && mirror.players ? Object.keys(mirror.players).sort() : []; },
+    role: function(k){ return mirror && mirror.players && mirror.players[k] ? mirror.players[k].role : null; },
+    linked: function(){ var P = (mirror && mirror.players) || {}; return Object.keys(P).filter(function(k){ return P[k].claimedBy; }).length; },
+    isParent: function(){ return !!(FAM.on && auth && mirror.members && mirror.members[auth.uid] && mirror.members[auth.uid].role === 'parent'); },
+    parentName: function() {
+      var ids = FAM.ids().filter(function(k){ return k !== link.pid && FAM.role(k) === 'parent'; });
+      return ids.length ? PLAYER_NAMES[ids[0]] : '';
+    },
+    pushLocal: function() {          // your own day entry (spin, re-roll, start clock, done)
+      var me = link.pid, loc = STATE.daily[me], rem = mirror.daily && mirror.daily[me];
+      if (!loc || JSON.stringify(loc) === JSON.stringify(rem)) return;
+      var path = famPath('daily/' + me), op;
+      var stamp = function(k, v){ return (k === 'acceptedAt' || k === 'finishedAt') && v ? SV : v; };  // the server clocks the Speed Run
+      if (!rem || rem.date !== loc.date) {           // new day: replace the whole entry
+        var v = {}; Object.keys(loc).forEach(function(k){ v[k] = stamp(k, loc[k]); });
+        op = { m:'PUT', p: path, v: v };
+      } else {                                       // same day: send only what changed
+        var u = {};
+        Object.keys(loc).concat(Object.keys(rem)).forEach(function(k) {
+          if (JSON.stringify(loc[k]) !== JSON.stringify(rem[k])) u[k] = loc[k] === undefined ? null : stamp(k, loc[k]);
+        });
+        op = { m:'PATCH', p: path, v: u };
+      }
+      mirror.daily = mirror.daily || {}; mirror.daily[me] = clone(loc);
+      lsSet(LSK.cache, mirror);
+      enqueue(op);
+    },
+    submit: function(id, rec, img) {
+      var v = clone(rec); v.at = SV;
+      var op = { m:'PUT', p: famPath('approvals/' + id), v: v };
+      applyOp(op); enqueue(op);
+      if (img) enqueue({ m:'PUT', p: 'proofs/' + link.fid + '/' + id, v: img });
+      project();
+    },
+    grant: function(pid, e, a, id) {
+      id = id || ('s' + Date.now().toString(36) + rnd(4));
+      var u = {}, d = 'daily/' + pid + '/';
+      u['ledger/' + id] = { pid: pid, xp: a.total, date: e.date, chore: e.chore, speed: a.speed > 0, photo: a.photo > 0, at: SV };
+      var cur = mirror.daily && mirror.daily[pid];
+      if (cur && cur.date === e.date) {
+        u[d + 'done'] = true; u[d + 'awarded'] = a.total; u[d + 'speedRun'] = a.speed > 0; u[d + 'status'] = 'approved'; u[d + 'reason'] = null;
+      }
+      var had = mirror.approvals && mirror.approvals[id];
+      if (had) u['approvals/' + id] = null;
+      patchFam(u);
+      if (had && had.photo) { enqueue({ m:'DELETE', p: 'proofs/' + link.fid + '/' + id }); delete proofCache[id]; }
+    },
+    approve: function(id, quiet) {
+      if (!FAM.isParent()) return;
+      var r = mirror.approvals && mirror.approvals[id]; if (!r) return;
+      var e = mirror.daily && mirror.daily[r.pid];
+      if (!e || e.date !== r.date) e = { date: r.date, chore: r.chore, acceptedAt: 0, finishedAt: 0 };
+      var a = awardFor(e, !!r.photo);
+      FAM.grant(r.pid, e, a, id);
+      if (!quiet) crToast('✅ ' + (PLAYER_NAMES[r.pid] || 'Player') + ' +' + a.total + ' XP');
+    },
+    reject: function(id, reason) {
+      if (!FAM.isParent()) return;
+      var r = mirror.approvals && mirror.approvals[id]; if (!r) return;
+      var u = {}, e = mirror.daily && mirror.daily[r.pid], d = 'daily/' + r.pid + '/';
+      u['approvals/' + id] = null;
+      if (e && e.date === r.date && !e.done) { u[d + 'status'] = 'rejected'; u[d + 'reason'] = (reason || '').slice(0, 80); u[d + 'finishedAt'] = 0; u[d + 'finishedLocal'] = 0; }
+      patchFam(u);
+      if (r.photo) { enqueue({ m:'DELETE', p: 'proofs/' + link.fid + '/' + id }); delete proofCache[id]; }
+      crToast('↩ Sent back to ' + (PLAYER_NAMES[r.pid] || 'player'));
+    },
+    weeklyReset: function() {
+      if (!FAM.isParent()) { crToast('Only a parent can start a fresh week'); return; }
+      requirePin(function(){ patchFam({ 'meta/resetAt': SV }); renderBadges(); });   // weekly leaderboard only — ranks and streaks stay
+    },
+    set: function(k, v) { if (FAM.isParent()) { var u = {}; u['settings/' + k] = v; patchFam(u); } },
+    pardon: function(pid, d) { if (FAM.isParent()) { var u = {}; u['pardons/' + pid + '/' + d] = true; patchFam(u); } },
+    // Parent PIN: salted SHA-256 at parentLocks/<family>/<parent>, readable only by that parent
+    hasPin: function(){ var c = lsGet(LSK.pin); return !!(c && link && c.fid === link.fid && c.h); },
+    pinMatches: function(p){ var c = lsGet(LSK.pin); return pinHash(p).then(function(h){ return !!(c && c.h === h); }); },
+    setPin: function(p) {
+      pinHash(p).then(function(h) {
+        lsSet(LSK.pin, { fid: link.fid, h: h });
+        enqueue({ m:'PUT', p: 'parentLocks/' + link.fid + '/' + auth.uid, v: h });
+      });
+    },
+    refreshPin: function() {
+      return req('GET', 'parentLocks/' + link.fid + '/' + auth.uid).then(function(h) {
+        lsSet(LSK.pin, h ? { fid: link.fid, h: h } : null);
+      }, function(){ /* offline: keep the cached one */ });
+    }
+  };
+  function pinHash(p) {
+    var data = new TextEncoder().encode('chore-royale:' + link.fid + ':' + auth.uid + ':' + p);
+    return crypto.subtle.digest('SHA-256', data).then(function(buf) {
+      return [].map.call(new Uint8Array(buf), function(b){ return ('0' + b.toString(16)).slice(-2); }).join('');
+    });
+  }
+  // Leaving the Family screen locks the parent area again.
+  window.onScreenChange = function(id) { if (id !== 's-family' && id !== 's-parent') parentUnlocked = false; };
+  function requirePin(fn) {           // parents unlock once per visit to the Family screen
+    if (!FAM.on || parentUnlocked) { fn(); return; }
+    FAM.refreshPin().then(function() {
+      setPinMode(FAM.hasPin() ? 'verify' : 'set');
+      pinThen = function(){ parentUnlocked = true; goBack(); fn(); };
+      goTo('s-parent');
+    });
+  }
+
+  /* ── badges + home banner: approvals waiting for a parent ── */
+  function pendingCount() {
+    var n = Object.keys(STATE.approvals || {}).length;
+    if (FAM.on) n += Object.keys((mirror && mirror.requests) || {}).length;
+    return n;
+  }
+  window.renderBadges = function() {
+    var canSee = FAM.on ? FAM.isParent() : true;
+    var n = canSee ? pendingCount() : 0;
+    document.querySelectorAll('.nav-badge').forEach(function(b){ b.textContent = n; b.style.display = n ? '' : 'none'; });
+    var bn = $('appr-banner');
+    if (bn) {
+      bn.style.display = n ? 'flex' : 'none';
+      var t = $('appr-banner-text'); if (t) t.textContent = '✅ ' + n + ' chore' + (n === 1 ? '' : 's') + ' waiting for approval';
+    }
+  };
+
+  /* ── family screen ── */
+  window.openFamily = function() {
+    parentUnlocked = false;
+    panel = lsGet(LSK.req) ? 'wait' : 'local';
+    renderFamily();
+    goTo('s-family');
+  };
+  window.famPanel = function(p) {
+    if ((p === 'create' || p === 'join') && !CFG) return;
+    panel = p;
+    if (p === 'create') {
+      $('fc-name').value = FAMILY_NAME !== 'Our Family' ? FAMILY_NAME : '';
+      $('fc-rows').innerHTML = '';
+      famAddRow('', 'parent');
+      ['jakob','dean','dave'].forEach(function(k){
+        var n = LOCAL.NAMES[k];
+        if (n && !/^Player \d$/.test(n)) famAddRow(n, 'kid');
+      });
+      if ($('fc-rows').children.length < 2) famAddRow('', 'kid');
+      $('fc-msg').textContent = '';
+    }
+    if (p === 'join') { $('fj-found').style.display = 'none'; $('fj-msg').textContent = ''; }
+    renderFamily();
+  };
+  window.famAddRow = function(name, role) {
+    var rows = $('fc-rows');
+    if (rows.children.length >= 6) return;
+    var r = document.createElement('div');
+    r.className = 'fam-row';
+    var inp = document.createElement('input');
+    inp.className = 'ob-field'; inp.maxLength = 16; inp.value = name || '';
+    inp.placeholder = rows.children.length ? 'Player name' : 'Your name';
+    var sel = document.createElement('select');
+    sel.className = 'fam-sel';
+    [['kid','Kid'],['parent','Parent']].forEach(function(o){ var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; sel.appendChild(op); });
+    sel.value = role || 'kid';
+    if (!rows.children.length) sel.disabled = true;
+    r.appendChild(inp); r.appendChild(sel); rows.appendChild(r);
+    $('fc-add').style.display = rows.children.length >= 6 ? 'none' : '';
+  };
+
+  function renderFamily() {
+    var on = FAM.on, req = lsGet(LSK.req);
+    if (!on && req) panel = 'wait';
+    if (!on && panel === 'wait' && !req) panel = 'local';
+    show('fam-local', !on && panel === 'local');
+    show('fam-create', !on && panel === 'create');
+    show('fam-join', !on && panel === 'join');
+    show('fam-wait', !on && panel === 'wait');
+    show('fam-off-note', !CFG);
+    ['fam-create-open','fam-join-open'].forEach(function(id){ var b = $(id); if (b) { b.disabled = !CFG; b.style.opacity = CFG ? '' : '.45'; } });
+    if (req) $('fw-text').textContent = '⏳ Waiting for a parent in ' + req.family + ' to let you in as ' + req.name + '…';
+    var parentView = on ? (FAM.isParent() && parentUnlocked) : (panel === 'local' && parentUnlocked);
+    show('fam-in', on);
+    show('fam-players-wrap', on);
+    show('fam-parent', parentView);
+    show('fam-lock', on ? (FAM.isParent() && !parentUnlocked) : (panel === 'local' && !parentUnlocked));
+    show('fam-clock', on || panel === 'local');
+    renderClock();
+    var lc = $('fl-count'); if (lc) { var n = pendingCount(); lc.textContent = n ? '(' + n + ')' : ''; }
+    if (on) {
+      $('fi-name').textContent = FAMILY_NAME + ' 👑';
+      $('fi-code').textContent = link.code;
+      var waiting = outbox.length;
+      $('fi-sync').textContent = online ? '🟢 Synced with the family' : "📴 Offline — " + (waiting ? waiting + ' change' + (waiting === 1 ? '' : 's') + ' waiting' : "changes sync when you're back");
+      renderPlayers();
+      show('fi-add', FAM.isParent() && parentUnlocked && FAM.ids().length < 6);
+    }
+    if (parentView) { renderApprovals(); renderPardons(); renderRules(); $('fp-recap').textContent = recapText(); renderProofToggles(); }
+  }
+  window.renderFamily = renderFamily;
+
+  function row(icon, name, meta) {
+    var r = document.createElement('div');
+    r.className = 'quest';
+    r.innerHTML = '<span class="quest-ico"></span><div class="quest-body"><div class="quest-name"></div><div class="quest-meta"></div></div><div class="quest-actions"></div>';
+    r.querySelector('.quest-ico').textContent = icon;
+    r.querySelector('.quest-name').textContent = name;
+    r.querySelector('.quest-meta').textContent = meta || '';
+    return r;
+  }
+  function miniBtn(label, cls, fn, aria) {
+    var b = document.createElement('button');
+    b.className = 'mini-btn' + (cls ? ' ' + cls : '');
+    b.textContent = label;
+    if (aria) b.setAttribute('aria-label', aria);
+    b.onclick = fn;
+    return b;
+  }
+
+  function renderApprovals() {
+    var list = $('fp-list');
+    if (list.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return;  // don't wipe a reason mid-typing
+    list.innerHTML = '';
+    var A = STATE.approvals || {};
+    var ids = Object.keys(A).sort(function(a, b){ return (A[a].at || 0) - (A[b].at || 0); });
+    var reqs = FAM.on ? ((mirror && mirror.requests) || {}) : {};
+    Object.keys(reqs).forEach(function(uid) {
+      var q = reqs[uid], p = mirror.players[q.player] || {};
+      var r = row('🙋', (p.name || 'Someone') + ' wants to join', 'as a parent on a new phone');
+      var act = r.querySelector('.quest-actions');
+      act.appendChild(miniBtn('✓', 'ok', function(){ answerRequest(uid, q.player, true); }, 'Let in'));
+      act.appendChild(miniBtn('✕', '', function(){ answerRequest(uid, q.player, false); }, 'Decline'));
+      list.appendChild(r);
+    });
+    if (!ids.length && !Object.keys(reqs).length) {
+      list.appendChild(row('🎉', 'All caught up', 'Nothing waiting for approval'));
+      return;
+    }
+    ids.forEach(function(id) {
+      var a = A[id], c = CHORES[a.chore] || CHORES[0];
+      var e = STATE.daily[a.pid];
+      if (!e || e.date !== a.date) e = { date: a.date, chore: a.chore, acceptedAt: 0, finishedAt: 0 };
+      var aw = awardFor(e, !!a.photo);
+      var meta = (PICONS[a.pid] || '') + ' ' + (PLAYER_NAMES[a.pid] || 'Player') + ' · +' + aw.total + ' XP' +
+                 (aw.speed ? ' · ⚡ beat the clock' : '') + (a.photo ? ' · 📸' : '');
+      var r = row(c.emoji, c.name, meta);
+      r.classList.add('wrap');
+      r.dataset.approval = id;
+      var act = r.querySelector('.quest-actions');
+      act.appendChild(miniBtn('✓', 'ok', function(){ approveChore(id); }, 'Approve'));
+      act.appendChild(miniBtn('✕', '', function(){ rejectOpen = rejectOpen === id ? null : id; rejectDraft = ''; renderApprovals(); }, 'Send back'));
+      if (a.photo) {
+        var src = a.img || proofCache[id];
+        if (src) { var im = document.createElement('img'); im.className = 'appr-thumb'; im.alt = 'Photo proof'; im.src = src; r.appendChild(im); }
+        else if (FAM.on) fetchProof(id);
+      }
+      if (rejectOpen === id) {
+        var box = document.createElement('div'); box.className = 'appr-reject';
+        var inp = document.createElement('input'); inp.className = 'ob-field'; inp.maxLength = 80;
+        inp.placeholder = 'What needs fixing? (optional)'; inp.value = rejectDraft;
+        inp.oninput = function(){ rejectDraft = inp.value; };
+        box.appendChild(inp);
+        box.appendChild(miniBtn('Send back', '', function(){ var why = inp.value.trim(); rejectOpen = null; rejectChore(id, why); renderFamily(); }));
+        r.appendChild(box);
+      }
+      list.appendChild(r);
+    });
+  }
+  function fetchProof(id) {
+    if (proofCache[id] !== undefined) return;
+    proofCache[id] = '';
+    req('GET', 'proofs/' + link.fid + '/' + id).then(function(img) {
+      if (img) { proofCache[id] = img; renderApprovals(); }
+      else { delete proofCache[id]; setTimeout(function(){ if (STATE.approvals[id]) fetchProof(id); }, 2500); }
+    }, function(){ delete proofCache[id]; });
+  }
+  function answerRequest(uid, pid, yes) {
+    var u = {}; u['requests/' + uid] = null;
+    if (yes) { u['members/' + uid] = { player: pid, role: 'parent', joinedAt: SV }; u['players/' + pid + '/claimedBy'] = uid; }
+    patchFam(u);
+  }
+
+  function renderProofToggles() {
+    var box = $('fp-proof');
+    box.innerHTML = '';
+    CHORES.forEach(function(c, i) {
+      var on = !!(STATE.proof && STATE.proof[i]);
+      var r = row(c.emoji, c.name, c.mins ? '⏱ ' + c.mins + ' min Speed Run' : '');
+      var t = document.createElement('button');
+      t.className = 'toggle' + (on ? ' on' : '');
+      t.setAttribute('role', 'switch'); t.setAttribute('aria-checked', on ? 'true' : 'false');
+      t.setAttribute('aria-label', 'Ask for a photo: ' + c.name);
+      t.onclick = function(){ setProof(i, !on); };
+      r.querySelector('.quest-actions').appendChild(t);
+      box.appendChild(r);
+    });
+  }
+  function setProof(i, on) {
+    if (FAM.on) { var u = {}; u['settings/proof/' + i] = on; patchFam(u); }
+    else { STATE.proof[i] = on; saveState(); }
+    renderFamily();
+  }
+
+  function renderPlayers() {
+    var box = $('fi-players'); box.innerHTML = '';
+    var P = mirror.players || {}, parent = FAM.isParent() && parentUnlocked;
+    FAM.ids().forEach(function(pid) {
+      var p = P[pid], mine = pid === link.pid;
+      var meta = (p.role === 'parent' ? '👑 Parent' : 'Player') + ' · ' + (mine ? 'this phone' : p.claimedBy ? '📱 on their phone' : '⏳ not joined yet');
+      var r = row(PICONS[pid] || '🌟', p.name + (mine ? ' (you)' : ''), meta);
+      if (parent && !mine && p.claimedBy && p.role === 'parent' && mirror.members[p.claimedBy] && mirror.members[p.claimedBy].role === 'parent') {
+        r.querySelector('.quest-actions').appendChild(miniBtn('Reset PIN', '', function() {
+          if (!confirm('Reset ' + p.name + "'s parent PIN? They'll choose a new one next time.")) return;
+          enqueue({ m:'DELETE', p: 'parentLocks/' + link.fid + '/' + p.claimedBy });
+          crToast('🔑 ' + p.name + "'s PIN was reset");
+        }));
+      }
+      if (parent && !mine && p.claimedBy) {
+        r.querySelector('.quest-actions').appendChild(miniBtn('Unlink', '', function() {
+          if (!confirm('Unlink ' + p.name + "'s phone? They can join again with the family code.")) return;
+          var u = {}; u['players/' + pid + '/claimedBy'] = null; u['members/' + p.claimedBy] = null; patchFam(u);
+        }));
+      }
+      box.appendChild(r);
+    });
+  }
+  window.famAddPlayer = function() {
+    var inp = $('fi-add-name'), name = inp.value.trim().slice(0, 16);
+    if (!name || !FAM.isParent()) return;
+    var n = 1; while (mirror.players['p' + n]) n++;
+    if (n > 6) return;
+    var u = {}; u['players/p' + n] = { name: name, role: 'kid', icon: ICONS[(n - 1) % ICONS.length] };
+    patchFam(u); inp.value = '';
+  };
+
+  /* ── Royal Pardon · house rules · recap ── */
+  var DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function fmtDay(d) { var t = new Date(d + 'T00:00:00Z'); return DAYS[t.getUTCDay()].slice(0, 3) + ' ' + t.getUTCDate() + ' ' + MON[t.getUTCMonth()]; }
+  function playingKeys() {
+    if (FAM.on) { var P = mirror.players || {}; return FAM.ids().filter(function(k){ return P[k].claimedBy; }); }
+    return isPremium() ? ['jakob','dean','dave'] : ['jakob'];
+  }
+  function setSetting(k, v) {
+    if (FAM.on) FAM.set(k, v);
+    else { STATE.settings[k] = v; saveState(); }
+    refreshWarriorDisplay(); refreshLeaderboard();
+    scheduleSpinReminder();
+    renderFamily();
+  }
+  function renderPardons() {
+    var box = $('fp-pardon'); box.innerHTML = '';
+    var any = false;
+    playingKeys().forEach(function(pid) {
+      var miss = missedDays(pid), w = STATE.warriors[pid];
+      if (miss.length !== 1) return;          // 2+ missed days: that streak has already ended
+      any = true;
+      var used = pardonUsedInWeek(pid, miss[0]);
+      var r = row('🛡️', (PLAYER_NAMES[pid] || 'Player') + ' missed ' + fmtDay(miss[0]),
+                  used ? 'Pardon already used that week' : '🔥 ' + w.streak + '-day streak paused');
+      if (!used) r.querySelector('.quest-actions').appendChild(miniBtn('Pardon', 'ok', function() {
+        if (FAM.on) FAM.pardon(pid, miss[0]);
+        else { STATE.pardons[pid] = STATE.pardons[pid] || {}; STATE.pardons[pid][miss[0]] = true; saveState(); }
+        refreshWarriorDisplay(); refreshLeaderboard(); renderFamily();
+        crToast('🛡️ Royal Pardon — ' + (PLAYER_NAMES[pid] || 'their') + "'s streak lives on!");
+      }));
+      box.appendChild(r);
+    });
+    if (!any) box.appendChild(row('🛡️', 'Every streak is safe', 'No missed days to forgive'));
+  }
+  function renderRules() {
+    var box = $('fp-rules');
+    if (box.contains(document.activeElement)) return;      // don't rebuild under an open picker
+    box.innerHTML = '';
+    var S = STATE.settings || {};
+    var r1 = row('😴', 'Rest Day', 'Never breaks a streak');
+    var sel = document.createElement('select'); sel.className = 'fam-sel'; sel.setAttribute('aria-label', 'Rest Day');
+    DAYS.concat(['No rest day']).forEach(function(n, i){ var o = document.createElement('option'); o.value = i === 7 ? -1 : i; o.textContent = n; sel.appendChild(o); });
+    sel.value = restDay();
+    sel.onchange = function(){ setSetting('restDay', +sel.value); };
+    r1.querySelector('.quest-actions').appendChild(sel); box.appendChild(r1);
+    var r2 = row('⏰', "Spin o'clock", 'Daily reminder time');
+    var tm = document.createElement('input'); tm.type = 'time'; tm.className = 'fam-sel'; tm.value = spinTime(); tm.setAttribute('aria-label', "Spin o'clock time");
+    tm.onchange = function(){ if (/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(tm.value)) setSetting('spinTime', tm.value); };
+    r2.querySelector('.quest-actions').appendChild(tm); box.appendChild(r2);
+    var on = !!S.autoApprove;
+    var r3 = row('🤖', 'Auto-approve after 24h', 'Chores without a photo, if no parent got to them');
+    var t = document.createElement('button'); t.className = 'toggle' + (on ? ' on' : '');
+    t.setAttribute('role', 'switch'); t.setAttribute('aria-checked', on ? 'true' : 'false'); t.setAttribute('aria-label', 'Auto-approve after 24 hours');
+    t.onclick = function(){ setSetting('autoApprove', !on); };
+    r3.querySelector('.quest-actions').appendChild(t); box.appendChild(r3);
+  }
+  function renderClock() {
+    var t = $('fk-time'); if (!t) return;
+    t.textContent = "Every day at " + spinTime();
+    var rd = restDay();
+    $('fk-rest').textContent = rd >= 0 ? 'Rest Day: ' + DAYS[rd] + ' — streaks stay safe' : 'No Rest Day set';
+    var nb = $('fk-notify');
+    if (nb) nb.textContent = spinReminderOn() ? '🔔 Reminder on — ' + spinTime() : '🔔 Remind me on this phone';
+  }
+  function appLink() { return location.origin + location.pathname; }
+  function recapText() {
+    var keys = playingKeys(), t = todayStr();
+    var quiet = keys.every(function(k) {
+      var w = STATE.warriors[k] || {}, e = STATE.daily[k];
+      return !(w.lastChoreDate && w.lastChoreDate >= addDays(t, -3)) && !(e && e.date >= addDays(t, -3));
+    });
+    var head = '🏰 היום בטירה · Today in the castle — ' + FAMILY_NAME;
+    if (quiet) return head + "\n🏰 The castle is quiet… Balagan is winning 😈\n🎡 Tap to spin: " + appLink();
+    var marks = keys.map(function(k) {
+      var e = dayEntry(k), m = !e ? '—' : e.done ? '✓' + (e.speedRun ? ' ⚡' : '') : e.status === 'pending' ? '⏳' : '…';
+      return (PLAYER_NAMES[k] || 'Player') + ' ' + m;
+    });
+    var reward = ($('goal-reward-name') || {}).textContent || 'the family reward';
+    var pct = goalPct();
+    return head + '\n' + marks.join(' · ') +
+      '\n' + (pct >= 100 ? '🏆 We beat the ' + villain() + '! ' + reward : '😈 ' + villain() + ': ' + goalCount() + '/' + goalTarget() + ' chores (' + pct + '%) · ' + reward) +
+      "\n🎡 Spin o'clock " + spinTime() + ' · ' + appLink();
+  }
+  window.famShareRecap = function() {
+    window.open('https://wa.me/?text=' + encodeURIComponent(recapText()), '_blank', 'noopener');
+  };
+  window.recapText = recapText;
+
+  /* ── auto-approve after 24h (parent setting, off by default) ── */
+  window.autoApproveDue = function() {
+    if (!(STATE.settings && STATE.settings.autoApprove)) return;
+    if (FAM.on && !FAM.isParent()) return;             // only the Crown's phone writes awards
+    var now = Date.now(), A = STATE.approvals || {}, n = 0;
+    Object.keys(A).forEach(function(id) {
+      var r = A[id];
+      if (r && !r.photo && r.at && now - r.at >= AUTO_APPROVE_MS) { approveChore(id, true); n++; }
+    });
+    if (n) crToast('👑 The Crown was busy — the game approved ' + n + ' chore' + (n === 1 ? '' : 's'));
+  };
+
+  /* Honest error copy: no connection vs. the server saying no */
+  function syncError(err, what) {
+    if (!err || !err.status) return "Couldn't reach the family server — check your connection and try again";
+    if (err.status === 401 || err.status === 403) return 'The family server said no to ' + what + '. Family sync may not be set up yet — same-phone play still works.';
+    return 'The family server had a problem (' + err.status + ') — please try again in a minute';
+  }
+
+  /* ── create ── */
+  window.famCreate = function() {
+    if (!CFG) return;
+    var msg = $('fc-msg'), btn = $('fc-go');
+    var fname = ($('fc-name').value || '').trim().slice(0, 24) || 'Our Family';
+    var rows = [].slice.call($('fc-rows').children).map(function(r){
+      return { name: r.querySelector('input').value.trim().slice(0, 16), role: r.querySelector('select').value };
+    }).filter(function(r, i){ return r.name || i === 0; });
+    if (!rows[0].name) { msg.className = 'pin-result err'; msg.textContent = 'Add your name in the first row'; return; }
+    rows[0].role = 'parent';
+    btn.disabled = true; msg.className = 'pin-result'; msg.textContent = 'Creating your family…';
+    var fid = rnd(20), code = rnd(6, CODE_ABC);
+    signIn().then(function(a) {
+      return req('GET', 'codes/' + code).then(function(taken) {
+        if (taken) code = rnd(6, CODE_ABC);
+        var players = {}, base = {}, members = {}, proof = {};
+        rows.forEach(function(r, i) {
+          var pid = 'p' + (i + 1);
+          players[pid] = { name: r.name, role: r.role, icon: ICONS[i] };
+          // carry this phone's progress over for the same names
+          ['jakob','dean','dave'].forEach(function(k) {
+            var w = LOCAL.STATE.warriors[k];
+            if (LOCAL.NAMES[k] === r.name && w && (w.xp || w.totalChores)) {
+              base[pid] = { xp: w.xp || 0, wxp: w.wxp !== undefined ? w.wxp : w.xp || 0, streak: w.streak || 0, lastChoreDate: w.lastChoreDate || '', totalChores: w.totalChores || 0, speedRuns: w.speedRuns || 0, at: SV };
+            }
+          });
+        });
+        players.p1.claimedBy = a.uid;
+        members[a.uid] = { player: 'p1', role: 'parent', joinedAt: SV };
+        Object.keys(LOCAL.STATE.proof || {}).forEach(function(k){ if (LOCAL.STATE.proof[k]) proof[k] = true; });
+        var ls = LOCAL.STATE.settings || {}, settings = { proof: proof };
+        ['restDay','spinTime','autoApprove'].forEach(function(k){ if (ls[k] !== undefined) settings[k] = ls[k]; });
+        var fam = { meta: { name: fname, code: code, createdBy: a.uid, createdAt: SV, resetAt: 0, bossResetAt: 0 },
+                    players: players, members: members, base: base, settings: settings };
+        return req('PUT', 'families/' + fid, fam).then(function(saved) {
+          return req('PUT', 'codes/' + code, fid).then(function() {
+            link = { fid: fid, pid: 'p1', code: code };
+            lsSet(LSK.link, link);
+            mirror = saved;
+            enterFamily();
+            crToast('🎉 Family created! Now choose your parent PIN');
+            requirePin(renderFamily);
+          });
+        });
+      });
+    }).catch(function(err) {
+      msg.className = 'pin-result err'; msg.textContent = syncError(err, 'creating this family');
+    }).then(function(){ btn.disabled = false; });
+  };
+
+  /* ── join ── */
+  window.famLookup = function(pre) {
+    if (!CFG) return;
+    var code = String(pre || $('fj-code').value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    var msg = $('fj-msg');
+    $('fj-code').value = code;
+    if (code.length !== 6) { msg.className = 'pin-result err'; msg.textContent = 'Family codes have 6 letters and numbers'; return; }
+    msg.className = 'pin-result'; msg.textContent = 'Looking for your family…';
+    req('GET', 'codes/' + code).then(function(fid) {
+      if (!fid) { msg.className = 'pin-result err'; msg.textContent = 'No family with that code — check it with a parent'; return; }
+      return Promise.all([req('GET', 'families/' + fid + '/meta/name'), req('GET', 'families/' + fid + '/players')]).then(function(r) {
+        lookup = { fid: fid, code: code, name: r[0] || 'Your family', players: r[1] || {} };
+        msg.textContent = '';
+        renderPicker();
+      });
+    }).catch(function(err) { msg.className = 'pin-result err'; msg.textContent = syncError(err, 'looking up that code'); });
+  };
+  function renderPicker() {
+    $('fj-found').style.display = '';
+    $('fj-fam').textContent = '👑 ' + lookup.name;
+    var box = $('fj-players'); box.innerHTML = '';
+    Object.keys(lookup.players).sort().forEach(function(pid) {
+      var p = lookup.players[pid], mine = auth && p.claimedBy === auth.uid, taken = p.claimedBy && !mine;
+      var r = row(p.icon || '🌟', p.name, taken ? 'already on another phone' : p.role === 'parent' ? '👑 Parent' : 'tap to play as ' + p.name);
+      r.style.cursor = taken ? 'default' : 'pointer';
+      if (taken) r.style.opacity = '.5';
+      else { r.onclick = function(){ famPick(pid, p); }; r.querySelector('.quest-actions').appendChild(miniBtn("That's me", 'ok', null)); }
+      box.appendChild(r);
+    });
+  }
+  function famPick(pid, p) {
+    var L = lookup, msg = $('fj-msg');
+    msg.className = 'pin-result'; msg.textContent = 'Joining…';
+    signIn().then(function(a) {
+      if (p.role === 'parent') {
+        return req('PUT', 'families/' + L.fid + '/requests/' + a.uid, { player: pid, at: SV }).then(function() {
+          lsSet(LSK.req, { fid: L.fid, code: L.code, pid: pid, name: p.name, family: L.name });
+          panel = 'wait'; renderFamily(); pollRequest();
+        });
+      }
+      var claim = p.claimedBy === a.uid ? Promise.resolve() : req('PUT', 'families/' + L.fid + '/players/' + pid + '/claimedBy', a.uid);
+      return claim.then(function() {
+        return req('PUT', 'families/' + L.fid + '/members/' + a.uid, { player: pid, role: 'kid', joinedAt: SV });
+      }).then(function() {
+        link = { fid: L.fid, pid: pid, code: L.code };
+        lsSet(LSK.link, link);
+        return req('GET', famPath('')).then(function(d) {
+          mirror = d; enterFamily();
+          crToast('🎉 Welcome to ' + L.name + ', ' + p.name + '!');
+          goTo('s-home');
+        });
+      });
+    }).catch(function(err) {
+      msg.className = 'pin-result err';
+      msg.textContent = (err.status === 401 || err.status === 403) ? 'Someone already picked that name — ask a parent to free it' : syncError(err, 'joining');
+      if (err.status) famLookup(L.code);
+    });
+  }
+  function pollRequest() {
+    clearTimeout(pollT);
+    var q = lsGet(LSK.req);
+    if (!q || !CFG) return;
+    signIn().then(function(a) {
+      return req('GET', 'families/' + q.fid + '/members/' + a.uid).then(function(m) {
+        if (m) {
+          lsSet(LSK.req, null);
+          link = { fid: q.fid, pid: m.player, code: q.code };
+          lsSet(LSK.link, link);
+          return req('GET', famPath('')).then(function(d){ mirror = d; enterFamily(); crToast("🎉 You're in, " + q.name + '!'); });
+        }
+        return req('GET', 'families/' + q.fid + '/requests/' + a.uid).then(function(r) {
+          if (!r) { lsSet(LSK.req, null); crToast('A parent declined the request'); panel = 'local'; renderFamily(); return; }
+          pollT = setTimeout(pollRequest, 4000);
+        });
+      });
+    }).catch(function(){ pollT = setTimeout(pollRequest, 6000); });
+  }
+  window.famCancelRequest = function() {
+    var q = lsGet(LSK.req);
+    lsSet(LSK.req, null); clearTimeout(pollT); panel = 'local'; renderFamily();
+    if (q && auth) req('DELETE', 'families/' + q.fid + '/requests/' + auth.uid).catch(function(){});
+  };
+
+  /* ── share ── */
+  function inviteLink() { return location.origin + location.pathname + '?join=' + link.code; }
+  window.famShareWA = function() {
+    var text = 'Join ' + FAMILY_NAME + ' on Chore Royale 👑 Tap to join: ' + inviteLink() + ' (family code ' + link.code + ')';
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
+  };
+  window.famCopyLink = function() {
+    var t = inviteLink();
+    var done = function(){ crToast('🔗 Invite link copied'); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, function(){ prompt('Copy this link:', t); });
+    else prompt('Copy this link:', t);
+  };
+
+  /* ── same-phone parent area (PIN) ── */
+  window.famUnlock = function() {
+    if (FAM.on) { requirePin(renderFamily); return; }
+    setPinMode(getParentPIN() ? 'verify' : 'set');
+    pinThen = function(){ parentUnlocked = true; goBack(); renderFamily(); };
+    goTo('s-parent');
+  };
+
+  /* ── enter / leave ── */
+  function enterFamily() {
+    firstProjection = true;
+    if (mirror) project();
+    renderFamily();
+    openStream();
+    flush();
+  }
+  function leaveLocal() {
+    closeStream(); clearTimeout(retryT);
+    link = null; mirror = null; outbox = [];
+    lsSet(LSK.link, null); lsSet(LSK.cache, null); lsSet(LSK.out, null); lsSet(LSK.pin, null);
+    FAM.on = false;
+    STATE = LOCAL.STATE; PLAYER_NAMES = LOCAL.NAMES; PICONS = LOCAL.ICONS; FAMILY_NAME = LOCAL.FAMILY;
+    activeWarrior = 'jakob';
+    panel = 'local';
+    paint();
+    setActiveWarrior('jakob');
+    renderFamily();
+  }
+  window.famLeave = function() {
+    var only = FAM.isParent() && FAM.ids().filter(function(k){ return FAM.role(k) === 'parent' && mirror.players[k].claimedBy; }).length <= 1;
+    if (!confirm('Leave the family on this phone?' + (only ? "\n\nYou're the only parent linked — nobody will be able to approve chores until a parent joins again." : '') +
+                 '\n\nThe family keeps its scores. This phone goes back to same-phone play.')) return;
+    var me = link, uid = auth && auth.uid, wasClaim = mirror && mirror.players[me.pid] && mirror.players[me.pid].claimedBy === uid;
+    leaveLocal();
+    if (!uid) return;
+    (wasClaim ? req('DELETE', 'families/' + me.fid + '/players/' + me.pid + '/claimedBy') : Promise.resolve())
+      .then(function(){ return req('DELETE', 'families/' + me.fid + '/members/' + uid); }).catch(function(){});
+  };
+
+  /* ── boot ── */
+  if (CFG && link) enterFamily();
+  scheduleSpinReminder();
+  setTimeout(autoApproveDue, 1500);
+  setInterval(autoApproveDue, 60000);
+  renderBadges();
+  if (CFG && lsGet(LSK.req)) pollRequest();
+  var jm = /[?&]join=([A-Za-z0-9]{6})/.exec(location.search);
+  if (jm) {
+    try { history.replaceState(null, '', location.pathname); } catch(e) {}
+    var code = jm[1].toUpperCase();
+    if (!(link && link.code === code)) {
+      setTimeout(function() {
+        var ob = $('ob-modal'); if (ob) ob.classList.add('hidden');
+        openFamily();
+        if (CFG && !link) { famPanel('join'); famLookup(code); }
+      }, 50);
+    }
+  }
+})();
+</script>
+
+</body>
+</html>

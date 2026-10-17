@@ -1,0 +1,32 @@
+{
+  "name": "Chore Royale (Preview)",
+  "short_name": "CR Preview",
+  "id": "/chore-wars/preview/",
+  "description": "Preview build \u2014 knights of the household realm",
+  "start_url": "/chore-wars/preview/",
+  "scope": "/chore-wars/preview/",
+  "display": "standalone",
+  "background_color": "#14072A",
+  "theme_color": "#1B0B36",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
