@@ -1152,7 +1152,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <div class="section-link" onclick="goTo('s-leaderboard')" style="cursor:pointer">Details</div>
     </div>
     <div class="raid-card">
-      <div class="raid-label">🏆 Family Goal Progress</div>
+      <div class="raid-label" id="goal-villain">🏆 Family Goal Progress</div>
       <div class="raid-name" id="goal-reward-name">🍕 Pizza Night</div>
       <div class="boss-bar"><div class="boss-fill" id="boss-fill" style="width:0%"></div></div>
       <div class="raid-meta">
@@ -1409,7 +1409,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   <div class="bd-roar">🎊 Goal Reached!</div>
   <div class="bd-icon">🏰</div>
   <div class="bd-title">REWARD<br>UNLOCKED!</div>
-  <div class="bd-subtitle">The family crushed it — reward is yours!</div>
+  <div class="bd-subtitle" id="bd-subtitle">The family crushed it — reward is yours!</div>
   <div class="bd-reward">
     <div class="bd-reward-label">🎁 Family Reward Unlocked</div>
     <div class="bd-reward-name" id="bd-reward-name">🍕 Pizza Night!</div>
@@ -1426,11 +1426,13 @@ var SAVE_KEY = 'choreroyal_v1';
 function defaultState() {
   return {
     warriors: {
-      jakob: { xp: 0, streak: 0, lastChoreDate: '', totalChores: 0 },
-      dean:  { xp: 0, streak: 0, lastChoreDate: '', totalChores: 0 },
-      dave:  { xp: 0, streak: 0, lastChoreDate: '', totalChores: 0 }
+      jakob: { xp: 0, wxp: 0, streak: 0, lastChoreDate: '', totalChores: 0 },
+      dean:  { xp: 0, wxp: 0, streak: 0, lastChoreDate: '', totalChores: 0 },
+      dave:  { xp: 0, wxp: 0, streak: 0, lastChoreDate: '', totalChores: 0 }
     },
-    boss: { hp: 0 },
+    boss: { hp: 0, week: '', count: 0, chores: {}, prev: {} },
+    settings: {},   // restDay (0–6, -1 none), spinTime 'HH:MM', autoApprove
+    pardons: {},    // { player: { 'YYYY-MM-DD': true } } — Royal Pardons
     v: 2,
     lastSpinDate: '',
     daily: {},   // per player: { date, chore, rerolls, acceptedAt, finishedAt, done }
@@ -1447,7 +1449,10 @@ function loadState() {
       var def = defaultState();
       if (!s.v) stripDemoSeed(s);
       var ws = s.warriors || {};
-      Object.keys(def.warriors).forEach(function(k){ Object.assign(def.warriors[k], ws[k] || {}); });
+      Object.keys(def.warriors).forEach(function(k){
+        Object.assign(def.warriors[k], ws[k] || {});
+        if (ws[k] && ws[k].wxp === undefined) def.warriors[k].wxp = ws[k].xp || 0;   // xp is now lifetime; this week = what they had
+      });
       var out = Object.assign(def, s, { warriors: def.warriors, v: 2 });
       return out;
     }
@@ -1499,12 +1504,73 @@ var STATE = loadState();
 if (!STATE.daily) STATE.daily = {};
 if (!STATE.approvals) STATE.approvals = {};
 if (!STATE.proof) STATE.proof = {};
+if (!STATE.settings) STATE.settings = {};
+if (!STATE.pardons) STATE.pardons = {};
 /* Family sync hook — set by the family script below (null/off = same-phone mode) */
 var FAM = null;
 var PICONS = {jakob:'🌟', dean:'⭐', dave:'💫'};
 function allKeys() { return (FAM && FAM.on) ? FAM.ids() : ['jakob','dean','dave']; }
 function isParentPlayer(k) { return !!(FAM && FAM.on && FAM.role(k) === 'parent'); }
 function needsProof(idx) { return !!(STATE.proof && STATE.proof[idx]); }
+
+/* ── STREAKS: Rest Day + Royal Pardon ───────────────────────
+   A streak continues when every day between two chores is the family's
+   Rest Day or was pardoned by a parent. Weekly resets never touch it. */
+function addDays(d, n) { var t = new Date(d + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); }
+function dayOfWeek(d) { return new Date(d + 'T00:00:00Z').getUTCDay(); }
+function weekStart(d) { return addDays(d, -dayOfWeek(d)); }            // weeks run Sunday → Saturday
+function restDay() { var r = STATE.settings && STATE.settings.restDay; return (r === undefined || r === null) ? 6 : +r; }  // default Saturday
+function isPardoned(pid, d) { var p = STATE.pardons && STATE.pardons[pid]; return !!(p && p[d]); }
+function dayCovered(pid, d) { return dayOfWeek(d) === restDay() || isPardoned(pid, d); }
+function gapCovered(pid, from, to) {
+  if (!from || from >= to) return false;
+  var d = addDays(from, 1);
+  for (var i = 0; d < to; i++, d = addDays(d, 1)) { if (i >= 9 || !dayCovered(pid, d)) return false; }
+  return true;
+}
+function nextStreak(w, pid, date) { return gapCovered(pid, w.lastChoreDate, date) ? (w.streak || 0) + 1 : 1; }
+function liveStreak(pid) {
+  var w = STATE.warriors[pid], t = todayStr();
+  if (!w || !w.streak) return 0;
+  return (w.lastChoreDate === t || gapCovered(pid, w.lastChoreDate, t)) ? w.streak : 0;
+}
+/* Days since the last chore that would break the streak (up to yesterday) */
+function missedDays(pid) {
+  var w = STATE.warriors[pid], out = [], t = todayStr();
+  if (!w || !w.streak || !w.lastChoreDate) return out;
+  for (var d = addDays(w.lastChoreDate, 1), i = 0; d < t && i < 8; i++, d = addDays(d, 1)) if (!dayCovered(pid, d)) out.push(d);
+  return out;
+}
+function pardonUsedInWeek(pid, d) {
+  var p = (STATE.pardons && STATE.pardons[pid]) || {}, ws = weekStart(d);
+  return Object.keys(p).some(function(x){ return p[x] && weekStart(x) === ws; });
+}
+
+/* ── FAMILY GOAL: one villain a week, sized to the family ── */
+var MINIONS = ['🐰 Dust Bunny Swarm','🐉 Dish Dragon','🐙 Bathtub Kraken','👹 Trash Troll','🧦 Sock Goblin','🥀 Wilt Wraith','🐾 Mud Mutt','👻 Smudge Ghost'];
+function bossWeek() {                      // same-phone mode: roll the week over
+  var b = STATE.boss || (STATE.boss = {}), ws = weekStart(todayStr());
+  if (b.week !== ws) { b.prev = (b.week === addDays(ws, -7)) ? (b.chores || {}) : {}; b.week = ws; b.count = 0; b.chores = {}; }
+  return b;
+}
+function goalPlayers() {
+  if (FAM && FAM.on) return Math.max(1, FAM.linked());
+  return isPremium() ? 3 : 1;
+}
+// One chore per player per day; aim for two thirds of the days that aren't the Rest Day.
+function goalTarget() { return Math.max(3, Math.ceil(goalPlayers() * (restDay() >= 0 ? 6 : 7) * 2 / 3)); }
+function goalCount() { return (STATE.boss && STATE.boss.count) || 0; }
+function goalPct() { return Math.min(100, Math.round(goalCount() * 100 / goalTarget())); }
+function villain() {
+  var b = STATE.boss || {}, prev = b.prev || {}, seed = Math.floor(Date.parse((b.week || weekStart(todayStr())) + 'T00:00:00Z') / 604800000);
+  if (!Object.keys(prev).length) return MINIONS[seed % MINIONS.length];
+  var best = 0, min = Infinity;
+  for (var j = 0; j < CHORES.length; j++) {           // the chore the family did least last week
+    var i = (seed + j) % CHORES.length, c = prev[i] || 0;
+    if (c < min) { min = c; best = i; }
+  }
+  return MINIONS[best];
+}
 // Today's spin/chore for a player (null if they haven't spun today)
 function dayEntry(w) {
   var d = STATE.daily[w || activeWarrior];
@@ -1532,23 +1598,24 @@ var currentChore = CHORES[0];
 
 /* ── NAVIGATION ─────────────────────────────────────────── */
 
-function awardXP(warrior, amount) {
+function awardXP(warrior, amount, chore) {
   if (!STATE.warriors[warrior]) return;
   var oldXP = STATE.warriors[warrior].xp;
-  STATE.warriors[warrior].xp += amount;
+  STATE.warriors[warrior].xp += amount;                                    // lifetime → rank
+  STATE.warriors[warrior].wxp = (STATE.warriors[warrior].wxp || 0) + amount; // this week → leaderboard
   var newXP = STATE.warriors[warrior].xp;
   var today = todayStr();
   if (STATE.warriors[warrior].lastChoreDate !== today) {
-    var y = new Date(); y.setDate(y.getDate()-1);
-    var cont = STATE.warriors[warrior].lastChoreDate === y.toISOString().slice(0,10);
-    STATE.warriors[warrior].streak = cont ? STATE.warriors[warrior].streak + 1 : 1;
+    STATE.warriors[warrior].streak = nextStreak(STATE.warriors[warrior], warrior, today);
     STATE.warriors[warrior].lastChoreDate = today;
     STATE.warriors[warrior].totalChores++;
   }
   STATE.lastSpinDate = today;
-  // Update boss HP
-  var prevHP = STATE.boss.hp || 0;
-  STATE.boss.hp = Math.min(100, prevHP + 3);
+  // Family Goal: count this week's approved chores
+  var b = bossWeek(), prevHP = goalPct();
+  b.count = (b.count || 0) + 1;
+  if (chore !== undefined && chore !== null) b.chores[chore] = (b.chores[chore] || 0) + 1;
+  STATE.boss.hp = goalPct();
   saveState();
   refreshWarriorDisplay();
   refreshLeaderboard();
@@ -1564,12 +1631,16 @@ function refreshWarriorDisplay() {
   var sEl = document.getElementById('clan-streak');
   var bf = document.getElementById('boss-fill');
   // Best streak of clan
-  var best = Math.max.apply(null, [0].concat(keys.map(function(k){ return w[k].streak || 0; })));
+  var best = Math.max.apply(null, [0].concat(keys.map(function(k){ return liveStreak(k); })));
   if(sEl) sEl.textContent = best;
-  // Boss bar
+  // Family Goal vs this week's villain
+  if (!(FAM && FAM.on)) bossWeek();
+  STATE.boss.hp = goalPct();
   if(bf) { bf.style.transition='width .8s'; bf.style.width = STATE.boss.hp + '%'; }
   var gp = document.getElementById('goal-pct');
-  if(gp) gp.textContent = (STATE.boss.hp || 0) + '% complete';
+  if(gp) gp.textContent = goalCount() + ' / ' + goalTarget() + ' chores · ' + STATE.boss.hp + '%';
+  var gl = document.getElementById('goal-villain');
+  if(gl) gl.textContent = STATE.boss.hp >= 100 ? '🏆 You beat the ' + villain() + '!' : '😈 Balagan sent the ' + villain();
   var gpl = document.getElementById('goal-players');
   if(gpl) {
     var active = keys.filter(function(k){ return w[k].totalChores > 0; }).length;
@@ -2040,15 +2111,15 @@ function awardFor(e, photo) {
 /* The only place XP is granted (parent approval, or a parent's own chore) */
 function grantAward(pid, e, a, id) {
   if (FAM && FAM.on) { FAM.grant(pid, e, a, id); return; }
-  awardXP(pid, a.total);
+  awardXP(pid, a.total, e.chore);
   e.done = true; e.awarded = a.total; e.speedRun = a.speed > 0; e.status = 'approved'; delete e.reason;
   if (a.speed) STATE.warriors[pid].speedRuns = (STATE.warriors[pid].speedRuns || 0) + 1;
   saveState();
 }
 
 /* Parent decisions (same-phone mode; family mode routes through FAM) */
-function approveChore(id) {
-  if (FAM && FAM.on) { FAM.approve(id); return; }
+function approveChore(id, quiet) {
+  if (FAM && FAM.on) { FAM.approve(id, quiet); return; }
   var r = STATE.approvals[id]; if (!r) return;
   var e = STATE.daily[r.pid];
   if (!e || e.date !== r.date) e = { date: r.date, chore: r.chore, acceptedAt: 0, finishedAt: 0 };
@@ -2056,7 +2127,7 @@ function approveChore(id) {
   delete STATE.approvals[id];
   grantAward(r.pid, e, a, id);
   refreshWarriorDisplay(); refreshLeaderboard();
-  crToast('✅ ' + (PLAYER_NAMES[r.pid] || 'Player') + ' +' + a.total + ' XP');
+  if (!quiet) crToast('✅ ' + (PLAYER_NAMES[r.pid] || 'Player') + ' +' + a.total + ' XP');
 }
 
 function rejectChore(id, reason) {
@@ -2101,7 +2172,7 @@ function fillReward(a, pending) {
   document.getElementById('reward-chore').textContent = a.chore.name;
   document.getElementById('reward-xp').textContent = '+' + a.total;
   document.getElementById('reward-breakdown').textContent = parts.length > 1 ? parts.join(' + ') + ' XP' : '';
-  document.getElementById('rw-streak').textContent = '🔥 ' + w.streak;
+  document.getElementById('rw-streak').textContent = '🔥 ' + liveStreak(activeWarrior);
   document.getElementById('rw-total').textContent = w.xp.toLocaleString();
   document.getElementById('rw-chores').textContent = w.totalChores;
   document.getElementById('rw-goal').textContent = (STATE.boss.hp || 0) + '%';
@@ -2177,6 +2248,8 @@ function checkBossDefeated() {
 function showBossDefeated() {
   var overlay = document.getElementById('boss-defeated-overlay');
   if (!overlay) return;
+  var sub = document.getElementById('bd-subtitle');
+  if (sub) sub.textContent = 'The family beat the ' + villain() + ' — reward is yours!';
   launchKaboom();
   overlay.classList.add('show');
 }
@@ -2185,10 +2258,7 @@ function hideBossDefeated() {
   var overlay = document.getElementById('boss-defeated-overlay');
   if (overlay) overlay.classList.remove('show');
   _bossDefeatedShown = false;
-  if (FAM && FAM.on) { FAM.bossReset(); return; }
-  // Reset boss for next raid
-  STATE.boss.hp = 0;
-  saveState();
+  // The villain stays beaten until the new week brings the next one.
   refreshWarriorDisplay();
 }
 
@@ -2223,11 +2293,11 @@ function showSovereignProclamation() {
   // Find winner (highest XP)
   var keys = allKeys().filter(function(k){ return w[k]; });
   var top = keys[0];
-  keys.forEach(function(k){ if (w[k].xp > w[top].xp) top = k; });
+  keys.forEach(function(k){ if ((w[k].wxp || 0) > (w[top].wxp || 0)) top = k; });
   var topName = PLAYER_NAMES[top];
-  var topXP = w[top].xp;
+  var topXP = w[top].wxp || 0;
   var topChores = w[top].totalChores;
-  var topStreak = w[top].streak;
+  var topStreak = liveStreak(top);
 
   // Populate overlay
   var nameEl = document.getElementById('sov-name');
@@ -2258,17 +2328,9 @@ function hideSovereignAndReset() {
 
 function weeklyReset() {
   if (FAM && FAM.on) { FAM.weeklyReset(); return; }
-  // Reset XP, streaks — keep totalChores as all-time record
+  // New weekly leaderboard. Lifetime XP (rank), streaks and today's quests stay.
   var w = STATE.warriors;
-  Object.keys(w).forEach(function(k) {
-    w[k].xp = 0;
-    w[k].streak = 0;
-    w[k].lastChoreDate = '';
-  });
-  STATE.boss.hp = 0;
-  STATE.daily = {};
-  STATE.lastSpinDate = '';
-  _bossDefeatedShown = false;
+  Object.keys(w).forEach(function(k) { w[k].wxp = 0; });
   saveState();
   refreshWarriorDisplay();
   refreshLeaderboard();
@@ -2302,7 +2364,7 @@ function refreshLeaderboard() {
   var w = STATE.warriors;
   // Sort warriors by XP
   var sorted = allKeys().filter(function(k){ return w[k]; }).map(function(k) {
-    return { key:k, name:PLAYER_NAMES[k], icon:PICONS[k] || '🌟', xp:w[k].xp, streak:w[k].streak, totalChores:w[k].totalChores };
+    return { key:k, name:PLAYER_NAMES[k], icon:PICONS[k] || '🌟', xp:w[k].wxp || 0, streak:liveStreak(k), totalChores:w[k].totalChores };
   }).sort(function(a, b) { return b.xp - a.xp; });
 
   // Podium (positions: 2nd, 1st, 3rd visually)
@@ -2337,13 +2399,13 @@ function refreshLeaderboard() {
   // Boss bar on leaderboard
   var lbFill = document.getElementById('lb-boss-fill');
   var lbText = document.getElementById('lb-boss-text');
-  var hp = STATE.boss.hp || 0;
+  var hp = goalPct();
   if (lbFill) lbFill.style.width = hp + '%';
   if (lbText) {
-    var left = Math.ceil((100 - hp) / 3);
+    var left = Math.max(0, goalTarget() - goalCount());
     lbText.textContent = hp >= 100
-      ? '100% — Boss Defeated! Claim your reward!'
-      : hp + '% — ' + left + ' more chore' + (left !== 1 ? 's' : '') + ' to victory!';
+      ? '100% — the ' + villain() + ' is beaten! Enjoy your reward!'
+      : hp + '% — ' + left + ' more chore' + (left !== 1 ? 's' : '') + ' to beat the ' + villain() + '!';
   }
 }
 
@@ -2813,6 +2875,15 @@ function applyPlayerNames() {
         <button class="btn btn-ghost" style="height:44px;font-size:16px" onclick="famCopyLink()">🔗 Copy invite link</button>
       </div>
     </div>
+    <!-- Spin o'clock: daily reminder for every phone -->
+    <div id="fam-clock" style="display:none">
+      <div class="section-hd"><div class="section-title">Spin o'clock</div></div>
+      <div class="quest"><span class="quest-ico">⏰</span><div class="quest-body"><div class="quest-name" id="fk-time">Every day at 17:00</div><div class="quest-meta" id="fk-rest"></div></div></div>
+      <div class="fam-stack">
+        <button class="btn btn-ghost" style="height:44px;font-size:16px" onclick="addSpinToCalendar()">📅 Add to my calendar</button>
+        <button class="btn btn-ghost" style="height:44px;font-size:16px" id="fk-notify" onclick="enableSpinReminder()">🔔 Remind me on this phone</button>
+      </div>
+    </div>
     <!-- parent area: approvals + ask-for-proof -->
     <div id="fam-lock" style="display:none" class="fam-stack">
       <button class="btn btn-ghost" onclick="famUnlock()">🔒 Parent area — approvals <span id="fl-count"></span></button>
@@ -2820,6 +2891,14 @@ function applyPlayerNames() {
     <div id="fam-parent" style="display:none">
       <div class="section-hd"><div class="section-title">Approvals</div></div>
       <div id="fp-list"></div>
+      <div class="section-hd" style="margin-top:14px"><div class="section-title">Royal Pardon</div></div>
+      <div class="fam-note">Missed a day? Forgive one per player each week and the streak lives on.</div>
+      <div id="fp-pardon"></div>
+      <div class="section-hd" style="margin-top:14px"><div class="section-title">House rules</div></div>
+      <div id="fp-rules"></div>
+      <div class="section-hd" style="margin-top:14px"><div class="section-title">Today's recap</div></div>
+      <div class="chore-desc" id="fp-recap" style="white-space:pre-line;font-size:13px;line-height:1.55"></div>
+      <div class="fam-stack"><button class="modal-wa-btn" style="margin:0" onclick="famShareRecap()">💬 Share recap on WhatsApp</button></div>
       <div class="section-hd" style="margin-top:14px"><div class="section-title">Ask for proof</div></div>
       <div class="fam-note">Off: they tap Done, you approve. On: they also send a photo (+bonus XP).</div>
       <div id="fp-proof"></div>
@@ -2854,6 +2933,69 @@ function applyPlayerNames() {
    (Anonymous sign-in must be enabled in Firebase Auth.)                       */
 var FIREBASE_CONFIG = null;
 if (window.CR_FIREBASE_CONFIG) FIREBASE_CONFIG = window.CR_FIREBASE_CONFIG;   // QA harness (local emulator) only
+
+var AUTO_APPROVE_MS = 24 * 60 * 60 * 1000;
+
+/* ── SPIN O'CLOCK — daily reminder: calendar (.ics) everywhere, notification where the browser can ── */
+function spinTime() { var t = STATE.settings && STATE.settings.spinTime; return /^\d\d:\d\d$/.test(t || '') ? t : '17:00'; }
+function nextSpinAt() {
+  var p = spinTime().split(':'), d = new Date();
+  d.setHours(+p[0], +p[1], 0, 0);
+  if (d.getTime() <= Date.now()) d.setDate(d.getDate() + 1);
+  return d;
+}
+function spinIcs() {
+  var p = spinTime().split(':'), d = new Date(), pad = function(n){ return (n < 10 ? '0' : '') + n; };
+  var start = d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + 'T' + p[0] + p[1] + '00';   // floating = phone's local time
+  var stamp = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
+  var url = location.origin + location.pathname;
+  return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//3Shamrocks Studio//Chore Royale//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+    'BEGIN:VEVENT', 'UID:spin-oclock-' + Date.now().toString(36) + '@chore-royale', 'DTSTAMP:' + stamp, 'DTSTART:' + start,
+    'DURATION:PT15M', 'RRULE:FREQ=DAILY', "SUMMARY:🎡 Spin o'clock! — Chore Royale", 'DESCRIPTION:Time to spin the wheel 👑 ' + url, 'URL:' + url,
+    'BEGIN:VALARM', 'ACTION:DISPLAY', "DESCRIPTION:🎡 Spin o'clock!", 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n') + '\r\n';
+}
+function addSpinToCalendar() {
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([spinIcs()], { type: 'text/calendar;charset=utf-8' }));
+  a.download = 'chore-royale-spin-oclock.ics';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
+  crToast("📅 Open the file to add Spin o'clock to your calendar");
+}
+function spinReminderOn() { try { return localStorage.getItem('cr_spin_remind') === '1'; } catch(e) { return false; } }
+var _spinT = null;
+function scheduleSpinReminder() {
+  clearTimeout(_spinT);
+  if (!spinReminderOn() || !('Notification' in window) || Notification.permission !== 'granted') return;
+  var at = nextSpinAt();
+  // Notification Triggers (where a browser supports them) fire even when the app is closed
+  if (window.TimestampTrigger && 'showTrigger' in Notification.prototype && navigator.serviceWorker) {
+    navigator.serviceWorker.getRegistration().then(function(reg) {
+      if (reg) reg.showNotification("🎡 Spin o'clock!", { tag: 'spin-oclock', body: 'Time to spin the wheel 👑', icon: 'icon-192.png', showTrigger: new TimestampTrigger(at.getTime()) });
+    }).catch(function(){});
+    return;
+  }
+  _spinT = setTimeout(fireSpinReminder, Math.min(at.getTime() - Date.now(), 2147483000));   // while the app is open
+}
+function fireSpinReminder() {
+  if (!dayEntry(activeWarrior)) {        // one nudge a day, only if you haven't spun yet
+    var title = "🎡 Spin o'clock!", opts = { tag: 'spin-oclock', body: 'Balagan sent the ' + villain() + ' — spin the wheel!', icon: 'icon-192.png' };
+    var plain = function(){ try { new Notification(title, opts); } catch(e) {} };
+    if (navigator.serviceWorker) navigator.serviceWorker.getRegistration().then(function(reg){ if (reg) reg.showNotification(title, opts); else plain(); }).catch(plain);
+    else plain();
+  }
+  setTimeout(scheduleSpinReminder, 1000);
+}
+function enableSpinReminder() {
+  if (!('Notification' in window)) { crToast("This phone can't do browser reminders — use Add to my calendar"); return; }
+  Notification.requestPermission().then(function(p) {
+    if (p !== 'granted') { crToast('Notifications are off for this app — use Add to my calendar'); return; }
+    try { localStorage.setItem('cr_spin_remind', '1'); } catch(e) {}
+    scheduleSpinReminder();
+    if (typeof renderFamily === 'function') renderFamily();
+    crToast('🔔 This phone will nudge you at ' + spinTime() + ' when Chore Royale is open. For a sure alarm, add it to your calendar too.');
+  });
+}
 
 var _toastT = null;
 function crToast(msg) {
@@ -3044,31 +3186,33 @@ function crToast(msg) {
   }
 
   /* ── projection: family tree → the game's STATE ── */
-  function prevDay(d) { var t = new Date(d + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() - 1); return t.toISOString().slice(0, 10); }
   // XP, streaks, chores and the family goal are computed from the approvals ledger,
   // so two parents approving at once can never overwrite each other.
+  // xp = lifetime (rank) · wxp = since the last "Start Fresh Week" · streaks never reset.
   function derive(m, ids) {
-    var meta = m.meta || {}, resetAt = meta.resetAt || 0, bossAt = Math.max(meta.bossResetAt || 0, resetAt);
-    var W = {}, hp = 0;
+    var resetAt = (m.meta || {}).resetAt || 0;
+    var ws = weekStart(todayStr()), pws = addDays(ws, -7);
+    var W = {}, boss = { week: ws, count: 0, chores: {}, prev: {} };
     ids.forEach(function(p) {
       var b = (m.base || {})[p] || {}, fresh = (b.at || 0) >= resetAt;
-      W[p] = { xp: fresh ? b.xp || 0 : 0, streak: fresh ? b.streak || 0 : 0, lastChoreDate: fresh ? b.lastChoreDate || '' : '',
-               totalChores: b.totalChores || 0, speedRuns: b.speedRuns || 0 };
+      W[p] = { xp: b.xp || 0, wxp: fresh ? (b.wxp !== undefined ? b.wxp : b.xp || 0) : 0, streak: b.streak || 0,
+               lastChoreDate: b.lastChoreDate || '', totalChores: b.totalChores || 0, speedRuns: b.speedRuns || 0 };
     });
     var L = m.ledger || {};
     Object.keys(L).map(function(k){ return L[k]; }).filter(function(e){ return e && W[e.pid]; })
-      .sort(function(a, b){ return (a.at || 0) - (b.at || 0); })
+      .sort(function(a, b){ return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.at || 0) - (b.at || 0); })
       .forEach(function(e) {
-        var w = W[e.pid], after = (e.at || 0) >= resetAt;
-        if (w.lastChoreDate !== e.date || !after) {
-          if (after) { w.streak = w.lastChoreDate === prevDay(e.date) ? w.streak + 1 : 1; w.lastChoreDate = e.date; }
-          w.totalChores++;
+        var w = W[e.pid];
+        if (w.lastChoreDate !== e.date && e.date > (w.lastChoreDate || '')) {
+          w.streak = nextStreak(w, e.pid, e.date); w.lastChoreDate = e.date; w.totalChores++;
         }
-        if (after) w.xp += e.xp || 0;
+        w.xp += e.xp || 0;
+        if ((e.at || 0) >= resetAt) w.wxp += e.xp || 0;
         if (e.speed) w.speedRuns++;
-        if ((e.at || 0) >= bossAt) hp = Math.min(100, hp + 3);
+        if (e.date >= ws) { boss.count++; boss.chores[e.chore] = (boss.chores[e.chore] || 0) + 1; }
+        else if (e.date >= pws) boss.prev[e.chore] = (boss.prev[e.chore] || 0) + 1;
       });
-    return { w: W, hp: hp };
+    return { w: W, boss: boss };
   }
   function scheduleProject() { clearTimeout(projT); projT = setTimeout(project, 30); }
   function project() {
@@ -3080,12 +3224,15 @@ function crToast(msg) {
     ids.forEach(function(p, i){ names[p] = players[p].name; icons[p] = players[p].icon || ICONS[i % ICONS.length]; });
     var old = FAM.on ? STATE : null;
     var oldMe = old && old.daily ? clone(old.daily[link.pid]) : null;
-    var d = derive(m, ids);
-    STATE = { v: 2, warriors: d.w, boss: { hp: d.hp }, daily: clone(m.daily || {}), approvals: clone(m.approvals || {}),
-              proof: clone((m.settings || {}).proof || {}), lastSpinDate: '', quests: {} };
+    STATE = { v: 2, warriors: {}, boss: {}, daily: clone(m.daily || {}), approvals: clone(m.approvals || {}),
+              proof: clone((m.settings || {}).proof || {}), settings: clone(m.settings || {}), pardons: clone(m.pardons || {}),
+              lastSpinDate: '', quests: {} };
+    var d = derive(m, ids);          // after settings/pardons are in place (Rest Day, Royal Pardon)
+    STATE.warriors = d.w; STATE.boss = d.boss;
     PLAYER_NAMES = names; PICONS = icons; FAMILY_NAME = (m.meta && m.meta.name) || 'Our Family';
     activeWarrior = link.pid;
     FAM.on = true;
+    STATE.boss.hp = goalPct();
     if (old && !firstProjection) notify(old, oldMe, m);
     firstProjection = false;
     paint();
@@ -3100,7 +3247,7 @@ function crToast(msg) {
       var a = old.warriors[k], b = STATE.warriors[k];
       if (a && b && b.xp > a.xp) checkRankUp(k, a.xp, b.xp);
     });
-    if ((old.boss.hp || 0) < 100 && STATE.boss.hp >= 100) checkBossDefeated();
+    if ((old.boss.hp || 0) < 100 && STATE.boss.hp >= 100 && old.boss.week === STATE.boss.week) checkBossDefeated();
     if (FAM.isParent()) {
       Object.keys(STATE.approvals).forEach(function(id) {
         if (old.approvals[id]) return;
@@ -3120,6 +3267,7 @@ function crToast(msg) {
     }
     renderBadges();
     if (currentScreen === 's-family') renderFamily();
+    setTimeout(autoApproveDue, 400);
   }
 
   /* ── public hook used by the game ── */
@@ -3127,6 +3275,7 @@ function crToast(msg) {
     on: false,
     ids: function(){ return mirror && mirror.players ? Object.keys(mirror.players).sort() : []; },
     role: function(k){ return mirror && mirror.players && mirror.players[k] ? mirror.players[k].role : null; },
+    linked: function(){ var P = (mirror && mirror.players) || {}; return Object.keys(P).filter(function(k){ return P[k].claimedBy; }).length; },
     isParent: function(){ return !!(FAM.on && auth && mirror.members && mirror.members[auth.uid] && mirror.members[auth.uid].role === 'parent'); },
     parentName: function() {
       var ids = FAM.ids().filter(function(k){ return k !== link.pid && FAM.role(k) === 'parent'; });
@@ -3171,14 +3320,14 @@ function crToast(msg) {
       patchFam(u);
       if (had && had.photo) { enqueue({ m:'DELETE', p: 'proofs/' + link.fid + '/' + id }); delete proofCache[id]; }
     },
-    approve: function(id) {
+    approve: function(id, quiet) {
       if (!FAM.isParent()) return;
       var r = mirror.approvals && mirror.approvals[id]; if (!r) return;
       var e = mirror.daily && mirror.daily[r.pid];
       if (!e || e.date !== r.date) e = { date: r.date, chore: r.chore, acceptedAt: 0, finishedAt: 0 };
       var a = awardFor(e, !!r.photo);
       FAM.grant(r.pid, e, a, id);
-      crToast('✅ ' + (PLAYER_NAMES[r.pid] || 'Player') + ' +' + a.total + ' XP');
+      if (!quiet) crToast('✅ ' + (PLAYER_NAMES[r.pid] || 'Player') + ' +' + a.total + ' XP');
     },
     reject: function(id, reason) {
       if (!FAM.isParent()) return;
@@ -3192,9 +3341,10 @@ function crToast(msg) {
     },
     weeklyReset: function() {
       if (!FAM.isParent()) { crToast('Only a parent can start a fresh week'); return; }
-      patchFam({ 'meta/resetAt': SV, 'daily': null });
+      patchFam({ 'meta/resetAt': SV });     // weekly leaderboard only — ranks and streaks stay
     },
-    bossReset: function() { if (FAM.isParent()) patchFam({ 'meta/bossResetAt': SV }); else refreshWarriorDisplay(); }
+    set: function(k, v) { if (FAM.isParent()) { var u = {}; u['settings/' + k] = v; patchFam(u); } },
+    pardon: function(pid, d) { if (FAM.isParent()) { var u = {}; u['pardons/' + pid + '/' + d] = true; patchFam(u); } }
   };
 
   /* ── badges + home banner: approvals waiting for a parent ── */
@@ -3271,6 +3421,8 @@ function crToast(msg) {
     show('fam-players-wrap', on);
     show('fam-parent', parentView);
     show('fam-lock', !on && panel === 'local' && !parentUnlocked);
+    show('fam-clock', on || panel === 'local');
+    renderClock();
     var lc = $('fl-count'); if (lc) { var n = pendingCount(); lc.textContent = n ? '(' + n + ')' : ''; }
     if (on) {
       $('fi-name').textContent = FAMILY_NAME + ' 👑';
@@ -3280,7 +3432,7 @@ function crToast(msg) {
       renderPlayers();
       show('fi-add', FAM.isParent() && FAM.ids().length < 6);
     }
-    if (parentView) { renderApprovals(); renderProofToggles(); }
+    if (parentView) { renderApprovals(); renderPardons(); renderRules(); $('fp-recap').textContent = recapText(); renderProofToggles(); }
   }
   window.renderFamily = renderFamily;
 
@@ -3411,6 +3563,107 @@ function crToast(msg) {
     patchFam(u); inp.value = '';
   };
 
+  /* ── Royal Pardon · house rules · recap ── */
+  var DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function fmtDay(d) { var t = new Date(d + 'T00:00:00Z'); return DAYS[t.getUTCDay()].slice(0, 3) + ' ' + t.getUTCDate() + ' ' + MON[t.getUTCMonth()]; }
+  function playingKeys() {
+    if (FAM.on) { var P = mirror.players || {}; return FAM.ids().filter(function(k){ return P[k].claimedBy; }); }
+    return isPremium() ? ['jakob','dean','dave'] : ['jakob'];
+  }
+  function setSetting(k, v) {
+    if (FAM.on) FAM.set(k, v);
+    else { STATE.settings[k] = v; saveState(); }
+    refreshWarriorDisplay(); refreshLeaderboard();
+    scheduleSpinReminder();
+    renderFamily();
+  }
+  function renderPardons() {
+    var box = $('fp-pardon'); box.innerHTML = '';
+    var any = false;
+    playingKeys().forEach(function(pid) {
+      var miss = missedDays(pid), w = STATE.warriors[pid];
+      if (miss.length !== 1) return;          // 2+ missed days: that streak has already ended
+      any = true;
+      var used = pardonUsedInWeek(pid, miss[0]);
+      var r = row('🛡️', (PLAYER_NAMES[pid] || 'Player') + ' missed ' + fmtDay(miss[0]),
+                  used ? 'Pardon already used that week' : '🔥 ' + w.streak + '-day streak paused');
+      if (!used) r.querySelector('.quest-actions').appendChild(miniBtn('Pardon', 'ok', function() {
+        if (FAM.on) FAM.pardon(pid, miss[0]);
+        else { STATE.pardons[pid] = STATE.pardons[pid] || {}; STATE.pardons[pid][miss[0]] = true; saveState(); }
+        refreshWarriorDisplay(); refreshLeaderboard(); renderFamily();
+        crToast('🛡️ Royal Pardon — ' + (PLAYER_NAMES[pid] || 'their') + "'s streak lives on!");
+      }));
+      box.appendChild(r);
+    });
+    if (!any) box.appendChild(row('🛡️', 'Every streak is safe', 'No missed days to forgive'));
+  }
+  function renderRules() {
+    var box = $('fp-rules');
+    if (box.contains(document.activeElement)) return;      // don't rebuild under an open picker
+    box.innerHTML = '';
+    var S = STATE.settings || {};
+    var r1 = row('😴', 'Rest Day', 'Never breaks a streak');
+    var sel = document.createElement('select'); sel.className = 'fam-sel'; sel.setAttribute('aria-label', 'Rest Day');
+    DAYS.concat(['No rest day']).forEach(function(n, i){ var o = document.createElement('option'); o.value = i === 7 ? -1 : i; o.textContent = n; sel.appendChild(o); });
+    sel.value = restDay();
+    sel.onchange = function(){ setSetting('restDay', +sel.value); };
+    r1.querySelector('.quest-actions').appendChild(sel); box.appendChild(r1);
+    var r2 = row('⏰', "Spin o'clock", 'Daily reminder time');
+    var tm = document.createElement('input'); tm.type = 'time'; tm.className = 'fam-sel'; tm.value = spinTime(); tm.setAttribute('aria-label', "Spin o'clock time");
+    tm.onchange = function(){ if (/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(tm.value)) setSetting('spinTime', tm.value); };
+    r2.querySelector('.quest-actions').appendChild(tm); box.appendChild(r2);
+    var on = !!S.autoApprove;
+    var r3 = row('🤖', 'Auto-approve after 24h', 'Chores without a photo, if no parent got to them');
+    var t = document.createElement('button'); t.className = 'toggle' + (on ? ' on' : '');
+    t.setAttribute('role', 'switch'); t.setAttribute('aria-checked', on ? 'true' : 'false'); t.setAttribute('aria-label', 'Auto-approve after 24 hours');
+    t.onclick = function(){ setSetting('autoApprove', !on); };
+    r3.querySelector('.quest-actions').appendChild(t); box.appendChild(r3);
+  }
+  function renderClock() {
+    var t = $('fk-time'); if (!t) return;
+    t.textContent = "Every day at " + spinTime();
+    var rd = restDay();
+    $('fk-rest').textContent = rd >= 0 ? 'Rest Day: ' + DAYS[rd] + ' — streaks stay safe' : 'No Rest Day set';
+    var nb = $('fk-notify');
+    if (nb) nb.textContent = spinReminderOn() ? '🔔 Reminder on — ' + spinTime() : '🔔 Remind me on this phone';
+  }
+  function appLink() { return location.origin + location.pathname; }
+  function recapText() {
+    var keys = playingKeys(), t = todayStr();
+    var quiet = keys.every(function(k) {
+      var w = STATE.warriors[k] || {}, e = STATE.daily[k];
+      return !(w.lastChoreDate && w.lastChoreDate >= addDays(t, -3)) && !(e && e.date >= addDays(t, -3));
+    });
+    var head = '🏰 היום בטירה · Today in the castle — ' + FAMILY_NAME;
+    if (quiet) return head + "\n🏰 The castle is quiet… Balagan is winning 😈\n🎡 Tap to spin: " + appLink();
+    var marks = keys.map(function(k) {
+      var e = dayEntry(k), m = !e ? '—' : e.done ? '✓' + (e.speedRun ? ' ⚡' : '') : e.status === 'pending' ? '⏳' : '…';
+      return (PLAYER_NAMES[k] || 'Player') + ' ' + m;
+    });
+    var reward = ($('goal-reward-name') || {}).textContent || 'the family reward';
+    var pct = goalPct();
+    return head + '\n' + marks.join(' · ') +
+      '\n' + (pct >= 100 ? '🏆 We beat the ' + villain() + '! ' + reward : '😈 ' + villain() + ': ' + goalCount() + '/' + goalTarget() + ' chores (' + pct + '%) · ' + reward) +
+      "\n🎡 Spin o'clock " + spinTime() + ' · ' + appLink();
+  }
+  window.famShareRecap = function() {
+    window.open('https://wa.me/?text=' + encodeURIComponent(recapText()), '_blank', 'noopener');
+  };
+  window.recapText = recapText;
+
+  /* ── auto-approve after 24h (parent setting, off by default) ── */
+  window.autoApproveDue = function() {
+    if (!(STATE.settings && STATE.settings.autoApprove)) return;
+    if (FAM.on && !FAM.isParent()) return;             // only the Crown's phone writes awards
+    var now = Date.now(), A = STATE.approvals || {}, n = 0;
+    Object.keys(A).forEach(function(id) {
+      var r = A[id];
+      if (r && !r.photo && r.at && now - r.at >= AUTO_APPROVE_MS) { approveChore(id, true); n++; }
+    });
+    if (n) crToast('👑 The Crown was busy — the game approved ' + n + ' chore' + (n === 1 ? '' : 's'));
+  };
+
   /* ── create ── */
   window.famCreate = function() {
     if (!CFG) return;
@@ -3434,15 +3687,17 @@ function crToast(msg) {
           ['jakob','dean','dave'].forEach(function(k) {
             var w = LOCAL.STATE.warriors[k];
             if (LOCAL.NAMES[k] === r.name && w && (w.xp || w.totalChores)) {
-              base[pid] = { xp: w.xp || 0, streak: w.streak || 0, lastChoreDate: w.lastChoreDate || '', totalChores: w.totalChores || 0, speedRuns: w.speedRuns || 0, at: SV };
+              base[pid] = { xp: w.xp || 0, wxp: w.wxp !== undefined ? w.wxp : w.xp || 0, streak: w.streak || 0, lastChoreDate: w.lastChoreDate || '', totalChores: w.totalChores || 0, speedRuns: w.speedRuns || 0, at: SV };
             }
           });
         });
         players.p1.claimedBy = a.uid;
         members[a.uid] = { player: 'p1', role: 'parent', joinedAt: SV };
         Object.keys(LOCAL.STATE.proof || {}).forEach(function(k){ if (LOCAL.STATE.proof[k]) proof[k] = true; });
+        var ls = LOCAL.STATE.settings || {}, settings = { proof: proof };
+        ['restDay','spinTime','autoApprove'].forEach(function(k){ if (ls[k] !== undefined) settings[k] = ls[k]; });
         var fam = { meta: { name: fname, code: code, createdBy: a.uid, createdAt: SV, resetAt: 0, bossResetAt: 0 },
-                    players: players, members: members, base: base, settings: { proof: proof } };
+                    players: players, members: members, base: base, settings: settings };
         return req('PUT', 'families/' + fid, fam).then(function(saved) {
           return req('PUT', 'codes/' + code, fid).then(function() {
             link = { fid: fid, pid: 'p1', code: code };
@@ -3594,6 +3849,9 @@ function crToast(msg) {
 
   /* ── boot ── */
   if (CFG && link) enterFamily();
+  scheduleSpinReminder();
+  setTimeout(autoApproveDue, 1500);
+  setInterval(autoApproveDue, 60000);
   renderBadges();
   if (CFG && lsGet(LSK.req)) pollRequest();
   var jm = /[?&]join=([A-Za-z0-9]{6})/.exec(location.search);
