@@ -1,0 +1,143 @@
+{
+  "rules": {
+    "codes": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null && !data.exists() && newData.isString() && root.child('families').child(newData.val()).child('meta/createdBy').val() === auth.uid",
+        ".validate": "$code.matches(/^[A-Z0-9]{6}$/) && newData.isString()"
+      }
+    },
+
+    "families": {
+      "$fid": {
+        ".read": "auth != null && data.child('members').child(auth.uid).exists()",
+        ".write": "auth != null && ((!data.exists() && newData.child('meta/createdBy').val() === auth.uid && newData.child('members').child(auth.uid).child('role').val() === 'parent') || data.child('members').child(auth.uid).child('role').val() === 'parent')",
+
+        "meta": {
+          ".read": "auth != null",
+          "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 24" },
+          "code": { ".validate": "newData.isString() && newData.val().matches(/^[A-Z0-9]{6}$/)" },
+          "createdBy": { ".validate": "newData.isString() && (!data.exists() || newData.val() === data.val())" },
+          "createdAt": { ".validate": "newData.isNumber()" },
+          "resetAt": { ".validate": "newData.isNumber()" },
+          "bossResetAt": { ".validate": "newData.isNumber()" },
+          "$other": { ".validate": false }
+        },
+
+        "players": {
+          ".read": "auth != null",
+          "$pid": {
+            ".validate": "$pid.matches(/^p[1-6]$/) && newData.hasChildren(['name', 'role'])",
+            "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 16" },
+            "icon": { ".validate": "newData.isString() && newData.val().length <= 8" },
+            "role": { ".validate": "newData.val() === 'kid' || newData.val() === 'parent'" },
+            "claimedBy": {
+              ".write": "auth != null && ((!data.exists() && newData.val() === auth.uid && data.parent().child('role').val() === 'kid') || (data.val() === auth.uid && !newData.exists()))",
+              ".validate": "newData.isString()"
+            },
+            "$other": { ".validate": false }
+          }
+        },
+
+        "members": {
+          "$uid": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && auth.uid === $uid && (!newData.exists() || (!data.exists() && newData.child('role').val() === 'kid' && newData.child('player').isString() && newData.parent().parent().child('players').child(newData.child('player').val()).child('claimedBy').val() === auth.uid))",
+            ".validate": "newData.hasChildren(['player', 'role']) && newData.child('player').isString() && newData.parent().parent().child('players').child(newData.child('player').val()).exists()",
+            "player": { ".validate": "newData.isString()" },
+            "role": { ".validate": "newData.val() === 'kid' || newData.val() === 'parent'" },
+            "joinedAt": { ".validate": "newData.isNumber()" },
+            "$other": { ".validate": false }
+          }
+        },
+
+        "requests": {
+          "$uid": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && auth.uid === $uid && (!newData.exists() || (!data.exists() && newData.child('player').isString() && newData.parent().parent().child('players').child(newData.child('player').val()).child('role').val() === 'parent' && !newData.parent().parent().child('players').child(newData.child('player').val()).child('claimedBy').exists()))",
+            "player": { ".validate": "newData.isString()" },
+            "at": { ".validate": "newData.isNumber()" },
+            "$other": { ".validate": false }
+          }
+        },
+
+        "daily": {
+          "$pid": {
+            ".write": "auth != null && data.parent().parent().child('members').child(auth.uid).child('player').val() === $pid && ((newData.child('date').val() !== data.child('date').val() && newData.child('done').val() !== true && !newData.child('awarded').exists() && !newData.child('status').exists()) || (newData.child('date').val() === data.child('date').val() && newData.child('done').val() === data.child('done').val() && newData.child('awarded').val() === data.child('awarded').val() && newData.child('speedRun').val() === data.child('speedRun').val() && (newData.child('status').val() === data.child('status').val() || newData.child('status').val() === 'pending')))",
+            "date": { ".validate": "newData.isString() && newData.val().length === 10" },
+            "chore": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < 8" },
+            "rerolls": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+            "acceptedAt": { ".validate": "newData.isNumber() && (newData.val() === data.val() || newData.val() === 0 || (newData.val() === now && (!data.exists() || data.val() === 0 || newData.parent().child('date').val() !== data.parent().child('date').val())))" },
+            "finishedAt": { ".validate": "newData.isNumber() && (newData.val() === data.val() || newData.val() === 0 || newData.val() === now)" },
+            "done": { ".validate": "newData.isBoolean()" },
+            "awarded": { ".validate": "newData.isNumber()" },
+            "speedRun": { ".validate": "newData.isBoolean()" },
+            "photo": { ".validate": "newData.isBoolean()" },
+            "status": { ".validate": "newData.val() === 'pending' || newData.val() === 'approved' || newData.val() === 'rejected'" },
+            "reason": { ".validate": "newData.isString() && newData.val().length <= 80" },
+            "$other": { ".validate": false }
+          }
+        },
+
+        "approvals": {
+          "$aid": {
+            ".write": "auth != null && !data.exists() && newData.child('pid').isString() && newData.child('pid').val() === data.parent().parent().child('members').child(auth.uid).child('player').val()",
+            ".validate": "newData.hasChildren(['pid', 'date', 'chore', 'at'])",
+            "pid": { ".validate": "newData.isString()" },
+            "date": { ".validate": "newData.isString() && newData.val().length === 10" },
+            "chore": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < 8" },
+            "photo": { ".validate": "newData.isBoolean()" },
+            "at": { ".validate": "newData.isNumber() && (newData.val() === now || newData.val() === data.val())" },
+            "$other": { ".validate": false }
+          }
+        },
+
+        "ledger": {
+          "$lid": {
+            ".validate": "newData.hasChildren(['pid', 'xp', 'date', 'at'])",
+            "pid": { ".validate": "newData.isString()" },
+            "xp": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 500" },
+            "date": { ".validate": "newData.isString() && newData.val().length === 10" },
+            "chore": { ".validate": "newData.isNumber()" },
+            "speed": { ".validate": "newData.isBoolean()" },
+            "photo": { ".validate": "newData.isBoolean()" },
+            "at": { ".validate": "newData.isNumber()" },
+            "$other": { ".validate": false }
+          }
+        },
+
+        "base": {
+          "$pid": {
+            "xp": { ".validate": "newData.isNumber()" },
+            "streak": { ".validate": "newData.isNumber()" },
+            "lastChoreDate": { ".validate": "newData.isString()" },
+            "totalChores": { ".validate": "newData.isNumber()" },
+            "speedRuns": { ".validate": "newData.isNumber()" },
+            "at": { ".validate": "newData.isNumber()" },
+            "$other": { ".validate": false }
+          }
+        },
+
+        "settings": {
+          "proof": {
+            "$chore": { ".validate": "newData.isBoolean() && $chore.matches(/^[0-7]$/)" }
+          },
+          "$other": { ".validate": false }
+        },
+
+        "$other": { ".validate": false }
+      }
+    },
+
+    "proofs": {
+      "$fid": {
+        ".read": "auth != null && root.child('families').child($fid).child('members').child(auth.uid).child('role').val() === 'parent'",
+        ".write": "auth != null && root.child('families').child($fid).child('members').child(auth.uid).child('role').val() === 'parent'",
+        "$aid": {
+          ".write": "auth != null && !data.exists() && root.child('families').child($fid).child('members').child(auth.uid).child('player').isString() && root.child('families').child($fid).child('approvals').child($aid).child('pid').val() === root.child('families').child($fid).child('members').child(auth.uid).child('player').val()",
+          ".validate": "newData.isString() && newData.val().beginsWith('data:image/jpeg;base64,') && newData.val().length < 300000"
+        }
+      }
+    }
+  }
+}
