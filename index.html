@@ -1079,9 +1079,9 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     <div class="upgrade-banner" id="upgrade-banner" onclick="openPremiumModal()" style="display:none">
       <div>
         <div class="ub-text">⭐ Unlock All Players</div>
-        <div class="ub-price">3 players · 2x XP · ₪29.90/mo</div>
+        <div class="ub-price">3 players · Coming soon</div>
       </div>
-      <div class="ub-btn">Unlock</div>
+      <div class="ub-btn">Details</div>
     </div>
     <!-- Hidden select for JS compatibility -->
     <select id="warrior-select" onchange="onWarriorSelect(this)" style="display:none">
@@ -2288,9 +2288,8 @@ function showPinHelp() {
 
 
 /* ── PREMIUM SYSTEM ──────────────────────────────────────────────── */
-var PREMIUM_CODES = ['247819','583021','914672','306158','751294'];
-var PRICE_TEXT = '₪29.90 / חודש';
-var WA_PHONE = '9724806699'; // Dave: replace with your number digits
+// No client-side unlock codes: Premium is "coming soon" until real payments exist.
+// Families that already unlocked on an older build keep their saved cr_premium flag.
 
 function isPremium() {
   try { return localStorage.getItem('cr_premium') === 'true'; } catch(e){ return false; }
@@ -2323,31 +2322,12 @@ function showPremiumCelebration() {
   setTimeout(function(){ document.body.removeChild(s); }, 2200);
 }
 
-function checkPremiumCode() {
-  var code = (document.getElementById('premium-code-input').value||'').trim();
-  var res = document.getElementById('premium-result');
-  if (PREMIUM_CODES.indexOf(code) !== -1) {
-    res.textContent = '✓ Code accepted!';
-    res.className = 'modal-result ok';
-    setTimeout(unlockPremium, 700);
-  } else {
-    res.textContent = 'Invalid code — try again';
-    res.className = 'modal-result err';
-    document.getElementById('premium-code-input').value = '';
-  }
-}
-
 function openPremiumModal() {
   document.getElementById('premium-modal').classList.remove('hidden');
 }
 
 function closePremiumModal() {
   document.getElementById('premium-modal').classList.add('hidden');
-}
-
-function sendPremiumWA() {
-  var txt = encodeURIComponent('Hi! I want to upgrade to Chore Royale Premium (' + PRICE_TEXT + '). Please send me an unlock code! 🏆');
-  window.open('https://wa.me/'+WA_PHONE+'?text='+txt,'_blank');
 }
 
 // Apply premium state on load
@@ -2472,8 +2452,8 @@ function applyPlayerNames() {
   <div class="modal-box">
     <div style="font-size:36px;margin-bottom:8px">🏆</div>
     <div class="modal-title">Chore Royale Premium</div>
-    <div class="modal-price">₪29.90</div>
-    <div class="modal-price-sub">/ month · cancel anytime</div>
+    <div class="modal-price">Coming soon</div>
+    <div class="modal-price-sub">Premium isn't on sale yet — we'll announce it in the app.</div>
     <ul class="modal-features">
       <li>3 players — customize all names</li>
       <li>All chores, no limits</li>
@@ -2482,17 +2462,6 @@ function applyPlayerNames() {
       <li>Weekly family goals & rewards</li>
       <li>Streak records & special prizes</li>
     </ul>
-    <button class="modal-wa-btn" onclick="sendPremiumWA()" style="font-family:'Fredoka One',cursive">
-      💬 Message us for unlock code
-    </button>
-    <div style="font-size:11px;color:var(--tx2);margin-bottom:14px">WhatsApp us → get code → enter here</div>
-    <div class="modal-result" id="premium-result"></div>
-    <div class="modal-code-row">
-      <input class="modal-code-input" id="premium-code-input" type="tel"
-        placeholder="000000" maxlength="6"
-        oninput="this.value=this.value.replace(/\D/g,'')">
-      <button class="modal-code-btn" onclick="checkPremiumCode()">✓</button>
-    </div>
     <div class="modal-close" onclick="closePremiumModal()">Close</div>
   </div>
 </div>
