@@ -3,7 +3,7 @@
     "codes": {
       "$code": {
         ".read": "auth != null",
-        ".write": "auth != null && !data.exists() && newData.isString() && root.child('families').child(newData.val()).child('meta/createdBy').val() === auth.uid",
+        ".write": "auth != null && ((!data.exists() && newData.isString() && root.child('families').child(newData.val()).child('meta/createdBy').val() === auth.uid) || (data.exists() && !newData.exists() && root.child('families').child(data.val()).child('members').child(auth.uid).child('role').val() === 'parent'))",
         ".validate": "$code.matches(/^[A-Z0-9]{6}$/) && newData.isString()"
       }
     },
