@@ -1863,8 +1863,7 @@ function takeFakePhoto() {
 function goToParentVerify() {
   // If photo was taken, go to parent verify for bonus XP; else skip straight to reward
   if (photoTaken) {
-    pinEntry = '';
-    updatePinDots && updatePinDots();
+    setPinMode(getParentPIN() ? 'verify' : 'set');
     var wEl = document.getElementById('pin-warrior-name');
     if (wEl) wEl.textContent = PLAYER_NAMES[activeWarrior] || 'Player 1';
     goTo('s-parent');
@@ -2221,11 +2220,30 @@ function showProfile(name) {}
 })();
 
 /* ── PARENT PIN ──────────────────────────────────────────────── */
-var DEFAULT_PIN = '1234';
+// No default PIN: the parent sets their own the first time it's needed.
 var pinEntry = '';
+var pinMode = 'verify';   // 'verify' | 'set' | 'confirm' | 'old'
+var pinDraft = '';
 
 function getParentPIN() {
-  return STATE.parentPIN || DEFAULT_PIN;
+  return STATE.parentPIN || '';
+}
+
+function setPinMode(mode) {
+  pinMode = mode; pinEntry = ''; updatePinDots();
+  var t = document.getElementById('pin-title');
+  var sv = document.getElementById('pin-sub-verify');
+  var ss = document.getElementById('pin-sub-set');
+  var h = document.getElementById('pin-hint');
+  var texts = {
+    set: ['Create Parent PIN', 'Parents: choose a 4-digit PIN. Kids will need you to verify photo proof.'],
+    confirm: ['Confirm PIN', 'Enter the same 4 digits again.'],
+    old: ['Current PIN', 'Enter the current parent PIN to change it.']
+  };
+  if (t) t.textContent = texts[mode] ? texts[mode][0] : 'Parent PIN';
+  if (ss) { ss.textContent = texts[mode] ? texts[mode][1] : ''; ss.style.display = texts[mode] ? '' : 'none'; }
+  if (sv) sv.style.display = texts[mode] ? 'none' : '';
+  if (h) h.style.display = (mode === 'verify') ? '' : 'none';
 }
 
 function pinKey(n) {
@@ -2233,7 +2251,31 @@ function pinKey(n) {
   pinEntry += n;
   updatePinDots();
   if (pinEntry.length === 4) {
-    setTimeout(checkPIN, 120);
+    setTimeout(pinMode === 'verify' ? checkPIN : handlePinSetup, 120);
+  }
+}
+
+function pinFlash(msg, ok, then) {
+  var res = document.getElementById('pin-result');
+  res.textContent = msg;
+  res.className = 'pin-result ' + (ok ? 'ok' : 'err');
+  setTimeout(function(){ res.textContent = ''; res.className = 'pin-result'; pinEntry = ''; updatePinDots(); if (then) then(); }, ok ? 700 : 1200);
+}
+
+function handlePinSetup() {
+  if (pinMode === 'old') {
+    if (pinEntry === getParentPIN()) pinFlash('✓ OK', true, function(){ setPinMode('set'); });
+    else pinFlash('Wrong PIN — try again', false);
+  } else if (pinMode === 'set') {
+    pinDraft = pinEntry; setPinMode('confirm');
+  } else if (pinMode === 'confirm') {
+    if (pinEntry === pinDraft) {
+      STATE.parentPIN = pinDraft; pinDraft = ''; saveState();
+      pinFlash('✓ PIN saved!', true, function(){ setPinMode('verify'); });
+    } else {
+      pinDraft = '';
+      pinFlash("PINs didn't match — start again", false, function(){ setPinMode('set'); });
+    }
   }
 }
 
@@ -2275,14 +2317,18 @@ function checkPIN() {
   }
 }
 
+// Changing the PIN requires the current PIN. A forgotten PIN can only be
+// cleared by erasing all game data on this device (no silent bypass).
 function showPinHelp() {
-  var pin = prompt('To change the parent PIN, enter a new 4-digit PIN:');
-  if (pin && /^\d{4}$/.test(pin)) {
-    STATE.parentPIN = pin;
-    saveState();
-    alert('PIN updated! New PIN: ' + pin);
-  } else if (pin) {
-    alert('PIN must be exactly 4 digits.');
+  if (confirm('Change the parent PIN?\n\nOK = I know the current PIN\nCancel = I forgot it')) {
+    setPinMode('old');
+    return;
+  }
+  if (confirm('Forgot the parent PIN?\n\nThe only way to reset it is to ERASE ALL Chore Royale data on this device: every player\'s XP, streaks, names and the PIN. This cannot be undone.\n\nErase everything?')) {
+    try {
+      ['choreroyal_v1','cr_names','cr_family','cr_onboarded'].forEach(function(k){ localStorage.removeItem(k); });
+    } catch(e) {}
+    location.reload();
   }
 }
 
@@ -2398,8 +2444,9 @@ function applyPlayerNames() {
   </div>
   <div class="pin-zone">
     <div style="font-size:40px;margin-bottom:var(--s2)">👑</div>
-    <div class="pin-title">Parent PIN</div>
-    <div class="pin-sub">Parent verifies <span id="pin-warrior-name">Player 1</span>'s chore — award +<span class="bonus-xp">15</span> bonus XP</div>
+    <div class="pin-title" id="pin-title">Parent PIN</div>
+    <div class="pin-sub" id="pin-sub-set" style="display:none"></div>
+    <div class="pin-sub" id="pin-sub-verify">Parent verifies <span id="pin-warrior-name">Player 1</span>'s chore — award +<span class="bonus-xp">15</span> bonus XP</div>
     <div class="pin-dots" id="pin-dots">
       <div class="pin-dot" id="pd0"></div>
       <div class="pin-dot" id="pd1"></div>
@@ -2421,7 +2468,7 @@ function applyPlayerNames() {
       <button class="pin-key del" onclick="pinDel()">⌫</button>
     </div>
     <div class="pin-result" id="pin-result"></div>
-    <div class="pin-hint" onclick="showPinHelp()">Forgot PIN? First-time setup?</div>
+    <div class="pin-hint" id="pin-hint" onclick="showPinHelp()">Change or forgot PIN?</div>
   </div>
 </div>
 
