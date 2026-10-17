@@ -1480,9 +1480,13 @@ function saveState() {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(STATE)); } catch(e) {}
 }
 
+/* Day keys are the phone's LOCAL calendar day (Israel), never UTC. */
 function todayStr() {
-  return new Date().toISOString().slice(0,10);
+  var d = new Date(), pad = function(n){ return (n < 10 ? '0' : '') + n; };
+  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 }
+/* Whole-day number of a day key (days since 1970-01-01) — the rules range-check it against server time */
+function dayNum(key) { var p = key.split('-'); return Math.round(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
 
 function checkDailyReset() {
   var today = todayStr();
@@ -1823,6 +1827,7 @@ function goTo(id) {
     });
   });
   currentScreen = id;
+  if (typeof onScreenChange === 'function') onScreenChange(id);
 
   if (id === 's-reward') launchFireworks();
   if (id === 's-leaderboard') refreshLeaderboard();
@@ -1848,6 +1853,7 @@ function goBack() {
   from.style.opacity = '0';
   setTimeout(function() { from.style.transform = ''; from.style.opacity = ''; from.classList.add('hidden'); }, 350);
   currentScreen = prev;
+  if (typeof onScreenChange === 'function') onScreenChange(prev);
 }
 
 /* ── SPIN WHEEL ─────────────────────────────────────────── */
@@ -1913,7 +1919,7 @@ function spinWheel() {
   svg.style.transform = 'rotate(' + totalRotation + 'deg)';
 
   currentChore = CHORES[winner];
-  STATE.daily[activeWarrior] = { date: todayStr(), chore: winner, rerolls: 1, acceptedAt: 0, finishedAt: 0, done: false };
+  STATE.daily[activeWarrior] = { date: todayStr(), day: dayNum(todayStr()), chore: winner, rerolls: 1, acceptedAt: 0, finishedAt: 0, done: false };
   saveState();
 
   setTimeout(function() {
@@ -1972,7 +1978,7 @@ function speedBonus(chore) { return chore.mins ? Math.round(chore.xp * 0.5) : 0;
 
 function acceptChore() {
   var e = dayEntry(activeWarrior);
-  if (e && !e.acceptedAt) { e.acceptedAt = Date.now(); saveState(); }
+  if (e && !e.acceptedAt) { e.acceptedAt = e.acceptedLocal = Date.now(); saveState(); }   // *Local = this phone's own clock
   updateChoreScreen(currentChore);
   goTo('s-proof');
 }
@@ -1981,6 +1987,18 @@ function timeLeftMs(e, chore) {
   if (!e || !e.acceptedAt || !chore.mins) return null;
   var end = e.acceptedAt + chore.mins * 60000;
   return end - (e.finishedAt || Date.now());
+}
+
+/* Speed Run proof. Family mode: the bonus needs the phone's own start/finish times.
+   Server stamps catch a phone clock changed while online; a quest queued offline is
+   stamped on reconnect, so there only the phone's times count. Missing → no bonus. */
+function provenLeftMs(e, c) {
+  if (!e || !c.mins || !e.acceptedAt) return null;
+  if (!(FAM && FAM.on)) return timeLeftMs(e, c);              // same phone: one clock
+  var aL = e.acceptedLocal, fL = e.finishedLocal || (e.finishedAt ? 0 : Date.now());
+  if (!aL || !fL || fL < aL) return null;
+  var dev = fL - aL, srv = (e.finishedAt || Date.now()) - e.acceptedAt;
+  return c.mins * 60000 - Math.max(dev, srv);
 }
 
 function fmtMs(ms) {
@@ -2065,7 +2083,7 @@ function refreshProofScreen() {
 
 function stopClock() {
   var e = dayEntry(activeWarrior);
-  if (e && e.acceptedAt && !e.finishedAt) { e.finishedAt = Date.now(); saveState(); }
+  if (e && e.acceptedAt && !e.finishedAt) { e.finishedAt = e.finishedLocal = Date.now(); saveState(); }
 }
 
 function finishQuest() {
@@ -2083,7 +2101,7 @@ function submitForApproval(e) {
   var photo = !!proofData;
   e.status = 'pending'; delete e.reason; e.photo = photo;
   var id = 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-  var rec = { pid: activeWarrior, date: e.date, chore: e.chore, photo: photo };
+  var rec = { pid: activeWarrior, date: e.date, day: dayNum(e.date), chore: e.chore, photo: photo };
   if (FAM && FAM.on) {
     saveState();
     FAM.submit(id, rec, proofData);
@@ -2103,7 +2121,7 @@ function submitForApproval(e) {
 /* XP for a finished day entry: chore + photo bonus (if proof) + ⚡ speed bonus */
 function awardFor(e, photo) {
   var c = CHORES[e.chore] || CHORES[0];
-  var left = timeLeftMs(e, c);
+  var left = provenLeftMs(e, c);
   var speed = (left !== null && left > 0) ? speedBonus(c) : 0;
   var ph = photo ? c.bonus : 0;
   return { chore: c, base: c.xp, photo: ph, speed: speed, total: c.xp + ph + speed, left: left };
@@ -2135,7 +2153,7 @@ function rejectChore(id, reason) {
   if (FAM && FAM.on) { FAM.reject(id, reason); return; }
   var r = STATE.approvals[id]; if (!r) return;
   var e = STATE.daily[r.pid];
-  if (e && e.date === r.date && !e.done) { e.status = 'rejected'; e.reason = reason || ''; e.finishedAt = 0; }
+  if (e && e.date === r.date && !e.done) { e.status = 'rejected'; e.reason = reason || ''; e.finishedAt = 0; e.finishedLocal = 0; }
   delete STATE.approvals[id];
   saveState();
   refreshWarriorDisplay();
@@ -2522,6 +2540,10 @@ var pinThen = null;       // what a correct PIN unlocks
 function getParentPIN() {
   return STATE.parentPIN || '';
 }
+/* Family mode: each parent has their own PIN (hashed, synced); same phone: the local PIN */
+function hasParentPIN() { return (FAM && FAM.on) ? FAM.hasPin() : !!getParentPIN(); }
+function pinMatches(p) { return (FAM && FAM.on) ? FAM.pinMatches(p) : Promise.resolve(p === getParentPIN()); }
+function savePIN(p) { if (FAM && FAM.on) FAM.setPin(p); else { STATE.parentPIN = p; saveState(); } }
 
 function setPinMode(mode) {
   pinMode = mode; pinEntry = ''; updatePinDots();
@@ -2558,14 +2580,20 @@ function pinFlash(msg, ok, then) {
 
 function handlePinSetup() {
   if (pinMode === 'old') {
-    if (pinEntry === getParentPIN()) pinFlash('✓ OK', true, function(){ setPinMode('set'); });
-    else pinFlash('Wrong PIN — try again', false);
+    pinMatches(pinEntry).then(function(ok) {
+      if (ok) pinFlash('✓ OK', true, function(){ setPinMode('set'); });
+      else pinFlash('Wrong PIN — try again', false);
+    });
   } else if (pinMode === 'set') {
     pinDraft = pinEntry; setPinMode('confirm');
   } else if (pinMode === 'confirm') {
     if (pinEntry === pinDraft) {
-      STATE.parentPIN = pinDraft; pinDraft = ''; saveState();
-      pinFlash('✓ PIN saved!', true, function(){ setPinMode('verify'); });
+      savePIN(pinDraft); pinDraft = '';
+      pinFlash('✓ PIN saved!', true, function(){
+        setPinMode('verify');
+        var fn = pinThen; pinThen = null;     // just set it: you're in
+        if (fn) fn();
+      });
     } else {
       pinDraft = '';
       pinFlash("PINs didn't match — start again", false, function(){ setPinMode('set'); });
@@ -2589,7 +2617,10 @@ function updatePinDots() {
 
 function checkPIN() {
   var res = document.getElementById('pin-result');
-  if (pinEntry === getParentPIN()) {
+  pinMatches(pinEntry).then(function(ok) { pinResult(res, ok); });
+}
+function pinResult(res, ok) {
+  if (ok) {
     res.textContent = '✓ Verified!';
     res.className = 'pin-result ok';
     setTimeout(function() {
@@ -2617,6 +2648,10 @@ function checkPIN() {
 function showPinHelp() {
   if (confirm('Change the parent PIN?\n\nOK = I know the current PIN\nCancel = I forgot it')) {
     setPinMode('old');
+    return;
+  }
+  if (FAM && FAM.on) {
+    alert("Forgot your PIN?\n\nAsk the other parent to open Family → Players and tap “Reset PIN” next to your name, then set a new one here.\n\nOnly parent? Leave the family on this phone and create a new one.");
     return;
   }
   if (confirm('Forgot the parent PIN?\n\nThe only way to reset it is to ERASE ALL Chore Royale data on this device: every player\'s XP, streaks, names and the PIN. This cannot be undone.\n\nErase everything?')) {
@@ -2933,7 +2968,7 @@ function applyPlayerNames() {
      { apiKey: 'AIza…', databaseURL: 'https://<project>-default-rtdb.<region>.firebasedatabase.app' }
    (Anonymous sign-in must be enabled in Firebase Auth.)                       */
 var FIREBASE_CONFIG = null;
-if (window.CR_FIREBASE_CONFIG) FIREBASE_CONFIG = window.CR_FIREBASE_CONFIG;   // QA harness (local emulator) only
+if (window.CR_FIREBASE_CONFIG !== undefined) FIREBASE_CONFIG = window.CR_FIREBASE_CONFIG;   // QA harness only (emulator, or null = no sync)
 
 var AUTO_APPROVE_MS = 24 * 60 * 60 * 1000;
 
@@ -3010,7 +3045,7 @@ function crToast(msg) {
 
 (function familySync() {
   var CFG = FIREBASE_CONFIG;
-  var LSK = { link:'cr_fam_link', cache:'cr_fam_cache', out:'cr_fam_outbox', auth:'cr_fb_auth', req:'cr_fam_request' };
+  var LSK = { link:'cr_fam_link', cache:'cr_fam_cache', out:'cr_fam_outbox', auth:'cr_fb_auth', req:'cr_fam_request', pin:'cr_fam_pin' };
   var SV = { '.sv': 'timestamp' };
   var ICONS = ['🌟','⭐','💫','🚀','🦄','🐯'];
   var CODE_ABC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -3335,18 +3370,48 @@ function crToast(msg) {
       var r = mirror.approvals && mirror.approvals[id]; if (!r) return;
       var u = {}, e = mirror.daily && mirror.daily[r.pid], d = 'daily/' + r.pid + '/';
       u['approvals/' + id] = null;
-      if (e && e.date === r.date && !e.done) { u[d + 'status'] = 'rejected'; u[d + 'reason'] = (reason || '').slice(0, 80); u[d + 'finishedAt'] = 0; }
+      if (e && e.date === r.date && !e.done) { u[d + 'status'] = 'rejected'; u[d + 'reason'] = (reason || '').slice(0, 80); u[d + 'finishedAt'] = 0; u[d + 'finishedLocal'] = 0; }
       patchFam(u);
       if (r.photo) { enqueue({ m:'DELETE', p: 'proofs/' + link.fid + '/' + id }); delete proofCache[id]; }
       crToast('↩ Sent back to ' + (PLAYER_NAMES[r.pid] || 'player'));
     },
     weeklyReset: function() {
       if (!FAM.isParent()) { crToast('Only a parent can start a fresh week'); return; }
-      patchFam({ 'meta/resetAt': SV });     // weekly leaderboard only — ranks and streaks stay
+      requirePin(function(){ patchFam({ 'meta/resetAt': SV }); renderBadges(); });   // weekly leaderboard only — ranks and streaks stay
     },
     set: function(k, v) { if (FAM.isParent()) { var u = {}; u['settings/' + k] = v; patchFam(u); } },
-    pardon: function(pid, d) { if (FAM.isParent()) { var u = {}; u['pardons/' + pid + '/' + d] = true; patchFam(u); } }
+    pardon: function(pid, d) { if (FAM.isParent()) { var u = {}; u['pardons/' + pid + '/' + d] = true; patchFam(u); } },
+    // Parent PIN: salted SHA-256 at parentLocks/<family>/<parent>, readable only by that parent
+    hasPin: function(){ var c = lsGet(LSK.pin); return !!(c && link && c.fid === link.fid && c.h); },
+    pinMatches: function(p){ var c = lsGet(LSK.pin); return pinHash(p).then(function(h){ return !!(c && c.h === h); }); },
+    setPin: function(p) {
+      pinHash(p).then(function(h) {
+        lsSet(LSK.pin, { fid: link.fid, h: h });
+        enqueue({ m:'PUT', p: 'parentLocks/' + link.fid + '/' + auth.uid, v: h });
+      });
+    },
+    refreshPin: function() {
+      return req('GET', 'parentLocks/' + link.fid + '/' + auth.uid).then(function(h) {
+        lsSet(LSK.pin, h ? { fid: link.fid, h: h } : null);
+      }, function(){ /* offline: keep the cached one */ });
+    }
   };
+  function pinHash(p) {
+    var data = new TextEncoder().encode('chore-royale:' + link.fid + ':' + auth.uid + ':' + p);
+    return crypto.subtle.digest('SHA-256', data).then(function(buf) {
+      return [].map.call(new Uint8Array(buf), function(b){ return ('0' + b.toString(16)).slice(-2); }).join('');
+    });
+  }
+  // Leaving the Family screen locks the parent area again.
+  window.onScreenChange = function(id) { if (id !== 's-family' && id !== 's-parent') parentUnlocked = false; };
+  function requirePin(fn) {           // parents unlock once per visit to the Family screen
+    if (!FAM.on || parentUnlocked) { fn(); return; }
+    FAM.refreshPin().then(function() {
+      setPinMode(FAM.hasPin() ? 'verify' : 'set');
+      pinThen = function(){ parentUnlocked = true; goBack(); fn(); };
+      goTo('s-parent');
+    });
+  }
 
   /* ── badges + home banner: approvals waiting for a parent ── */
   function pendingCount() {
@@ -3417,11 +3482,11 @@ function crToast(msg) {
     show('fam-off-note', !CFG);
     ['fam-create-open','fam-join-open'].forEach(function(id){ var b = $(id); if (b) { b.disabled = !CFG; b.style.opacity = CFG ? '' : '.45'; } });
     if (req) $('fw-text').textContent = '⏳ Waiting for a parent in ' + req.family + ' to let you in as ' + req.name + '…';
-    var parentView = on ? FAM.isParent() : (panel === 'local' && parentUnlocked);
+    var parentView = on ? (FAM.isParent() && parentUnlocked) : (panel === 'local' && parentUnlocked);
     show('fam-in', on);
     show('fam-players-wrap', on);
     show('fam-parent', parentView);
-    show('fam-lock', !on && panel === 'local' && !parentUnlocked);
+    show('fam-lock', on ? (FAM.isParent() && !parentUnlocked) : (panel === 'local' && !parentUnlocked));
     show('fam-clock', on || panel === 'local');
     renderClock();
     var lc = $('fl-count'); if (lc) { var n = pendingCount(); lc.textContent = n ? '(' + n + ')' : ''; }
@@ -3431,7 +3496,7 @@ function crToast(msg) {
       var waiting = outbox.length;
       $('fi-sync').textContent = online ? '🟢 Synced with the family' : "📴 Offline — " + (waiting ? waiting + ' change' + (waiting === 1 ? '' : 's') + ' waiting' : "changes sync when you're back");
       renderPlayers();
-      show('fi-add', FAM.isParent() && FAM.ids().length < 6);
+      show('fi-add', FAM.isParent() && parentUnlocked && FAM.ids().length < 6);
     }
     if (parentView) { renderApprovals(); renderPardons(); renderRules(); $('fp-recap').textContent = recapText(); renderProofToggles(); }
   }
@@ -3541,11 +3606,18 @@ function crToast(msg) {
 
   function renderPlayers() {
     var box = $('fi-players'); box.innerHTML = '';
-    var P = mirror.players || {}, parent = FAM.isParent();
+    var P = mirror.players || {}, parent = FAM.isParent() && parentUnlocked;
     FAM.ids().forEach(function(pid) {
       var p = P[pid], mine = pid === link.pid;
       var meta = (p.role === 'parent' ? '👑 Parent' : 'Player') + ' · ' + (mine ? 'this phone' : p.claimedBy ? '📱 on their phone' : '⏳ not joined yet');
       var r = row(PICONS[pid] || '🌟', p.name + (mine ? ' (you)' : ''), meta);
+      if (parent && !mine && p.claimedBy && p.role === 'parent' && mirror.members[p.claimedBy] && mirror.members[p.claimedBy].role === 'parent') {
+        r.querySelector('.quest-actions').appendChild(miniBtn('Reset PIN', '', function() {
+          if (!confirm('Reset ' + p.name + "'s parent PIN? They'll choose a new one next time.")) return;
+          enqueue({ m:'DELETE', p: 'parentLocks/' + link.fid + '/' + p.claimedBy });
+          crToast('🔑 ' + p.name + "'s PIN was reset");
+        }));
+      }
       if (parent && !mine && p.claimedBy) {
         r.querySelector('.quest-actions').appendChild(miniBtn('Unlink', '', function() {
           if (!confirm('Unlink ' + p.name + "'s phone? They can join again with the family code.")) return;
@@ -3705,7 +3777,8 @@ function crToast(msg) {
             lsSet(LSK.link, link);
             mirror = saved;
             enterFamily();
-            crToast('🎉 Family created! Share the code ' + code);
+            crToast('🎉 Family created! Now choose your parent PIN');
+            requirePin(renderFamily);
           });
         });
       });
@@ -3812,6 +3885,7 @@ function crToast(msg) {
 
   /* ── same-phone parent area (PIN) ── */
   window.famUnlock = function() {
+    if (FAM.on) { requirePin(renderFamily); return; }
     setPinMode(getParentPIN() ? 'verify' : 'set');
     pinThen = function(){ parentUnlocked = true; goBack(); renderFamily(); };
     goTo('s-parent');
@@ -3828,7 +3902,7 @@ function crToast(msg) {
   function leaveLocal() {
     closeStream(); clearTimeout(retryT);
     link = null; mirror = null; outbox = [];
-    lsSet(LSK.link, null); lsSet(LSK.cache, null); lsSet(LSK.out, null);
+    lsSet(LSK.link, null); lsSet(LSK.cache, null); lsSet(LSK.out, null); lsSet(LSK.pin, null);
     FAM.on = false;
     STATE = LOCAL.STATE; PLAYER_NAMES = LOCAL.NAMES; PICONS = LOCAL.ICONS; FAMILY_NAME = LOCAL.FAMILY;
     activeWarrior = 'jakob';
