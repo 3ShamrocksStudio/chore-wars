@@ -1187,7 +1187,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <div class="chore-tips">
         <div class="tip"><span class="tip-ico">✅</span>Tidy all surfaces first</div>
         <div class="tip"><span class="tip-ico">✅</span>Vacuum or sweep floor</div>
-        <div class="tip"><span class="tip-ico">📸</span>Take a photo when done for +15 bonus XP</div>
+        <div class="tip"><span class="tip-ico">📸</span><span>Take a photo when done for +<span class="bonus-xp">15</span> bonus XP</span></div>
       </div>
     </div>
   </div>
@@ -1211,7 +1211,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <div class="proof-lbl" id="proof-lbl">Tap to take photo</div>
       <div class="proof-sublbl" id="proof-sublbl">Show the completed chore</div>
     </div>
-    <div class="proof-note">📸 Photo proof earns +15 bonus XP and helps a parent verify your work.</div>
+    <div class="proof-note">📸 Photo proof earns +<span class="bonus-xp">15</span> bonus XP and helps a parent verify your work.</div>
     <div class="proof-actions">
       <button class="btn btn-orange" id="submit-proof-btn" onclick="goToParentVerify()">📤 Submit for Parent Review</button>
       <button class="btn btn-ghost" onclick="skipPhoto()">Skip photo — No bonus XP</button>
@@ -1230,22 +1230,23 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <div class="xp-pop-num" id="reward-xp">+45</div>
       <div class="xp-pop-lbl">XP EARNED</div>
     </div>
+    <div class="proof-note" id="reward-breakdown" style="margin:-12px 0 18px"></div>
     <div class="reward-stats">
       <div class="rstat">
-        <div class="rstat-n">🔥 8</div>
+        <div class="rstat-n" id="rw-streak">🔥 0</div>
         <div class="rstat-l">Day Streak</div>
       </div>
       <div class="rstat">
-        <div class="rstat-n" style="color:var(--jakob)">2,885</div>
+        <div class="rstat-n" id="rw-total" style="color:var(--jakob)">0</div>
         <div class="rstat-l">Total XP</div>
       </div>
       <div class="rstat">
-        <div class="rstat-n" style="color:var(--gold)">₪5</div>
-        <div class="rstat-l">Allowance</div>
+        <div class="rstat-n" id="rw-chores" style="color:var(--gold)">0</div>
+        <div class="rstat-l">Chores Done</div>
       </div>
       <div class="rstat">
-        <div class="rstat-n" style="color:var(--dean)">+3%</div>
-        <div class="rstat-l">Boss HP</div>
+        <div class="rstat-n" id="rw-goal" style="color:var(--dean)">0%</div>
+        <div class="rstat-l">Family Goal</div>
       </div>
     </div>
     <div class="reward-actions">
@@ -1818,6 +1819,7 @@ function updateChoreScreen(chore) {
   document.getElementById('chore-title').textContent = chore.name;
   document.getElementById('chore-xp').textContent = '+' + chore.xp + ' XP';
   document.getElementById('chore-desc').textContent = chore.desc;
+  document.querySelectorAll('.bonus-xp').forEach(function(el){ el.textContent = chore.bonus; });
   var e = dayEntry(activeWarrior);
   var rb = document.getElementById('reroll-btn');
   if (rb) {
@@ -1865,23 +1867,35 @@ function goToParentVerify() {
 }
 
 function submitProof() {
-  var xp = currentChore.xp + (photoTaken ? currentChore.bonus : 0);
-  // Award to the active warrior
-  awardXP(activeWarrior, xp);
-  document.getElementById('reward-chore').textContent = currentChore.name;
-  document.getElementById('reward-xp').textContent = '+' + xp;
-  // Update reward screen stats from STATE
-  var w = STATE.warriors;
-  var rXP = document.getElementById('reward-xp');
-  if(rXP) rXP.textContent = '+' + xp;
-  goTo('s-reward');
+  completeChore(false);
 }
 
 function skipPhoto() {
   photoTaken = false;
-  awardXP(activeWarrior, currentChore.xp);
+  completeChore(false);
+}
+
+/* Single place that awards a finished chore and fills the reward screen.
+   photoVerified = parent confirmed the photo with the PIN. */
+function completeChore(photoVerified) {
+  var e = dayEntry(activeWarrior);
+  if (e && e.done) { goTo('s-reward'); return; }
+  var base = currentChore.xp;
+  var photo = photoVerified ? currentChore.bonus : 0;
+  var total = base + photo;
+  awardXP(activeWarrior, total);
+  if (e) { e.done = true; e.awarded = total; saveState(); }
+  var parts = [base + ' chore'];
+  if (photo) parts.push(photo + ' 📸 photo');
+  var w = STATE.warriors[activeWarrior];
   document.getElementById('reward-chore').textContent = currentChore.name;
-  document.getElementById('reward-xp').textContent = '+' + currentChore.xp;
+  document.getElementById('reward-xp').textContent = '+' + total;
+  document.getElementById('reward-breakdown').textContent = parts.length > 1 ? parts.join(' + ') + ' XP' : '';
+  document.getElementById('rw-streak').textContent = '🔥 ' + w.streak;
+  document.getElementById('rw-total').textContent = w.xp.toLocaleString();
+  document.getElementById('rw-chores').textContent = w.totalChores;
+  document.getElementById('rw-goal').textContent = (STATE.boss.hp || 0) + '%';
+  photoTaken = false;
   goTo('s-reward');
 }
 
@@ -2235,14 +2249,12 @@ function checkPIN() {
   if (pinEntry === getParentPIN()) {
     res.textContent = '✓ Verified!';
     res.className = 'pin-result ok';
-    // Award bonus XP
-    awardXP(activeWarrior, 15);
     setTimeout(function() {
       pinEntry = '';
       updatePinDots();
       res.textContent = '';
       res.className = 'pin-result';
-      goTo('s-reward');
+      completeChore(true);
     }, 800);
   } else {
     res.textContent = 'Wrong PIN — try again';
@@ -2400,7 +2412,7 @@ function applyPlayerNames() {
   <div class="pin-zone">
     <div style="font-size:40px;margin-bottom:var(--s2)">👑</div>
     <div class="pin-title">Parent PIN</div>
-    <div class="pin-sub">Parent verifies <span id="pin-warrior-name">Player 1</span>'s chore — award +15 bonus XP</div>
+    <div class="pin-sub">Parent verifies <span id="pin-warrior-name">Player 1</span>'s chore — award +<span class="bonus-xp">15</span> bonus XP</div>
     <div class="pin-dots" id="pin-dots">
       <div class="pin-dot" id="pd0"></div>
       <div class="pin-dot" id="pd1"></div>
