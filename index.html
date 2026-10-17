@@ -3743,6 +3743,13 @@ function crToast(msg) {
     if (n) crToast('👑 The Crown was busy — the game approved ' + n + ' chore' + (n === 1 ? '' : 's'));
   };
 
+  /* Honest error copy: no connection vs. the server saying no */
+  function syncError(err, what) {
+    if (!err || !err.status) return "Couldn't reach the family server — check your connection and try again";
+    if (err.status === 401 || err.status === 403) return 'The family server said no to ' + what + '. Family sync may not be set up yet — same-phone play still works.';
+    return 'The family server had a problem (' + err.status + ') — please try again in a minute';
+  }
+
   /* ── create ── */
   window.famCreate = function() {
     if (!CFG) return;
@@ -3788,8 +3795,8 @@ function crToast(msg) {
           });
         });
       });
-    }).catch(function() {
-      msg.className = 'pin-result err'; msg.textContent = "Couldn't reach the family server — check your connection and try again";
+    }).catch(function(err) {
+      msg.className = 'pin-result err'; msg.textContent = syncError(err, 'creating this family');
     }).then(function(){ btn.disabled = false; });
   };
 
@@ -3808,7 +3815,7 @@ function crToast(msg) {
         msg.textContent = '';
         renderPicker();
       });
-    }).catch(function() { msg.className = 'pin-result err'; msg.textContent = "Couldn't reach the family server — check your connection"; });
+    }).catch(function(err) { msg.className = 'pin-result err'; msg.textContent = syncError(err, 'looking up that code'); });
   };
   function renderPicker() {
     $('fj-found').style.display = '';
@@ -3847,7 +3854,7 @@ function crToast(msg) {
       });
     }).catch(function(err) {
       msg.className = 'pin-result err';
-      msg.textContent = err.status ? 'Someone already picked that name — ask a parent to free it' : "Couldn't reach the family server — check your connection";
+      msg.textContent = (err.status === 401 || err.status === 403) ? 'Someone already picked that name — ask a parent to free it' : syncError(err, 'joining');
       if (err.status) famLookup(L.code);
     });
   }
