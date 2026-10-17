@@ -559,7 +559,7 @@ picture{display:contents}
   border-radius:26px;padding:12px 20px 18px;width:100%;max-width:350px;text-align:center;margin:auto;
 }
 .ob-icon{margin:-4px auto 2px;line-height:0}
-.ob-lockup{width:min(200px,54vw);height:auto;display:block;margin:0 auto;filter:drop-shadow(0 8px 14px rgba(6,0,18,.6))}
+.ob-lockup{width:min(190px,50vw);height:auto;display:block;margin:4px auto 2px;filter:drop-shadow(0 0 22px rgba(62,230,207,.35)) drop-shadow(0 8px 14px rgba(6,0,18,.6))}
 .ob-title{font-family:var(--display);font-size:24px;margin-bottom:4px;line-height:1.15}
 .ob-sub{font-size:14px;font-weight:700;color:var(--tx1);line-height:1.45;margin-bottom:12px}
 .ob-field{width:100%;height:48px;padding:0 14px;margin-bottom:8px;
@@ -578,7 +578,7 @@ picture{display:contents}
 /* ── DESKTOP WALL ── */
 #desktop-wall{position:fixed;inset:0;z-index:9999;background:var(--scene);display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px}
 .dw-icon{line-height:0;margin-bottom:12px}
-.dw-icon img{width:260px;height:auto}
+.dw-icon img{width:260px;height:auto;filter:drop-shadow(0 0 30px rgba(62,230,207,.35)) drop-shadow(0 10px 18px rgba(6,0,18,.6))}
 .dw-title{font-family:var(--display);font-size:28px;margin-bottom:10px}
 .dw-sub{font-size:15px;font-weight:700;color:var(--tx1);line-height:1.6;max-width:320px}
 
@@ -679,7 +679,7 @@ picture{display:contents}
 
 <!-- ── DESKTOP WALL (mobile-only enforcement) ──────────────── -->
 <div id="desktop-wall">
-  <div class="dw-icon"><picture><source srcset="assets/brand/lockup.webp" type="image/webp"><img class="dw-lockup" src="assets/brand/lockup.jpg" alt="Chore Royale" width="600" height="646" decoding="async"></picture></div>
+  <div class="dw-icon"><picture><source srcset="assets/brand/lockup.webp" type="image/webp"><img class="dw-lockup" src="assets/brand/lockup.png" alt="Chore Royale" width="520" height="604" decoding="async"></picture></div>
   <div class="dw-title">Chore Royale™ is mobile-only</div>
   <div class="dw-sub">Open it on your phone, brave knight — the castle fits in the palm of your hand.</div>
 </div>
@@ -2439,7 +2439,7 @@ function applyPlayerNames() {
 <!-- ── ONBOARDING MODAL ──────────────────────────────────────────────── -->
 <div class="ob-overlay hidden" id="ob-modal">
   <div class="ob-box">
-    <div class="ob-icon"><picture><source srcset="assets/brand/lockup.webp" type="image/webp"><img class="ob-lockup" src="assets/brand/lockup.jpg" alt="Chore Royale" width="600" height="646" decoding="async"></picture></div>
+    <div class="ob-icon"><picture><source srcset="assets/brand/lockup.webp" type="image/webp"><img class="ob-lockup" src="assets/brand/lockup.png" alt="Chore Royale" width="520" height="604" decoding="async"></picture></div>
     <div class="ob-title">Welcome, brave knights!</div>
     <div class="ob-sub">Name your castle and its knights. You can change this any time.</div>
     <label class="ob-label">Family (your castle)</label>

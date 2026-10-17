@@ -108,7 +108,8 @@ or crop through the helmet. Small sizes (< 64px) use the knight-bust icon tile i
 | File | Use | Size |
 |---|---|---|
 | `knight.webp` / `knight.png` | mascot cutout (440w / 330w) | 31 KB / 28 KB |
-| `lockup.webp` / `lockup.jpg` | full logo: onboarding, desktop wall, og:image | 65 KB / 72 KB |
+| `lockup.webp` / `lockup.png` | transparent full logo (knight + plate): onboarding, desktop wall | 65 KB / 67 KB |
+| `lockup.jpg` | opaque full logo for `og:image` link previews | 72 KB |
 | `wordmark.webp` / `wordmark.png` | CHORE ROYALE plate: home header, Plus modal | 28 KB / 39 KB |
 | `favicon-32.png`, `favicon-16.png` | crown + helmet | 2 KB / 1 KB |
 | `/icon-192.png`, `/icon-512.png`, `/icon-maskable-512.png`, `/assets/apple-touch-icon.png` | knight bust on a violet tile with teal glow (maskable keeps the bust inside the 80% safe zone) | 21 / 108 / 99 / 18 KB |
