@@ -420,9 +420,9 @@ function defaultState(){
     activeMember:jakob,
     startDate:dayKey(today()),   // never count recurring chores as "missed" before the family started using the app
     members:[
-      {id:jakob,name:'Jakob',role:'kid',   color:'#4F7CFF',emoji:'🦊',xp:120,coins:34},
-      {id:dean, name:'Dean', role:'kid',   color:'#A855F7',emoji:'🐯',xp:180,coins:22},
-      {id:daddy,name:'Daddy',role:'parent',color:'#EC4899',emoji:'🦁',xp:0,  coins:0}
+      {id:jakob,name:'Maya',role:'kid',   color:'#4F7CFF',emoji:'🦊',xp:120,coins:34},
+      {id:dean, name:'Leo', role:'kid',   color:'#A855F7',emoji:'🐯',xp:180,coins:22},
+      {id:daddy,name:'Dad',role:'parent',color:'#EC4899',emoji:'🦁',xp:0,  coins:0}
     ],
     chores:[
       {id:uid('c'),title:'Make your bed',       emoji:'🛏️',room:'Bedroom',    assignee:jakob,recur:'daily', days:[],   due:null,xp:20,coins:5},
@@ -453,9 +453,9 @@ function seedCompletions(s){
   if(dog)   s.completions.push({id:uid('done'),choreId:dog.id,  member:dog.assignee,  cycle:tk,status:'done',   doneAt:tsAgo(60), verifiedAt:tsAgo(40),photo:null});
   if(teeth) s.completions.push({id:uid('done'),choreId:teeth.id,member:teeth.assignee,cycle:tk,status:'pending',doneAt:tsAgo(20),verifiedAt:null,photo:null});
   s.log=[
-    {id:uid('l'),text:'Jakob completed “Make your bed” — verified ✅ (+20 XP)',ts:tsAgo(90)},
-    {id:uid('l'),text:'Dean completed “Feed the dog” — verified ✅ (+15 XP)',ts:tsAgo(40)},
-    {id:uid('l'),text:'Jakob marked “Brush teeth (AM)” done — waiting for Daddy',ts:tsAgo(20)}
+    {id:uid('l'),text:'Maya completed “Make your bed” — verified ✅ (+20 XP)',ts:tsAgo(90)},
+    {id:uid('l'),text:'Leo completed “Feed the dog” — verified ✅ (+15 XP)',ts:tsAgo(40)},
+    {id:uid('l'),text:'Maya marked “Brush teeth (AM)” done — waiting for Dad',ts:tsAgo(20)}
   ];
 }
 
@@ -1032,7 +1032,7 @@ function payOut(k){
   if(k.coins<=0)return;
   var usd=(k.coins*COIN_TO_USD).toFixed(2);
   if(!confirm('Pay '+k.name+' $'+usd+' allowance? This clears their coin balance.'))return;
-  logEvent('Daddy paid '+k.name+' $'+usd+' allowance 💵');
+  logEvent('Dad paid '+k.name+' $'+usd+' allowance 💵');
   state.payouts.push({id:uid('p'),who:k.id,coins:k.coins,usd:+usd,ts:Date.now()});
   k.coins=0;save();render();toast('💵','Paid '+k.name+' $'+usd,'coin');
 }

@@ -1211,7 +1211,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <div class="proof-lbl" id="proof-lbl">Tap to take photo</div>
       <div class="proof-sublbl" id="proof-sublbl">Show the completed chore</div>
     </div>
-    <div class="proof-note">📸 Photo proof earns +15 bonus XP and helps Daddy verify your work.</div>
+    <div class="proof-note">📸 Photo proof earns +15 bonus XP and helps a parent verify your work.</div>
     <div class="proof-actions">
       <button class="btn btn-orange" id="submit-proof-btn" onclick="goToParentVerify()">📤 Submit for Parent Review</button>
       <button class="btn btn-ghost" onclick="skipPhoto()">Skip photo — No bonus XP</button>
@@ -1291,7 +1291,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <div class="lb-rank">👑</div>
       <div class="lb-av">👑</div>
       <div class="lb-info">
-        <div class="lb-name">Daddy</div>
+        <div class="lb-name">Player 3</div>
         <div class="lb-streak">🔥 12 day streak</div>
       </div>
       <div class="lb-xp">4,100</div>
@@ -1300,7 +1300,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <div class="lb-rank">2</div>
       <div class="lb-av">⚔️</div>
       <div class="lb-info">
-        <div class="lb-name">Jakob</div>
+        <div class="lb-name">Player 1</div>
         <div class="lb-streak">🔥 8 day streak · 📸 23 photos</div>
       </div>
       <div class="lb-xp">2,885</div>
@@ -1309,7 +1309,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <div class="lb-rank">3</div>
       <div class="lb-av">🛡️</div>
       <div class="lb-info">
-        <div class="lb-name">Dean</div>
+        <div class="lb-name">Player 2</div>
         <div class="lb-streak">🔥 5 day streak · 📸 11 photos</div>
       </div>
       <div class="lb-xp">1,920</div>
@@ -1349,7 +1349,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   <div class="sovereign-crown-rain" id="crown-rain"></div>
   <div class="sovereign-badge">🏆 Champion of the Week</div>
   <div class="sovereign-crown">👑</div>
-  <div class="sovereign-name" id="sov-name">Daddy</div>
+  <div class="sovereign-name" id="sov-name">Player 3</div>
   <div class="sovereign-title" id="sov-title">🌟 Top Player This Week!</div>
   <div class="sovereign-stats">
     <div class="sov-stat">
@@ -1549,7 +1549,7 @@ function setActiveWarrior(name) {
   // Update pin warrior name
   var pn = document.getElementById('pin-warrior-name');
   var pnames = {jakob: PLAYER_NAMES.jakob, dean: PLAYER_NAMES.dean, dave: PLAYER_NAMES.dave};
-  if (pn) pn.textContent = pnames[name] || 'Jakob';
+  if (pn) pn.textContent = pnames[name] || 'Player 1';
   refreshHeroCard();
 }
 
@@ -1804,7 +1804,7 @@ function goToParentVerify() {
     pinEntry = '';
     updatePinDots && updatePinDots();
     var wEl = document.getElementById('pin-warrior-name');
-    if (wEl) wEl.textContent = 'Jakob';
+    if (wEl) wEl.textContent = PLAYER_NAMES[activeWarrior] || 'Player 1';
     goTo('s-parent');
   } else {
     submitProof();
@@ -1813,7 +1813,7 @@ function goToParentVerify() {
 
 function submitProof() {
   var xp = currentChore.xp + (photoTaken ? currentChore.bonus : 0);
-  // Award to Jakob by default (active warrior)
+  // Award to the active warrior
   awardXP(activeWarrior, xp);
   document.getElementById('reward-chore').textContent = currentChore.name;
   document.getElementById('reward-xp').textContent = '+' + xp;
@@ -2104,7 +2104,7 @@ function showProfile(name) {}
     if(clanTitle) clanTitle.appendChild(premBadge);
     // Remove lock labels from select
     var ws = document.getElementById('warrior-select');
-    if(ws) { ws.options[1].text = '🛡️ Dean'; ws.options[2].text = '👑 Daddy'; }
+    if(ws) { ws.options[1].text = '🛡️ ' + (PLAYER_NAMES.dean || 'Player 2'); ws.options[2].text = '👑 ' + (PLAYER_NAMES.dave || 'Player 3'); }
     // Hide lock overlays
     var ld = document.getElementById('lock-dean'); if(ld) ld.style.display='none';
     var lv = document.getElementById('lock-dave'); if(lv) lv.style.display='none';
@@ -2233,7 +2233,7 @@ function unlockPremium() {
     var ld = document.getElementById('lock-dean'); if(ld) ld.style.display='none';
     var lv = document.getElementById('lock-dave'); if(lv) lv.style.display='none';
     var ws = document.getElementById('warrior-select');
-    if(ws) { ws.options[1].text = '🛡️ Dean'; ws.options[2].text = '👑 Daddy'; }
+    if(ws) { ws.options[1].text = '🛡️ ' + (PLAYER_NAMES.dean || 'Player 2'); ws.options[2].text = '👑 ' + (PLAYER_NAMES.dave || 'Player 3'); }
     var ubanner = document.getElementById('upgrade-banner'); if(ubanner) ubanner.style.display='none';
     // Show all chores
     STATE.premiumUnlocked = true;
