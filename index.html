@@ -659,6 +659,26 @@ picture{display:contents}
 .toggle.on{background:var(--grad-teal);border-color:var(--ink)}
 .toggle.on::after{left:23px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35)}
 
+/* ── tap targets ≥ 44px (L2) ── */
+.back-btn{width:44px;height:44px}
+.mini-btn{min-height:44px;min-width:48px}
+.ppill{height:44px}
+.quest .fam-sel,.fam-sel{height:44px}
+.toggle{overflow:visible}
+.toggle::before{content:'';position:absolute;inset:-8px -4px}
+.pin-hint,.modal-close,.section-link{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+.ob-skip{min-height:44px;display:flex;align-items:center;justify-content:center;margin-top:6px}
+.ob-skip + .ob-skip{margin-top:0}
+/* parent-slot join warning (H4) */
+.join-warn{width:100%;display:flex;flex-direction:column;gap:8px;margin-top:4px;padding:10px 12px;border-radius:12px;
+  background:rgba(242,85,122,.14);border:2px solid var(--mess-400);font-size:13.5px;font-weight:800;color:var(--tx0);line-height:1.45}
+.join-warn .mini-btn{align-self:flex-start}
+.dw-go{width:auto;margin-top:22px;padding:0 24px}
+/* a computer that chose to continue: keep the phone-sized castle centred */
+@media (min-width:521px){
+  body{max-width:430px;margin:0 auto;box-shadow:0 0 0 1px rgba(244,192,75,.25),0 0 80px rgba(6,0,18,.8)}
+  html{background:var(--royal-950)}
+}
 @media (max-width:370px){
   .home-wordmark{width:78px}
   .clan-title{font-size:17px}
@@ -683,6 +703,7 @@ picture{display:contents}
   <div class="dw-icon"><picture><source srcset="assets/brand/lockup.webp" type="image/webp"><img class="dw-lockup" src="assets/brand/lockup.png" alt="Chore Royale" width="520" height="604" decoding="async"></picture></div>
   <div class="dw-title">Chore Royale™ is mobile-only</div>
   <div class="dw-sub">Open it on your phone, brave knight — the castle fits in the palm of your hand.</div>
+  <button class="btn btn-ghost dw-go" onclick="wallContinue()">Continue on this computer</button>
 </div>
 
 <!-- Flash transition overlay -->
@@ -1114,6 +1135,19 @@ function todayStr() {
 }
 /* Whole-day number of a day key (days since 1970-01-01) — the rules range-check it against server time */
 function dayNum(key) { var p = key.split('-'); return Math.round(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
+function dayStr(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
+/* Family mode: time comes from the server (measured offset + monotonic clock), so a fast/slow
+   phone clock can't break or fake a Speed Run. Same phone: the phone's own clock. */
+function nowMs() { return (FAM && FAM.on && FAM.now) ? FAM.now() : Date.now(); }
+function localStamp() {               // the phone's own (server-corrected) time; 0 = can't be trusted right now
+  if (FAM && FAM.on) return FAM.trusted() ? Math.round(FAM.now()) : 0;
+  return Date.now();
+}
+/* Saved data blocked (private mode, strict settings): say so instead of silently losing progress */
+(function storageProbe() {
+  try { localStorage.setItem('cr_probe', '1'); localStorage.removeItem('cr_probe'); }
+  catch (e) { setTimeout(function(){ if (typeof crToast === 'function') crToast('🔒 This browser is blocking saved data (private mode?) — you can play, but progress resets when you close it.', 6000); }, 1500); }
+})();
 
 function checkDailyReset() {
   var today = todayStr();
@@ -1346,11 +1380,13 @@ function setActiveWarrior(name) {
 
 
 /* ── DESKTOP WALL CHECK ───────────────────────────────────── */
+var WALL_OK = /[?&]join=/.test(location.search) || (function(){ try { return localStorage.getItem('cr_wall_ok') === '1'; } catch(e) { return false; } })();
 function checkDesktop() {
   var wall = document.getElementById('desktop-wall');
   if (!wall) return;
-  wall.style.display = Math.min(window.innerWidth, screen.width) > 520 ? 'flex' : 'none';
+  wall.style.display = (!WALL_OK && Math.min(window.innerWidth, screen.width) > 520) ? 'flex' : 'none';
 }
+function wallContinue() { WALL_OK = true; try { localStorage.setItem('cr_wall_ok', '1'); } catch(e) {} checkDesktop(); }
 window.addEventListener('resize', checkDesktop);
 
 /* ── PLAYER SWITCHER ─────────────────────────────────────── */
@@ -1409,9 +1445,12 @@ function refreshHeroCard() {
     pill.classList.toggle('active', pn === name);
     var isLocked = (pn === 'dean' || pn === 'dave') && !isPremium();
     pill.classList.toggle('locked', isLocked);
+    pill.style.display = isLocked ? 'none' : '';            // no upsell pills: one player per phone
     var lockEl = pill.querySelector('.ppill-lock');
     if (lockEl) lockEl.style.display = isLocked ? '' : 'none';
   });
+  var pillRow = document.querySelector('.player-pills');
+  if (pillRow) pillRow.style.display = ((typeof FAM !== 'undefined' && FAM && FAM.on) || !isPremium()) ? 'none' : '';
 
   // Update pill name labels from PLAYER_NAMES
   var p1n = document.getElementById('ppill-name-jakob');
@@ -1441,9 +1480,12 @@ function goTo(id) {
 
   // Exit current
   from.classList.add('exit');
-  setTimeout(function() { from.classList.remove('exit'); from.classList.add('hidden'); }, 350);
+  clearTimeout(from._hideT);
+  from._hideT = setTimeout(function() { from.classList.remove('exit'); from.classList.add('hidden'); }, 350);
 
-  // Enter new
+  // Enter new (cancel a pending hide if this screen is coming straight back)
+  clearTimeout(to._hideT);
+  to.classList.remove('exit');
   to.classList.remove('hidden');
   to.style.transform = 'translateX(100%)';
   to.style.opacity = '0';
@@ -1458,14 +1500,41 @@ function goTo(id) {
 
   if (id === 's-reward') launchFireworks();
   if (id === 's-leaderboard') refreshLeaderboard();
+  armBack();
 }
 
+/* Back button: one history entry while we're off the home screen or a dialog is open */
+var _histArmed = false, _histGesture = false;   // browsers skip entries pushed without a tap, so re-arm on the next tap
+function topDialog() {
+  var pm = document.getElementById('premium-modal');
+  if (pm && !pm.classList.contains('hidden')) return closePremiumModal;
+  var bd = document.getElementById('boss-defeated-overlay');
+  if (bd && bd.classList.contains('show')) return hideBossDefeated;
+  var so = document.getElementById('sovereign-overlay');
+  if (so && so.classList.contains('show')) return hideSovereign;
+  return null;
+}
+function armBack() {
+  if (currentScreen === 's-home' && !topDialog()) return;
+  var tap = !!(navigator.userActivation && navigator.userActivation.isActive);
+  if (_histArmed && (_histGesture || !tap)) return;
+  try { history.pushState({ cr: 1 }, ''); _histArmed = true; _histGesture = tap; } catch(e) {}
+}
+window.addEventListener('popstate', function() {
+  _histArmed = false; _histGesture = false;
+  var close = topDialog();
+  if (close) close();
+  else if (currentScreen !== 's-home') { if (navHistory.length) goBack(); else goTo('s-home'); }
+  setTimeout(armBack, 0);
+});
 function goBack() {
   if (navHistory.length === 0) return;
   var prev = navHistory.pop();
   var from = document.getElementById(currentScreen);
   var to = document.getElementById(prev);
 
+  clearTimeout(to._hideT);
+  to.classList.remove('exit');
   to.classList.remove('hidden');
   to.style.transform = 'translateX(-100%)';
   to.style.opacity = '0';
@@ -1478,7 +1547,8 @@ function goBack() {
 
   from.style.transform = 'translateX(100%)';
   from.style.opacity = '0';
-  setTimeout(function() { from.style.transform = ''; from.style.opacity = ''; from.classList.add('hidden'); }, 350);
+  clearTimeout(from._hideT);
+  from._hideT = setTimeout(function() { from.style.transform = ''; from.style.opacity = ''; from.classList.add('hidden'); }, 350);
   currentScreen = prev;
   if (typeof onScreenChange === 'function') onScreenChange(prev);
 }
@@ -1605,27 +1675,32 @@ function speedBonus(chore) { return chore.mins ? Math.round(chore.xp * 0.5) : 0;
 
 function acceptChore() {
   var e = dayEntry(activeWarrior);
-  if (e && !e.acceptedAt) { e.acceptedAt = e.acceptedLocal = Date.now(); saveState(); }   // *Local = this phone's own clock
+  if (e && !e.acceptedAt) { e.acceptedAt = nowMs(); e.acceptedLocal = localStamp(); saveState(); }   // *Local = this phone's own (server-corrected) clock
   updateChoreScreen(currentChore);
   goTo('s-proof');
 }
 
 function timeLeftMs(e, chore) {
   if (!e || !e.acceptedAt || !chore.mins) return null;
-  var end = e.acceptedAt + chore.mins * 60000;
-  return end - (e.finishedAt || Date.now());
+  var start = (e.acceptedLocal && e.acceptedAt - e.acceptedLocal > 120000) ? e.acceptedLocal : e.acceptedAt;  // accepted offline
+  var fin = e.finishedLocal && (!e.finishedAt || e.finishedAt - e.finishedLocal > 120000) ? e.finishedLocal : e.finishedAt;
+  return start + chore.mins * 60000 - (fin || nowMs());
 }
 
-/* Speed Run proof. Family mode: the bonus needs the phone's own start/finish times.
-   Server stamps catch a phone clock changed while online; a quest queued offline is
-   stamped on reconnect, so there only the phone's times count. Missing → no bonus. */
+/* Speed Run proof (family mode). *At = server stamps (locked by the rules), *Local = the phone's
+   server-corrected time. A step done online uses the server stamp; a step done offline (its
+   server stamp is much later) uses the phone time, so offline time never counts against the
+   kid. A phone time AHEAD of the server = tampering → no bonus. No phone times → no bonus. */
+var SPEED_TOL = 120000;
 function provenLeftMs(e, c) {
   if (!e || !c.mins || !e.acceptedAt) return null;
   if (!(FAM && FAM.on)) return timeLeftMs(e, c);              // same phone: one clock
-  var aL = e.acceptedLocal, fL = e.finishedLocal || (e.finishedAt ? 0 : Date.now());
-  if (!aL || !fL || fL < aL) return null;
-  var dev = fL - aL, srv = (e.finishedAt || Date.now()) - e.acceptedAt;
-  return c.mins * 60000 - Math.max(dev, srv);
+  var aS = e.acceptedAt, fS = e.finishedAt || 0, aL = e.acceptedLocal, fL = e.finishedLocal;
+  if (!fS && !fL) return c.mins * 60000 - (nowMs() - ((aL && aS - aL > SPEED_TOL) ? aL : aS));   // still running
+  if (!aL || !fL || fL < aL || aL > aS + SPEED_TOL || (fS && fL > fS + SPEED_TOL)) return null;
+  var A = (aS - aL > SPEED_TOL) ? aL : aS;
+  var F = (!fS || fS - fL > SPEED_TOL) ? fL : fS;
+  return c.mins * 60000 - Math.max(0, F - A);
 }
 
 function fmtMs(ms) {
@@ -1710,7 +1785,7 @@ function refreshProofScreen() {
 
 function stopClock() {
   var e = dayEntry(activeWarrior);
-  if (e && e.acceptedAt && !e.finishedAt) { e.finishedAt = e.finishedLocal = Date.now(); saveState(); }
+  if (e && e.acceptedAt && !e.finishedAt) { e.finishedAt = nowMs(); e.finishedLocal = localStamp(); saveState(); }
 }
 
 function finishQuest() {
@@ -1727,9 +1802,11 @@ function finishQuest() {
 function submitForApproval(e) {
   var photo = !!proofData;
   e.status = 'pending'; delete e.reason; e.photo = photo;
-  var id = 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-  var rec = { pid: activeWarrior, date: e.date, day: dayNum(e.date), chore: e.chore, photo: photo };
+  var day = e.day || dayNum(e.date);
+  var id = (FAM && FAM.on) ? activeWarrior + '_' + day : 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  var rec = { pid: activeWarrior, date: e.date, day: day, chore: e.chore, photo: photo };
   if (FAM && FAM.on) {
+    if (!FAM.canSubmit(id)) { crToast('⏳ Already sent for today — waiting for a parent'); refreshWarriorDisplay(); return; }
     saveState();
     FAM.submit(id, rec, proofData);
   } else {
@@ -1806,9 +1883,11 @@ function fillReward(a, pending) {
   if (a.speed) parts.push(a.speed + ' ⚡ speed');
   var rs = document.getElementById('reward-speed');
   if (rs) {
-    rs.style.display = a.left === null ? 'none' : '';
+    rs.style.display = a.chore.mins ? '' : 'none';
     rs.className = 'speed-pill' + (a.speed ? '' : ' late');
-    rs.textContent = a.speed ? '⚡ SPEED RUN! Beat the clock with ' + fmtMs(a.left) + ' to spare' : '⏱ Done! Beat the clock next time for ⚡ bonus XP';
+    rs.textContent = a.speed ? '⚡ SPEED RUN! Beat the clock with ' + fmtMs(a.left) + ' to spare'
+      : a.left === null ? "⏱ Couldn't check the Speed Run time on this phone (offline without a synced clock) — no bonus this time"
+      : '⏱ Done! Beat the clock next time for ⚡ bonus XP';
   }
   var w = STATE.warriors[activeWarrior] || {streak:0, xp:0, totalChores:0};
   var who = (FAM && FAM.on && FAM.parentName()) || 'a parent';
@@ -1900,6 +1979,7 @@ function showBossDefeated() {
   if (sub) sub.textContent = 'The family beat the ' + villain() + ' — reward is yours!';
   launchKaboom();
   overlay.classList.add('show');
+  armBack();
 }
 
 function hideBossDefeated() {
@@ -1963,6 +2043,7 @@ function showSovereignProclamation() {
   if (fresh) fresh.style.display = (FAM && FAM.on && !FAM.isParent()) ? 'none' : '';
   if (overlay) overlay.classList.add('show');
   launchCrownRain();
+  armBack();
 }
 
 function hideSovereign() {
@@ -2192,7 +2273,19 @@ function setPinMode(mode) {
   if (h) h.style.display = (mode === 'verify') ? '' : 'none';
 }
 
+/* 5 wrong PINs → cooldown (30s, doubling, max 10 min) */
+function pinLockLeft() { try { var f = JSON.parse(localStorage.getItem('cr_pin_fail') || 'null'); return f && f.until > Date.now() ? f.until - Date.now() : 0; } catch(e) { return 0; } }
+function pinFailed() {
+  var f; try { f = JSON.parse(localStorage.getItem('cr_pin_fail') || 'null') || { n: 0, until: 0 }; } catch(e) { f = { n: 0, until: 0 }; }
+  f.n++; if (f.n >= 5) f.until = Date.now() + Math.min(600000, 30000 * Math.pow(2, f.n - 5));
+  try { localStorage.setItem('cr_pin_fail', JSON.stringify(f)); } catch(e) {}
+  return f.n >= 5 ? 0 : 5 - f.n;
+}
+function pinOk() { try { localStorage.removeItem('cr_pin_fail'); } catch(e) {} }
+function pinWrongMsg() { var left = pinFailed(); return left ? 'Wrong PIN — try again' + (left <= 2 ? ' (' + left + ' left)' : '') : 'Too many tries — wait ' + Math.ceil(pinLockLeft() / 1000) + 's'; }
 function pinKey(n) {
+  var lk = pinLockLeft();
+  if (lk) { var res = document.getElementById('pin-result'); res.textContent = 'Too many tries — wait ' + Math.ceil(lk / 1000) + 's'; res.className = 'pin-result err'; return; }
   if (!n || pinEntry.length >= 4) return;
   pinEntry += n;
   updatePinDots();
@@ -2211,8 +2304,8 @@ function pinFlash(msg, ok, then) {
 function handlePinSetup() {
   if (pinMode === 'old') {
     pinMatches(pinEntry).then(function(ok) {
-      if (ok) pinFlash('✓ OK', true, function(){ setPinMode('set'); });
-      else pinFlash('Wrong PIN — try again', false);
+      if (ok) { pinOk(); pinFlash('✓ OK', true, function(){ setPinMode('set'); }); }
+      else pinFlash(pinWrongMsg(), false);
     });
   } else if (pinMode === 'set') {
     pinDraft = pinEntry; setPinMode('confirm');
@@ -2251,6 +2344,7 @@ function checkPIN() {
 }
 function pinResult(res, ok) {
   if (ok) {
+    pinOk();
     res.textContent = '✓ Verified!';
     res.className = 'pin-result ok';
     setTimeout(function() {
@@ -2262,7 +2356,7 @@ function pinResult(res, ok) {
       if (fn) fn();
     }, 800);
   } else {
-    res.textContent = 'Wrong PIN — try again';
+    res.textContent = pinWrongMsg();
     res.className = 'pin-result err';
     setTimeout(function() {
       pinEntry = '';
@@ -2330,6 +2424,7 @@ function showPremiumCelebration() {
 
 function openPremiumModal() {
   document.getElementById('premium-modal').classList.remove('hidden');
+  armBack();
 }
 
 function closePremiumModal() {
@@ -2614,6 +2709,17 @@ function nextSpinAt() {
   if (d.getTime() <= Date.now()) d.setDate(d.getDate() + 1);
   return d;
 }
+function icsEsc(t) { return String(t).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n'); }
+function icsFold(line) {            // RFC 5545: max 75 octets per line, continuation lines start with a space
+  var enc = new TextEncoder(), out = [], cur = '', n = 0;
+  Array.from(line).forEach(function(ch) {
+    var b = enc.encode(ch).length;
+    if (n + b > (out.length ? 74 : 75)) { out.push(cur); cur = ''; n = 0; }
+    cur += ch; n += b;
+  });
+  out.push(cur);
+  return out.join('\r\n ');
+}
 function spinIcs() {
   var p = spinTime().split(':'), d = new Date(), pad = function(n){ return (n < 10 ? '0' : '') + n; };
   var start = d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + 'T' + p[0] + p[1] + '00';   // floating = phone's local time
@@ -2621,8 +2727,8 @@ function spinIcs() {
   var url = location.origin + location.pathname;
   return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//3Shamrocks Studio//Chore Royale//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
     'BEGIN:VEVENT', 'UID:spin-oclock-' + Date.now().toString(36) + '@chore-royale', 'DTSTAMP:' + stamp, 'DTSTART:' + start,
-    'DURATION:PT15M', 'RRULE:FREQ=DAILY', "SUMMARY:🎡 Spin o'clock! — Chore Royale", 'DESCRIPTION:Time to spin the wheel 👑 ' + url, 'URL:' + url,
-    'BEGIN:VALARM', 'ACTION:DISPLAY', "DESCRIPTION:🎡 Spin o'clock!", 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n') + '\r\n';
+    'DURATION:PT15M', 'RRULE:FREQ=DAILY', 'SUMMARY:' + icsEsc("🎡 Spin o'clock! — Chore Royale"), 'DESCRIPTION:' + icsEsc('Time to spin the wheel 👑 ' + url), 'URL:' + url,
+    'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc("🎡 Spin o'clock!"), 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].map(icsFold).join('\r\n') + '\r\n';
 }
 function addSpinToCalendar() {
   var a = document.createElement('a');
@@ -2668,13 +2774,13 @@ function enableSpinReminder() {
 }
 
 var _toastT = null;
-function crToast(msg) {
+function crToast(msg, ms) {
   var t = document.getElementById('cr-toast');
   if (!t) return;
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(_toastT);
-  _toastT = setTimeout(function(){ t.classList.remove('show'); }, 3200);
+  _toastT = setTimeout(function(){ t.classList.remove('show'); }, ms || 3200);
 }
 
 (function familySync() {
@@ -2763,14 +2869,29 @@ function crToast(msg) {
   function famPath(p) { return 'families/' + link.fid + (p ? '/' + p : ''); }
 
   /* ── outbox: writes survive being offline and replay in order ── */
-  var flushing = false, authRetries = 0;
+  var flushing = false, backoff = 0;
   function enqueue(op) { outbox.push(op); lsSet(LSK.out, outbox); flush(); }
+  function later(ms) { clearTimeout(flush._t); flush._t = setTimeout(flush, ms); }
+  function refused(op, st) {
+    var what = /\/approvals\//.test(op.p) ? "Couldn't send that for approval" : /\/daily\//.test(op.p) ? "Your quest change wasn't saved" : "That change wasn't saved";
+    crToast('⚠️ ' + what + ' — the family server said no' + (st ? ' (' + st + ')' : '') + '. Showing the family\'s latest.', 5000);
+  }
+  function fillOp(op) {               // approvals carry the server's own day entry values (rules check they match)
+    if (!op.fill || !mirror || !mirror.daily || !mirror.daily[op.fill]) return op.v;
+    var v = clone(op.v), d = mirror.daily[op.fill];
+    ['acceptedAt','finishedAt','acceptedLocal','finishedLocal'].forEach(function(k){ if (typeof d[k] === 'number') v[k] = d[k]; });
+    return v;
+  }
   function flush() {
     if (flushing || !outbox.length || !link) return;
     flushing = true;
     var op = outbox[0];
-    req(op.m, op.p, op.v).then(function(res) {
-      outbox.shift(); lsSet(LSK.out, outbox); flushing = false; authRetries = 0;
+    (op.ifAbsent ? req('GET', op.p) : Promise.resolve(null)).then(function(existing) {
+      if (existing !== null && existing !== undefined) return { skipped: true };
+      return req(op.m, op.p, fillOp(op));
+    }).then(function(res) {
+      outbox.shift(); lsSet(LSK.out, outbox); flushing = false; backoff = 0;
+      if (res && res.skipped) { resync(); setOnline(true); flush(); return; }
       if (mirror && op.p.indexOf(famPath('')) === 0 && res !== null) {    // keep the server's timestamps
         var parts = split(op.p.slice(famPath('').length));
         if (op.m === 'PATCH') Object.keys(op.v).forEach(function(k) {    // only the paths we wrote
@@ -2785,9 +2906,17 @@ function crToast(msg) {
       setOnline(true); flush();
     }, function(err) {
       flushing = false;
-      if (err.status === 401 && authRetries++ < 2) { if (auth) auth.exp = 0; setTimeout(flush, 300); return; }
-      if (err.status) { outbox.shift(); lsSet(LSK.out, outbox); resync(); flush(); return; }  // refused by the rules → drop, reload truth
-      setOnline(false); clearTimeout(flush._t); flush._t = setTimeout(flush, 5000);
+      var st = err && err.status;
+      if (!st) { setOnline(false); backoff = Math.min(60000, (backoff || 2500) * 2); later(backoff); return; }      // offline
+      if (st === 429 || st >= 500) { backoff = Math.min(60000, (backoff || 1000) * 2); later(backoff); return; }  // busy → retry
+      if (st === 401 && !op._reauth) { op._reauth = true; if (auth) auth.exp = 0; later(300); return; }       // token → re-auth once
+      if (st === 401 && op.fill && !op._refetch) {                                                             // stale day entry → reload it once
+        op._refetch = true;
+        req('GET', famPath('daily/' + op.fill)).then(function(d) { if (mirror) { mirror.daily = mirror.daily || {}; mirror.daily[op.fill] = d; } later(100); },
+                                                     function() { later(1000); });
+        return;
+      }
+      outbox.shift(); lsSet(LSK.out, outbox); refused(op, st); resync(); flush();    // refused by the rules → drop, say so, reload truth
     });
   }
   function applyOp(op) {
@@ -2802,6 +2931,26 @@ function crToast(msg) {
     enqueue(op);
   }
 
+  /* ── server clock: offset measured with a server-stamped write, then carried by the monotonic clock ── */
+  var clk = { off: ((lsGet('cr_clock') || {}).off) || 0, anchor: null, busy: false, at: 0 };
+  var boot = { d: Date.now(), p: performance.now() };
+  function clockJumped() { return Math.abs((Date.now() - boot.d) - (performance.now() - boot.p)) > 60000; }
+  function measureClock() {
+    if (!CFG || !link || clk.busy || (clk.anchor && performance.now() - clk.at < 600000)) return;
+    clk.busy = true;
+    signIn().then(function(a) {
+      var t0 = performance.now(), d0 = Date.now();
+      return req('PUT', 'clock/' + a.uid, SV).then(function(srv) {
+        var rtt = performance.now() - t0;
+        if (typeof srv !== 'number' || rtt > 8000) return;
+        clk.anchor = { srv: srv, perf: t0 + rtt / 2 }; clk.at = performance.now();
+        clk.off = srv - (d0 + rtt / 2); lsSet('cr_clock', { off: clk.off });
+      });
+    }).catch(function(){}).then(function(){ clk.busy = false; });
+  }
+  function serverNow() { return clk.anchor ? clk.anchor.srv + (performance.now() - clk.anchor.perf) : Date.now() + clk.off; }
+  function clockTrusted() { return !!clk.anchor || (!!lsGet('cr_clock') && !clockJumped()); }
+
   /* ── live stream (SSE) ── */
   function closeStream() { if (es) { es.close(); es = null; } }
   function openStream() {
@@ -2815,7 +2964,7 @@ function crToast(msg) {
       es.addEventListener('keep-alive', function(){ setOnline(true); });
       es.addEventListener('cancel', function(){ closeStream(); checkMembership(); });
       es.addEventListener('auth_revoked', function(){ closeStream(); if (auth) auth.exp = 0; openStream(); });
-      es.onopen = function(){ setOnline(true); flush(); };
+      es.onopen = function(){ setOnline(true); flush(); measureClock(); };
       es.onerror = function(){ setOnline(false); closeStream(); retryT = setTimeout(openStream, 4000); };
     }, function() { setOnline(false); retryT = setTimeout(openStream, 5000); });
   }
@@ -2868,9 +3017,11 @@ function crToast(msg) {
       W[p] = { xp: b.xp || 0, wxp: fresh ? (b.wxp !== undefined ? b.wxp : b.xp || 0) : 0, streak: b.streak || 0,
                lastChoreDate: b.lastChoreDate || '', totalChores: b.totalChores || 0, speedRuns: b.speedRuns || 0 };
     });
-    var L = m.ledger || {};
-    Object.keys(L).map(function(k){ return L[k]; }).filter(function(e){ return e && W[e.pid]; })
+    var L = m.ledger || {}, seen = {};
+    Object.keys(L).map(function(k){ var e = L[k]; if (e && typeof e.day === 'number') { e = clone(e); e.date = dayStr(e.day); } return e; })
+      .filter(function(e){ return e && W[e.pid]; })
       .sort(function(a, b){ return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.at || 0) - (b.at || 0); })
+      .filter(function(e){ var k = e.pid + '|' + e.date; if (seen[k]) return false; seen[k] = 1; return true; })   // legacy duplicates count once
       .forEach(function(e) {
         var w = W[e.pid];
         if (w.lastChoreDate !== e.date && e.date > (w.lastChoreDate || '')) {
@@ -2894,7 +3045,7 @@ function crToast(msg) {
     ids.forEach(function(p, i){ names[p] = players[p].name; icons[p] = players[p].icon || ICONS[i % ICONS.length]; });
     var old = FAM.on ? STATE : null;
     var oldMe = old && old.daily ? clone(old.daily[link.pid]) : null;
-    STATE = { v: 2, warriors: {}, boss: {}, daily: clone(m.daily || {}), approvals: clone(m.approvals || {}),
+    STATE = { v: 2, warriors: {}, boss: {}, daily: clone(m.daily || {}), approvals: clone(m.approvals || {}), requests: clone(m.requests || {}),
               proof: clone((m.settings || {}).proof || {}), settings: clone(m.settings || {}), pardons: clone(m.pardons || {}),
               lastSpinDate: '', quests: {} };
     var d = derive(m, ids);          // after settings/pardons are in place (Rest Day, Royal Pardon)
@@ -2912,6 +3063,16 @@ function crToast(msg) {
     if (oldMe && now && oldMe.date === now.date && oldMe.status !== now.status) {
       if (now.status === 'approved' && now.done) crToast('✅ Approved! +' + (now.awarded || 0) + ' XP');
       if (now.status === 'rejected') crToast('↩ Sent back' + (now.reason ? ': ' + now.reason : '') + ' — fix it and tap Done again');
+      if (currentScreen === 's-reward') {
+        var set = function(id, t){ var el = $(id); if (el) el.textContent = t; };
+        if (now.status === 'rejected') {
+          set('reward-trophy', '↩'); set('reward-title', '↩ Sent back' + (now.reason ? ': “' + now.reason + '”' : ''));
+          set('xp-pop-lbl', 'XP WHEN REDONE');
+        } else if (now.status === 'approved' && now.done) {
+          set('reward-trophy', '🏆'); set('reward-title', 'Quest Complete!'); set('xp-pop-lbl', 'XP EARNED');
+          set('reward-xp', '+' + (now.awarded || 0));
+        }
+      }
     }
     allKeys().forEach(function(k) {
       var a = old.warriors[k], b = STATE.warriors[k];
@@ -2919,6 +3080,10 @@ function crToast(msg) {
     });
     if ((old.boss.hp || 0) < 100 && STATE.boss.hp >= 100 && old.boss.week === STATE.boss.week) checkBossDefeated();
     if (FAM.isParent()) {
+      Object.keys((m.requests || {})).forEach(function(pid) {
+        if ((old.requests || {})[pid]) return;
+        var p = (m.players || {})[pid]; if (p) crToast('🙋 ' + p.name + ' wants to join — open Family to let them in');
+      });
       Object.keys(STATE.approvals).forEach(function(id) {
         if (old.approvals[id]) return;
         var r = STATE.approvals[id], c = CHORES[r.chore];
@@ -2928,7 +3093,7 @@ function crToast(msg) {
   }
   function paint() {
     var ft = $('family-title'); if (ft) ft.textContent = FAMILY_NAME + ' 👑';
-    var pills = document.querySelector('.player-pills'); if (pills) pills.style.display = FAM.on ? 'none' : '';
+    var pills = document.querySelector('.player-pills'); if (pills) pills.style.display = (FAM.on || !isPremium()) ? 'none' : '';
     var ub = $('upgrade-banner'); if (ub) ub.style.display = FAM.on ? 'none' : (isPremium() ? 'none' : 'flex');
     refreshHeroCard(); refreshWarriorDisplay(); refreshLeaderboard();
     if (currentScreen === 's-chore' || currentScreen === 's-proof') {
@@ -2941,8 +3106,24 @@ function crToast(msg) {
   }
 
   /* ── public hook used by the game ── */
+  /* An approval as a day entry, from the approval record itself (M6); old records fall back to the day entry */
+  function recEntry(r) {
+    var day = typeof r.day === 'number' ? r.day : dayNum(r.date);
+    var e = { date: dayStr(day), day: day, chore: r.chore, acceptedAt: r.acceptedAt || 0, finishedAt: r.finishedAt || 0,
+              acceptedLocal: r.acceptedLocal || 0, finishedLocal: r.finishedLocal || 0 };
+    var d = mirror && mirror.daily && mirror.daily[r.pid];
+    if (r.acceptedAt === undefined && d && (d.day === day || d.date === r.date)) {
+      ['acceptedAt','finishedAt','acceptedLocal','finishedLocal'].forEach(function(k){ e[k] = d[k] || 0; });
+    }
+    return e;
+  }
+  var approving = {};
   FAM = {
     on: false,
+    now: serverNow,
+    trusted: clockTrusted,
+    recEntry: recEntry,
+    canSubmit: function(id) { return !((mirror.approvals && mirror.approvals[id]) || (mirror.ledger && mirror.ledger[id])); },
     ids: function(){ return mirror && mirror.players ? Object.keys(mirror.players).sort() : []; },
     role: function(k){ return mirror && mirror.players && mirror.players[k] ? mirror.players[k].role : null; },
     linked: function(){ var P = (mirror && mirror.players) || {}; return Object.keys(P).filter(function(k){ return P[k].claimedBy; }).length; },
@@ -2972,32 +3153,49 @@ function crToast(msg) {
     },
     submit: function(id, rec, img) {
       var v = clone(rec); v.at = SV;
-      var op = { m:'PUT', p: famPath('approvals/' + id), v: v };
+      var op = { m:'PUT', p: famPath('approvals/' + id), v: v, fill: rec.pid, ifAbsent: true };
       applyOp(op); enqueue(op);
       if (img) enqueue({ m:'PUT', p: 'proofs/' + link.fid + '/' + id, v: img });
       project();
     },
+    // One award per kid per day: ledger/<pid>_<day> is write-once in the rules, so two parents,
+    // two tabs or a replayed approval can never pay twice.
     grant: function(pid, e, a, id) {
-      id = id || ('s' + Date.now().toString(36) + rnd(4));
+      var day = typeof e.day === 'number' ? e.day : dayNum(e.date), key = pid + '_' + day;
       var u = {}, d = 'daily/' + pid + '/';
-      u['ledger/' + id] = { pid: pid, xp: a.total, date: e.date, chore: e.chore, speed: a.speed > 0, photo: a.photo > 0, at: SV };
+      var drop = function(aid) {
+        var had = aid && mirror.approvals && mirror.approvals[aid];
+        if (!had) return;
+        u['approvals/' + aid] = null;
+        if (had.photo) { enqueue({ m:'DELETE', p: 'proofs/' + link.fid + '/' + aid }); delete proofCache[aid]; }
+      };
+      if (mirror.ledger && mirror.ledger[key]) { drop(id); drop(key); if (Object.keys(u).length) patchFam(u); return false; }
+      u['ledger/' + key] = { pid: pid, day: day, xp: a.total, date: dayStr(day), chore: e.chore, speed: a.speed > 0, photo: a.photo > 0, at: SV };
       var cur = mirror.daily && mirror.daily[pid];
-      if (cur && cur.date === e.date) {
+      if (cur && (cur.day === day || (cur.day === undefined && cur.date === e.date))) {
         u[d + 'done'] = true; u[d + 'awarded'] = a.total; u[d + 'speedRun'] = a.speed > 0; u[d + 'status'] = 'approved'; u[d + 'reason'] = null;
       }
-      var had = mirror.approvals && mirror.approvals[id];
-      if (had) u['approvals/' + id] = null;
+      drop(id); if (key !== id) drop(key);
       patchFam(u);
-      if (had && had.photo) { enqueue({ m:'DELETE', p: 'proofs/' + link.fid + '/' + id }); delete proofCache[id]; }
+      return true;
     },
     approve: function(id, quiet) {
       if (!FAM.isParent()) return;
       var r = mirror.approvals && mirror.approvals[id]; if (!r) return;
-      var e = mirror.daily && mirror.daily[r.pid];
-      if (!e || e.date !== r.date) e = { date: r.date, chore: r.chore, acceptedAt: 0, finishedAt: 0 };
-      var a = awardFor(e, !!r.photo);
-      FAM.grant(r.pid, e, a, id);
-      if (!quiet) crToast('✅ ' + (PLAYER_NAMES[r.pid] || 'Player') + ' +' + a.total + ' XP');
+      var e = recEntry(r), key = r.pid + '_' + e.day;
+      if (approving[key]) return;
+      var go = function(already) {
+        delete approving[key];
+        var cur = mirror.approvals && mirror.approvals[id]; if (!cur) return;
+        if (already) { if (!mirror.ledger) mirror.ledger = {}; mirror.ledger[key] = mirror.ledger[key] || already; }
+        var a = awardFor(e, !!r.photo);
+        var paid = FAM.grant(r.pid, e, a, id);
+        if (!quiet) crToast(paid ? '✅ ' + (PLAYER_NAMES[r.pid] || 'Player') + ' +' + a.total + ' XP'
+                                 : '✓ ' + (PLAYER_NAMES[r.pid] || 'Player') + "'s day was already approved — no double XP");
+      };
+      if (mirror.ledger && mirror.ledger[key]) { go(mirror.ledger[key]); return; }
+      approving[key] = 1;
+      req('GET', famPath('ledger/' + key)).then(function(x){ go(x || null); }, function(){ go(null); });   // re-read before paying
     },
     reject: function(id, reason) {
       if (!FAM.isParent()) return;
@@ -3115,7 +3313,7 @@ function crToast(msg) {
     show('fam-wait', !on && panel === 'wait');
     show('fam-off-note', !CFG);
     ['fam-create-open','fam-join-open'].forEach(function(id){ var b = $(id); if (b) { b.disabled = !CFG; b.style.opacity = CFG ? '' : '.45'; } });
-    if (req) $('fw-text').textContent = '⏳ Waiting for a parent in ' + req.family + ' to let you in as ' + req.name + '…';
+    if (req) $('fw-text').textContent = '⏳ Waiting for a parent in ' + req.family + ' to let you in as ' + req.name + '… Ask them to open Family → Parent area and tap ✓.';
     var parentView = on ? (FAM.isParent() && parentUnlocked) : (panel === 'local' && parentUnlocked);
     show('fam-in', on);
     show('fam-players-wrap', on);
@@ -3161,12 +3359,26 @@ function crToast(msg) {
     var A = STATE.approvals || {};
     var ids = Object.keys(A).sort(function(a, b){ return (A[a].at || 0) - (A[b].at || 0); });
     var reqs = FAM.on ? ((mirror && mirror.requests) || {}) : {};
-    Object.keys(reqs).forEach(function(uid) {
-      var q = reqs[uid], p = mirror.players[q.player] || {};
-      var r = row('🙋', (p.name || 'Someone') + ' wants to join', 'as a parent on a new phone');
+    Object.keys(reqs).sort().forEach(function(pid) {
+      var q = reqs[pid], p = (mirror.players || {})[pid] || {}, par = p.role === 'parent';
+      if (!q || !q.uid) return;
+      var r = row('🙋', (p.name || 'Someone') + ' wants to join',
+                  (par ? '👑 as a PARENT' : 'as a player') + ' · ' + (q.dev || 'a new phone') + ' · ' + fmtClock(q.at));
+      r.classList.add('wrap'); r.dataset.request = pid;
       var act = r.querySelector('.quest-actions');
-      act.appendChild(miniBtn('✓', 'ok', function(){ answerRequest(uid, q.player, true); }, 'Let in'));
-      act.appendChild(miniBtn('✕', '', function(){ answerRequest(uid, q.player, false); }, 'Decline'));
+      act.appendChild(miniBtn('✓', 'ok', function(){
+        if (par) { joinOpen = joinOpen === pid ? null : pid; renderApprovals(); }
+        else answerRequest(pid, q.uid, true);
+      }, 'Let in'));
+      act.appendChild(miniBtn('✕', '', function(){ answerRequest(pid, q.uid, false); }, 'Decline'));
+      if (par && joinOpen === pid) {
+        var box = document.createElement('div'); box.className = 'join-warn';
+        var t = document.createElement('div');
+        t.textContent = '⚠️ Only let this phone in if it is really ' + p.name + "'s, in your home right now. A parent can approve chores, change house rules and reset PINs.";
+        box.appendChild(t);
+        box.appendChild(miniBtn("Yes, it's really " + p.name, 'ok', function(){ joinOpen = null; answerRequest(pid, q.uid, true); }));
+        r.appendChild(box);
+      }
       list.appendChild(r);
     });
     if (!ids.length && !Object.keys(reqs).length) {
@@ -3175,7 +3387,7 @@ function crToast(msg) {
     }
     ids.forEach(function(id) {
       var a = A[id], c = CHORES[a.chore] || CHORES[0];
-      var e = STATE.daily[a.pid];
+      var e = FAM.on ? recEntry(a) : STATE.daily[a.pid];
       if (!e || e.date !== a.date) e = { date: a.date, chore: a.chore, acceptedAt: 0, finishedAt: 0 };
       var aw = awardFor(e, !!a.photo);
       var meta = (PICONS[a.pid] || '') + ' ' + (PLAYER_NAMES[a.pid] || 'Player') + ' · +' + aw.total + ' XP' +
@@ -3211,10 +3423,14 @@ function crToast(msg) {
       else { delete proofCache[id]; setTimeout(function(){ if (STATE.approvals[id]) fetchProof(id); }, 2500); }
     }, function(){ delete proofCache[id]; });
   }
-  function answerRequest(uid, pid, yes) {
-    var u = {}; u['requests/' + uid] = null;
-    if (yes) { u['members/' + uid] = { player: pid, role: 'parent', joinedAt: SV }; u['players/' + pid + '/claimedBy'] = uid; }
+  var joinOpen = null;
+  function fmtClock(t) { if (!t) return 'just now'; var d = new Date(t); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
+  function answerRequest(pid, uid, yes) {
+    var p = (mirror.players || {})[pid] || {};
+    var u = {}; u['requests/' + pid] = null;
+    if (yes && !p.claimedBy) { u['members/' + uid] = { player: pid, role: p.role === 'parent' ? 'parent' : 'kid', joinedAt: SV }; u['players/' + pid + '/claimedBy'] = uid; }
     patchFam(u);
+    crToast(yes ? '✅ ' + (p.name || 'They') + ' can play on their phone now' : 'Request declined');
   }
 
   function renderProofToggles() {
@@ -3355,7 +3571,7 @@ function crToast(msg) {
       "\n🎡 Spin o'clock " + spinTime() + ' · ' + appLink();
   }
   window.famShareRecap = function() {
-    window.open('https://wa.me/?text=' + encodeURIComponent(recapText()), '_blank', 'noopener');
+    window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(recapText()), '_blank', 'noopener');
   };
   window.recapText = recapText;
 
@@ -3363,7 +3579,7 @@ function crToast(msg) {
   window.autoApproveDue = function() {
     if (!(STATE.settings && STATE.settings.autoApprove)) return;
     if (FAM.on && !FAM.isParent()) return;             // only the Crown's phone writes awards
-    var now = Date.now(), A = STATE.approvals || {}, n = 0;
+    var now = nowMs(), A = STATE.approvals || {}, n = 0;
     Object.keys(A).forEach(function(id) {
       var r = A[id];
       if (r && !r.photo && r.at && now - r.at >= AUTO_APPROVE_MS) { approveChore(id, true); n++; }
@@ -3435,9 +3651,16 @@ function crToast(msg) {
     var msg = $('fj-msg');
     $('fj-code').value = code;
     if (code.length !== 6) { msg.className = 'pin-result err'; msg.textContent = 'Family codes have 6 letters and numbers'; return; }
+    var th = lsGet('cr_lookup') || { n: 0, until: 0 };
+    if (th.until > Date.now()) { msg.className = 'pin-result err'; msg.textContent = 'Too many wrong codes — try again in ' + Math.ceil((th.until - Date.now()) / 1000) + 's'; return; }
     msg.className = 'pin-result'; msg.textContent = 'Looking for your family…';
     req('GET', 'codes/' + code).then(function(fid) {
-      if (!fid) { msg.className = 'pin-result err'; msg.textContent = 'No family with that code — check it with a parent'; return; }
+      if (!fid) {
+        th.n++; if (th.n >= 5) th.until = Date.now() + Math.min(600000, 30000 * Math.pow(2, th.n - 5));
+        lsSet('cr_lookup', th);
+        msg.className = 'pin-result err'; msg.textContent = 'No family with that code — check it with a parent'; return;
+      }
+      lsSet('cr_lookup', null);
       return Promise.all([req('GET', 'families/' + fid + '/meta/name'), req('GET', 'families/' + fid + '/players')]).then(function(r) {
         lookup = { fid: fid, code: code, name: r[0] || 'Your family', players: r[1] || {} };
         msg.textContent = '';
@@ -3458,20 +3681,23 @@ function crToast(msg) {
       box.appendChild(r);
     });
   }
+  function devLabel() {
+    var u = navigator.userAgent || '';
+    var os = /iPhone/.test(u) ? 'iPhone' : /iPad/.test(u) ? 'iPad' : /Android/.test(u) ? 'Android' : /Mac/.test(u) ? 'Mac' : /Windows/.test(u) ? 'Windows' : 'phone';
+    var br = /SamsungBrowser/.test(u) ? 'Samsung' : /CriOS|Chrome/.test(u) ? 'Chrome' : /FxiOS|Firefox/.test(u) ? 'Firefox' : /Safari/.test(u) ? 'Safari' : 'browser';
+    return os + ' · ' + br;
+  }
   function famPick(pid, p) {
     var L = lookup, msg = $('fj-msg');
-    msg.className = 'pin-result'; msg.textContent = 'Joining…';
+    msg.className = 'pin-result'; msg.textContent = 'Asking a parent…';
     signIn().then(function(a) {
-      if (p.role === 'parent') {
-        return req('PUT', 'families/' + L.fid + '/requests/' + a.uid, { player: pid, at: SV }).then(function() {
-          lsSet(LSK.req, { fid: L.fid, code: L.code, pid: pid, name: p.name, family: L.name });
+      if (p.claimedBy !== a.uid) {        // every new phone needs a parent's OK (parents get an extra warning)
+        return req('PUT', 'families/' + L.fid + '/requests/' + pid, { uid: a.uid, at: SV, dev: devLabel() }).then(function() {
+          lsSet(LSK.req, { fid: L.fid, code: L.code, pid: pid, name: p.name, family: L.name, role: p.role });
           panel = 'wait'; renderFamily(); pollRequest();
         });
       }
-      var claim = p.claimedBy === a.uid ? Promise.resolve() : req('PUT', 'families/' + L.fid + '/players/' + pid + '/claimedBy', a.uid);
-      return claim.then(function() {
-        return req('PUT', 'families/' + L.fid + '/members/' + a.uid, { player: pid, role: 'kid', joinedAt: SV });
-      }).then(function() {
+      return req('PUT', 'families/' + L.fid + '/members/' + a.uid, { player: pid, role: 'kid', joinedAt: SV }).then(function() {
         link = { fid: L.fid, pid: pid, code: L.code };
         lsSet(LSK.link, link);
         return req('GET', famPath('')).then(function(d) {
@@ -3482,7 +3708,7 @@ function crToast(msg) {
       });
     }).catch(function(err) {
       msg.className = 'pin-result err';
-      msg.textContent = (err.status === 401 || err.status === 403) ? 'Someone already picked that name — ask a parent to free it' : syncError(err, 'joining');
+      msg.textContent = (err.status === 401 || err.status === 403) ? 'Someone else just asked to join as ' + p.name + ' — ask a parent to check their phone' : syncError(err, 'joining');
       if (err.status) famLookup(L.code);
     });
   }
@@ -3496,26 +3722,27 @@ function crToast(msg) {
           lsSet(LSK.req, null);
           link = { fid: q.fid, pid: m.player, code: q.code };
           lsSet(LSK.link, link);
-          return req('GET', famPath('')).then(function(d){ mirror = d; enterFamily(); crToast("🎉 You're in, " + q.name + '!'); });
+          return req('GET', famPath('')).then(function(d){ mirror = d; enterFamily(); crToast("🎉 You're in, " + q.name + '!'); goTo('s-home'); });
         }
-        return req('GET', 'families/' + q.fid + '/requests/' + a.uid).then(function(r) {
-          if (!r) { lsSet(LSK.req, null); crToast('A parent declined the request'); panel = 'local'; renderFamily(); return; }
+        var gone = function() { lsSet(LSK.req, null); crToast('A parent declined the request'); panel = 'local'; renderFamily(); };
+        return req('GET', 'families/' + q.fid + '/requests/' + q.pid).then(function(r) {
+          if (!r || r.uid !== a.uid) { gone(); return; }
           pollT = setTimeout(pollRequest, 4000);
-        });
+        }, function(err) { if (err.status === 401 || err.status === 403) gone(); else throw err; });
       });
     }).catch(function(){ pollT = setTimeout(pollRequest, 6000); });
   }
   window.famCancelRequest = function() {
     var q = lsGet(LSK.req);
     lsSet(LSK.req, null); clearTimeout(pollT); panel = 'local'; renderFamily();
-    if (q && auth) req('DELETE', 'families/' + q.fid + '/requests/' + auth.uid).catch(function(){});
+    if (q && auth && q.pid) req('DELETE', 'families/' + q.fid + '/requests/' + q.pid).catch(function(){});
   };
 
   /* ── share ── */
   function inviteLink() { return location.origin + location.pathname + '?join=' + link.code; }
   window.famShareWA = function() {
     var text = 'Join ' + FAMILY_NAME + ' on Chore Royale 👑 Tap to join: ' + inviteLink() + ' (family code ' + link.code + ')';
-    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
+    window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank', 'noopener');
   };
   window.famCopyLink = function() {
     var t = inviteLink();
@@ -3539,7 +3766,9 @@ function crToast(msg) {
     renderFamily();
     openStream();
     flush();
+    measureClock();
   }
+  setInterval(measureClock, 600000);
   function leaveLocal() {
     closeStream(); clearTimeout(retryT);
     link = null; mirror = null; outbox = [];
