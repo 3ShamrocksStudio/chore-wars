@@ -1452,7 +1452,7 @@ checkDailyReset();
 
 /* ── STATE ─────────────────────────────────────────────── */
 var currentScreen = 's-home';
-var history = [];
+var navHistory = [];
 var photoTaken = false;
 
 var CHORES = [
@@ -1558,7 +1558,7 @@ function setActiveWarrior(name) {
 function checkDesktop() {
   var wall = document.getElementById('desktop-wall');
   if (!wall) return;
-  wall.style.display = window.innerWidth > 520 ? 'flex' : 'none';
+  wall.style.display = Math.min(window.innerWidth, screen.width) > 520 ? 'flex' : 'none';
 }
 window.addEventListener('resize', checkDesktop);
 
@@ -1641,7 +1641,7 @@ function goTo(id) {
   var to = document.getElementById(id);
   if (!to || id === currentScreen) return;
 
-  history.push(currentScreen);
+  navHistory.push(currentScreen);
 
   // Flash effect
   var flash = document.getElementById('flash');
@@ -1670,8 +1670,8 @@ function goTo(id) {
 }
 
 function goBack() {
-  if (history.length === 0) return;
-  var prev = history.pop();
+  if (navHistory.length === 0) return;
+  var prev = navHistory.pop();
   var from = document.getElementById(currentScreen);
   var to = document.getElementById(prev);
 
