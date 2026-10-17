@@ -1102,7 +1102,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     <!-- RAID BOSS -->
     <div class="section-hd">
       <div class="section-title">🎯 This Week's Goal</div>
-      <div class="section-link">Details</div>
+      <div class="section-link" onclick="goTo('s-leaderboard')" style="cursor:pointer">Details</div>
     </div>
     <div class="raid-card">
       <div class="raid-label">🏆 Family Goal Progress</div>
@@ -1114,42 +1114,17 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       </div>
     </div>
 
-    <!-- TODAY'S QUESTS -->
-    <div class="section-hd">
+    <!-- TODAY'S QUESTS — one row per player, from saved daily state -->
+    <div class="section-hd" id="quests-hd">
       <div class="section-title">📋 Today's Quests</div>
-      <div class="section-link" onclick="showTab('missions')">See all</div>
     </div>
-    <div class="quest" onclick="toggleQuest(this)">
-      <span class="quest-ico">🍽️</span>
-      <div class="quest-body">
-        <div class="quest-name">Wash the dishes</div>
-        <div class="quest-meta">🌟 Player 1 · +15 XP</div>
-      </div>
-      <div class="quest-check">✓</div>
-    </div>
-    <div class="quest">
-      <span class="quest-ico">🛏️</span>
-      <div class="quest-body">
-        <div class="quest-name">Make your bed</div>
-        <div class="quest-meta">⭐ Player 2 · +10 XP</div>
-      </div>
-      <div class="quest-check"></div>
-    </div>
-    <div class="quest">
-      <span class="quest-ico">📚</span>
-      <div class="quest-body">
-        <div class="quest-name">30 min reading</div>
-        <div class="quest-meta">🌟 Player 1 · +25 XP · 📸 Photo proof</div>
-      </div>
-      <div class="quest-check"></div>
-    </div>
+    <div id="quest-list"></div>
   </div>
 
   <nav class="bottom-nav">
     <button class="nav-item on" onclick="showTab('home')"><span class="ico">🏠</span>Home</button>
     <button class="nav-item" onclick="showTab('missions')"><span class="ico">📋</span>Missions</button>
     <button class="nav-item" onclick="goTo('s-leaderboard')"><span class="ico">🏆</span>Squad</button>
-    <button class="nav-item" onclick="showTab('me')"><span class="ico">👤</span>Me</button>
   </nav>
 </div>
 
@@ -1337,7 +1312,6 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     <button class="nav-item" onclick="goTo('s-home');"><span class="ico">🏠</span>Home</button>
     <button class="nav-item" onclick="showTab('missions')"><span class="ico">📋</span>Missions</button>
     <button class="nav-item on"><span class="ico">🏆</span>Squad</button>
-    <button class="nav-item" onclick="showTab('me')"><span class="ico">👤</span>Me</button>
   </nav>
 </div>
 
@@ -1551,6 +1525,7 @@ function refreshWarriorDisplay() {
     spinBtn.disabled = used;
   }
   refreshSpinZone();
+  renderQuests();
 }
 
 /* Home spin CTA reflects the active player's day */
@@ -2142,28 +2117,47 @@ function refreshLeaderboard() {
   }
 }
 
-/* ── QUEST TOGGLE ────────────────────────────────────────── */
-function toggleQuest(el) {
-  var check = el.querySelector('.quest-check');
-  check.classList.toggle('done');
-  if (check.classList.contains('done')) {
-    check.textContent = '✓';
-    // Animate boss bar
-    var fill = document.getElementById('boss-fill');
-    var cur = parseFloat(fill.style.width) || 68;
-    fill.style.transition = 'width .8s';
-    fill.style.width = Math.min(cur + 5, 100) + '%';
-  } else {
-    check.textContent = '';
-  }
+/* ── TODAY'S QUESTS (real per-player status) ─────────────── */
+function renderQuests() {
+  var list = document.getElementById('quest-list');
+  if (!list) return;
+  var PICONS = {jakob:'🌟', dean:'⭐', dave:'💫'};
+  var keys = isPremium() ? ['jakob','dean','dave'] : ['jakob'];
+  list.innerHTML = '';
+  keys.forEach(function(k) {
+    var e = dayEntry(k);
+    var c = e ? CHORES[e.chore] : null;
+    var row = document.createElement('div');
+    row.className = 'quest';
+    row.style.cursor = 'pointer';
+    var meta;
+    if (!e) meta = 'Not spun yet · tap to spin';
+    else if (e.done) meta = '+' + (e.awarded || c.xp) + ' XP earned' + (e.speedRun ? ' · ⚡ Speed Run' : '');
+    else meta = '+' + c.xp + ' XP' + (e.acceptedAt ? ' · in progress' : ' · tap to accept');
+    row.innerHTML = '<span class="quest-ico"></span><div class="quest-body"><div class="quest-name"></div><div class="quest-meta"></div></div><div class="quest-check"></div>';
+    row.querySelector('.quest-ico').textContent = c ? c.emoji : '🎡';
+    row.querySelector('.quest-name').textContent = c ? c.name : 'Daily spin';
+    row.querySelector('.quest-meta').textContent = (PICONS[k] || '') + ' ' + (PLAYER_NAMES[k] || '') + ' · ' + meta;
+    var chk = row.querySelector('.quest-check');
+    if (e && e.done) { chk.classList.add('done'); chk.textContent = '✓'; }
+    row.onclick = function() {
+      if (k !== activeWarrior) switchPlayer(k);
+      if (!(e && e.done)) openSpin();
+    };
+    list.appendChild(row);
+  });
 }
 
-/* ── TAB HANDLING (placeholder) ─────────────────────────── */
+/* ── TAB HANDLING ───────────────────────────────────────── */
 function showTab(tab) {
-  if (tab === 'missions') goTo('s-leaderboard');
-  else if (tab === 'home') goTo('s-home');
+  if (currentScreen !== 's-home') goTo('s-home');
+  if (tab === 'missions') {
+    setTimeout(function(){
+      var hd = document.getElementById('quests-hd');
+      if (hd) hd.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 360);
+  }
 }
-function showProfile(name) {}
 
 // Init — refresh display from saved state on load
 (function initDisplay(){
