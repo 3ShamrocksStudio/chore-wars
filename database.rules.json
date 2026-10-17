@@ -63,12 +63,15 @@
 
         "daily": {
           "$pid": {
-            ".write": "auth != null && data.parent().parent().child('members').child(auth.uid).child('player').val() === $pid && ((newData.child('date').val() !== data.child('date').val() && newData.child('done').val() !== true && !newData.child('awarded').exists() && !newData.child('status').exists()) || (newData.child('date').val() === data.child('date').val() && newData.child('done').val() === data.child('done').val() && newData.child('awarded').val() === data.child('awarded').val() && newData.child('speedRun').val() === data.child('speedRun').val() && (newData.child('status').val() === data.child('status').val() || newData.child('status').val() === 'pending')))",
-            "date": { ".validate": "newData.isString() && newData.val().length === 10" },
+            ".write": "auth != null && data.parent().parent().child('members').child(auth.uid).child('player').val() === $pid && ((newData.child('date').val() !== data.child('date').val() && newData.child('day').isNumber() && newData.child('done').val() !== true && !newData.child('awarded').exists() && !newData.child('status').exists()) || (newData.child('date').val() === data.child('date').val() && newData.child('done').val() === data.child('done').val() && newData.child('awarded').val() === data.child('awarded').val() && newData.child('speedRun').val() === data.child('speedRun').val() && (newData.child('status').val() === data.child('status').val() || newData.child('status').val() === 'pending')))",
+            "date": { ".validate": "newData.isString() && newData.val().matches(/^20[0-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/)" },
+            "day": { ".validate": "newData.isNumber() && (newData.val() === data.val() || (newData.val() * 86400000 > now - 172800000 && newData.val() * 86400000 < now + 86400000))" },
             "chore": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < 8" },
             "rerolls": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
             "acceptedAt": { ".validate": "newData.isNumber() && (newData.val() === data.val() || newData.val() === 0 || (newData.val() === now && (!data.exists() || data.val() === 0 || newData.parent().child('date').val() !== data.parent().child('date').val())))" },
             "finishedAt": { ".validate": "newData.isNumber() && (newData.val() === data.val() || newData.val() === 0 || newData.val() === now)" },
+            "acceptedLocal": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < now + 300000" },
+            "finishedLocal": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < now + 300000" },
             "done": { ".validate": "newData.isBoolean()" },
             "awarded": { ".validate": "newData.isNumber()" },
             "speedRun": { ".validate": "newData.isBoolean()" },
@@ -82,9 +85,10 @@
         "approvals": {
           "$aid": {
             ".write": "auth != null && !data.exists() && newData.child('pid').isString() && newData.child('pid').val() === data.parent().parent().child('members').child(auth.uid).child('player').val()",
-            ".validate": "newData.hasChildren(['pid', 'date', 'chore', 'at'])",
+            ".validate": "newData.hasChildren(['pid', 'date', 'day', 'chore', 'at'])",
+            "day": { ".validate": "newData.isNumber() && (newData.val() === data.val() || (newData.val() * 86400000 > now - 172800000 && newData.val() * 86400000 < now + 86400000))" },
             "pid": { ".validate": "newData.isString()" },
-            "date": { ".validate": "newData.isString() && newData.val().length === 10" },
+            "date": { ".validate": "newData.isString() && newData.val().matches(/^20[0-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/)" },
             "chore": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < 8" },
             "photo": { ".validate": "newData.isBoolean()" },
             "at": { ".validate": "newData.isNumber() && (newData.val() === now || newData.val() === data.val())" },
@@ -97,7 +101,7 @@
             ".validate": "newData.hasChildren(['pid', 'xp', 'date', 'at'])",
             "pid": { ".validate": "newData.isString()" },
             "xp": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 500" },
-            "date": { ".validate": "newData.isString() && newData.val().length === 10" },
+            "date": { ".validate": "newData.isString() && newData.val().matches(/^20[0-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/)" },
             "chore": { ".validate": "newData.isNumber()" },
             "speed": { ".validate": "newData.isBoolean()" },
             "photo": { ".validate": "newData.isBoolean()" },
@@ -131,11 +135,21 @@
 
         "pardons": {
           "$pid": {
-            "$date": { ".validate": "newData.val() === true && $date.matches(/^20[0-9][0-9]-[01][0-9]-[0-3][0-9]$/)" }
+            "$date": { ".validate": "newData.val() === true && $date.matches(/^20[0-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/)" }
           }
         },
 
         "$other": { ".validate": false }
+      }
+    },
+
+    "parentLocks": {
+      "$fid": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && root.child('families').child($fid).child('members').child(auth.uid).child('role').val() === 'parent' && (auth.uid === $uid || !newData.exists())",
+          ".validate": "newData.isString() && newData.val().matches(/^[0-9a-f]{64}$/)"
+        }
       }
     },
 
