@@ -1028,6 +1028,35 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 }
 .ppill.locked{opacity:.5}
 .ppill-lock{font-size:10px;position:absolute;top:3px;right:5px}
+
+/* ── FAMILY SYNC (own phone per player) ───────────────────── */
+.nav-item .ico{position:relative}
+.nav-badge{position:absolute;top:-4px;right:-10px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;
+  background:var(--gold);color:#1A0300;font-family:var(--font);font-size:10px;font-weight:900;line-height:16px;text-align:center}
+.cr-toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(16px);z-index:980;opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;max-width:calc(100% - 32px);background:var(--bg3);border:1px solid rgba(245,158,11,.5);
+  border-radius:14px;padding:12px 16px;font-size:14px;font-weight:800;color:var(--tx0);text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.cr-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.fam-stack{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.fam-note{font-size:12px;font-weight:600;color:var(--tx2);line-height:1.5;margin:-4px 0 12px}
+.fam-code{font-family:var(--mono);font-size:26px;font-weight:700;letter-spacing:.2em;color:var(--gold);text-align:center;margin:6px 0 2px}
+.fam-row{display:flex;gap:8px;margin-bottom:8px}
+.fam-row .ob-field{margin:0;flex:1}
+.fam-sel{height:46px;border-radius:12px;background:var(--bg3);border:1px solid rgba(106,33,196,.3);color:var(--tx0);
+  font-family:var(--font);font-weight:700;padding:0 8px}
+.mini-btn{height:34px;min-width:44px;padding:0 12px;border-radius:10px;border:1px solid var(--border-bright);cursor:pointer;
+  background:rgba(255,255,255,.07);color:var(--tx0);font-family:var(--font);font-size:13px;font-weight:800;flex-shrink:0}
+.mini-btn.ok{background:var(--teal);border-color:var(--teal);color:#04120c}
+.mini-btn:disabled{opacity:.4;cursor:not-allowed}
+.quest .quest-actions{display:flex;gap:6px;flex-shrink:0}
+.quest.wrap{flex-wrap:wrap}
+.appr-thumb{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-top:4px}
+.appr-reject{display:flex;gap:6px;width:100%}
+.appr-reject .ob-field{height:36px;margin:0;font-size:14px;flex:1}
+.toggle{width:46px;height:28px;border-radius:14px;background:rgba(255,255,255,.12);border:none;cursor:pointer;position:relative;flex-shrink:0}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s}
+.toggle.on{background:var(--purple)}
+.toggle.on::after{left:21px}
 </style>
 </head>
 <body>
@@ -1095,6 +1124,14 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       </div>
       <div class="ub-btn">Details</div>
     </div>
+    <!-- APPROVALS WAITING (parents) -->
+    <div class="upgrade-banner" id="appr-banner" onclick="openFamily()" style="display:none">
+      <div>
+        <div class="ub-text" id="appr-banner-text">✅ Chores waiting for approval</div>
+        <div class="ub-price">One tap to approve</div>
+      </div>
+      <div class="ub-btn">Review</div>
+    </div>
     <!-- Hidden select for JS compatibility -->
     <select id="warrior-select" onchange="onWarriorSelect(this)" style="display:none">
       <option value="jakob" id="opt-jakob">Player 1</option>
@@ -1135,6 +1172,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     <button class="nav-item on" onclick="showTab('home')"><span class="ico">🏠</span>Home</button>
     <button class="nav-item" onclick="showTab('missions')"><span class="ico">📋</span>Missions</button>
     <button class="nav-item" onclick="goTo('s-leaderboard')"><span class="ico">🏆</span>Squad</button>
+    <button class="nav-item" onclick="openFamily()"><span class="ico">👪<span class="nav-badge" style="display:none"></span></span>Family</button>
   </nav>
 </div>
 
@@ -1176,7 +1214,8 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
         <div class="tip" id="speed-tip" style="display:none"><span class="tip-ico">⚡</span><span id="speed-tip-text"></span></div>
         <div class="tip"><span class="tip-ico">✅</span>Tidy all surfaces first</div>
         <div class="tip"><span class="tip-ico">✅</span>Vacuum or sweep floor</div>
-        <div class="tip"><span class="tip-ico">📸</span><span>Take a photo when done for +<span class="bonus-xp">15</span> bonus XP</span></div>
+        <div class="tip" id="photo-tip"><span class="tip-ico">📸</span><span>A parent asked for a photo — +<span class="bonus-xp">15</span> bonus XP</span></div>
+        <div class="tip"><span class="tip-ico">👍</span><span>Tap Done and a parent approves it</span></div>
       </div>
     </div>
   </div>
@@ -1190,7 +1229,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 <div class="screen hidden" id="s-proof">
   <div class="topbar">
     <button class="back-btn" onclick="goTo('s-chore')">←</button>
-    <div class="topbar-title">Photo Proof</div>
+    <div class="topbar-title" id="proof-title">Photo Proof</div>
     <div style="width:38px"></div>
   </div>
   <div class="proof-zone">
@@ -1201,10 +1240,11 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <div class="proof-lbl" id="proof-lbl">Tap to take photo</div>
       <div class="proof-sublbl" id="proof-sublbl">Show the completed chore</div>
     </div>
-    <div class="proof-note">📸 Photo proof earns +<span class="bonus-xp">15</span> bonus XP and helps a parent verify your work.</div>
+    <input type="file" id="proof-file" accept="image/*" capture="environment" style="display:none" onchange="onProofFile(this)">
+    <div class="proof-note" id="proof-note">📸 A parent asked for a photo of this one — it earns +<span class="bonus-xp">15</span> bonus XP.</div>
+    <div class="proof-note" id="proof-status" style="display:none;color:var(--gold)"></div>
     <div class="proof-actions">
-      <button class="btn btn-orange" id="submit-proof-btn" onclick="goToParentVerify()">📤 Submit for Parent Review</button>
-      <button class="btn btn-ghost" onclick="skipPhoto()">Skip photo — No bonus XP</button>
+      <button class="btn btn-orange" id="submit-proof-btn" onclick="finishQuest()">✅ Done — send for approval</button>
     </div>
   </div>
 </div>
@@ -1213,12 +1253,12 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
 <div class="screen hidden" id="s-reward">
   <div class="reward-fireworks" id="fireworks"></div>
   <div class="reward-body">
-    <div class="reward-trophy">🏆</div>
-    <div class="reward-title">Quest Complete!</div>
+    <div class="reward-trophy" id="reward-trophy">🏆</div>
+    <div class="reward-title" id="reward-title">Quest Complete!</div>
     <div class="reward-chore" id="reward-chore">Clean the Living Room</div>
     <div class="xp-pop">
       <div class="xp-pop-num" id="reward-xp">+45</div>
-      <div class="xp-pop-lbl">XP EARNED</div>
+      <div class="xp-pop-lbl" id="xp-pop-lbl">XP EARNED</div>
     </div>
     <div class="speed-pill" id="reward-speed" style="display:none;margin:-10px 0 18px"></div>
     <div class="proof-note" id="reward-breakdown" style="margin:-12px 0 18px"></div>
@@ -1326,6 +1366,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     <button class="nav-item" onclick="goTo('s-home');"><span class="ico">🏠</span>Home</button>
     <button class="nav-item" onclick="showTab('missions')"><span class="ico">📋</span>Missions</button>
     <button class="nav-item on"><span class="ico">🏆</span>Squad</button>
+    <button class="nav-item" onclick="openFamily()"><span class="ico">👪<span class="nav-badge" style="display:none"></span></span>Family</button>
   </nav>
 </div>
 
@@ -1357,7 +1398,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     </div>
   </div>
   <div class="sovereign-actions">
-    <button class="btn btn-gold" onclick="hideSovereignAndReset()">🎯 Start Fresh Week</button>
+    <button class="btn btn-gold" id="sov-fresh" onclick="hideSovereignAndReset()">🎯 Start Fresh Week</button>
     <button class="btn btn-ghost" onclick="hideSovereign()">Keep Celebrating! 🎉</button>
   </div>
 </div>
@@ -1429,6 +1470,7 @@ function stripDemoSeed(s) {
 }
 
 function saveState() {
+  if (FAM && FAM.on) { FAM.pushLocal(); return; }
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(STATE)); } catch(e) {}
 }
 
@@ -1455,6 +1497,14 @@ var FAMILY_NAME = (function(){
 })();
 var STATE = loadState();
 if (!STATE.daily) STATE.daily = {};
+if (!STATE.approvals) STATE.approvals = {};
+if (!STATE.proof) STATE.proof = {};
+/* Family sync hook — set by the family script below (null/off = same-phone mode) */
+var FAM = null;
+var PICONS = {jakob:'🌟', dean:'⭐', dave:'💫'};
+function allKeys() { return (FAM && FAM.on) ? FAM.ids() : ['jakob','dean','dave']; }
+function isParentPlayer(k) { return !!(FAM && FAM.on && FAM.role(k) === 'parent'); }
+function needsProof(idx) { return !!(STATE.proof && STATE.proof[idx]); }
 // Today's spin/chore for a player (null if they haven't spun today)
 function dayEntry(w) {
   var d = STATE.daily[w || activeWarrior];
@@ -1466,7 +1516,6 @@ checkDailyReset();
 /* ── STATE ─────────────────────────────────────────────── */
 var currentScreen = 's-home';
 var navHistory = [];
-var photoTaken = false;
 
 var CHORES = [
   {emoji:'🧹',name:'Clean the Living Room',xp:30,bonus:15,mins:15,desc:'Make sure the whole living room is clean — pick up toys, cushions back in place, and vacuum the carpet.'},
@@ -1511,16 +1560,11 @@ function awardXP(warrior, amount) {
 
 function refreshWarriorDisplay() {
   var w = STATE.warriors;
-  var jEl = document.getElementById('xp-jakob');
-  var dEl = document.getElementById('xp-dean');
-  var vEl = document.getElementById('xp-dave');
+  var keys = allKeys().filter(function(k){ return w[k]; });
   var sEl = document.getElementById('clan-streak');
   var bf = document.getElementById('boss-fill');
-  if(jEl) jEl.textContent = w.jakob.xp.toLocaleString();
-  if(dEl) dEl.textContent = w.dean.xp.toLocaleString();
-  if(vEl) vEl.textContent = w.dave.xp.toLocaleString();
   // Best streak of clan
-  var best = Math.max(w.jakob.streak, w.dean.streak, w.dave.streak);
+  var best = Math.max.apply(null, [0].concat(keys.map(function(k){ return w[k].streak || 0; })));
   if(sEl) sEl.textContent = best;
   // Boss bar
   if(bf) { bf.style.transition='width .8s'; bf.style.width = STATE.boss.hp + '%'; }
@@ -1528,7 +1572,7 @@ function refreshWarriorDisplay() {
   if(gp) gp.textContent = (STATE.boss.hp || 0) + '% complete';
   var gpl = document.getElementById('goal-players');
   if(gpl) {
-    var active = ['jakob','dean','dave'].filter(function(k){ return w[k].totalChores > 0; }).length;
+    var active = keys.filter(function(k){ return w[k].totalChores > 0; }).length;
     gpl.textContent = active ? '⭐ ' + active + ' player' + (active > 1 ? 's' : '') + ' crushing it' : '⭐ Spin to get started';
   }
   // Spin button — one spin per player per day
@@ -1540,6 +1584,7 @@ function refreshWarriorDisplay() {
   }
   refreshSpinZone();
   renderQuests();
+  if (typeof renderBadges === 'function') renderBadges();
 }
 
 /* Home spin CTA reflects the active player's day */
@@ -1547,11 +1592,12 @@ function refreshSpinZone() {
   var cta = document.getElementById('spin-cta');
   if (!cta) return;
   var e = dayEntry(activeWarrior);
-  cta.textContent = !e ? '⚡ Spin the Wheel' : (e.done ? '🌅 Done for today' : '▶ Continue Quest');
+  cta.textContent = !e ? '⚡ Spin the Wheel' : (e.done ? '🌅 Done for today' : e.status === 'pending' ? '⏳ Waiting for approval' : e.status === 'rejected' ? '↩ Redo Quest' : '▶ Continue Quest');
 }
 
 function openSpin() {
   var e = dayEntry(activeWarrior);
+  if (e && e.status === 'pending' && !e.done) { crToast('⏳ Sent — waiting for a parent to approve'); return; }
   if (e && !e.done) {
     currentChore = CHORES[e.chore];
     updateChoreScreen(currentChore);
@@ -1585,7 +1631,6 @@ function setActiveWarrior(name) {
   if (card) card.style.borderColor = colors[name] || '';
   // Update chore warrior label
   var wl = document.getElementById('chore-warrior');
-  var PICONS = {jakob:'🌟', dean:'⭐', dave:'💫'};
   var pLabel = (PICONS[name]||'🌟') + ' ' + (PLAYER_NAMES[name]||'Player').toUpperCase() + "'S TURN";
   if (wl) wl.textContent = pLabel;
   // Update pin warrior name
@@ -1619,8 +1664,7 @@ function switchPlayer(name) {
 /* ── HERO CARD REFRESH ───────────────────────────────────── */
 function refreshHeroCard() {
   var name = activeWarrior || 'jakob';
-  var w = STATE.warriors[name];
-  var PICONS = {jakob: '🌟', dean: '⭐', dave: '💫'};
+  var w = STATE.warriors[name] || {xp:0};
   var icon = PICONS[name] || '🌟';
   var pname = PLAYER_NAMES[name] || 'Player';
 
@@ -1809,8 +1853,7 @@ function spinWheel() {
 }
 
 function updateChoreScreen(chore) {
-  var PLAYER_ICONS = {jakob:'🌟', dean:'⭐', dave:'💫'};
-  var icon = PLAYER_ICONS[activeWarrior] || '🌟';
+  var icon = PICONS[activeWarrior] || '🌟';
   var pname = (PLAYER_NAMES[activeWarrior] || 'Player 1').toUpperCase();
   document.getElementById('chore-emoji').textContent = chore.emoji;
   document.getElementById('chore-warrior').textContent = icon + ' ' + pname + '\'S TURN';
@@ -1824,6 +1867,9 @@ function updateChoreScreen(chore) {
     if (chore.mins) document.getElementById('speed-tip-text').textContent =
       'Speed Run! Finish within ' + chore.mins + ' min for +' + speedBonus(chore) + ' bonus XP. Late is OK — you still get full XP.';
   }
+  var ptip = document.getElementById('photo-tip');
+  if (ptip) ptip.style.display = needsProof(CHORES.indexOf(chore)) ? '' : 'none';
+  refreshProofScreen();
   var ab = document.getElementById('accept-btn');
   var e0 = dayEntry(activeWarrior);
   if (ab) ab.textContent = (e0 && e0.acceptedAt) ? '▶ Continue' : (chore.mins ? '⏱ Start the Clock!' : '✅ Challenge Accepted!');
@@ -1886,17 +1932,63 @@ function tickTimers() {
 }
 setInterval(tickTimers, 1000);
 
-/* ── PHOTO PROOF ─────────────────────────────────────────── */
-function takeFakePhoto() {
-  photoTaken = true;
-  var preview = document.getElementById('proof-preview');
-  var ico = document.getElementById('proof-ico');
-  var lbl = document.getElementById('proof-lbl');
-  var sublbl = document.getElementById('proof-sublbl');
-  preview.classList.add('has-photo');
-  ico.textContent = '✅';
-  lbl.textContent = 'Photo ready!';
-  sublbl.textContent = 'Tap to retake';
+/* ── DONE → PARENT APPROVAL ──────────────────────────────── */
+// Default: the player taps Done and a parent approves (or sends it back).
+// Photo proof only when a parent switched on "ask for proof" for that chore.
+var proofData = '';
+
+function takeFakePhoto() {           // name kept for the existing onclick: opens the camera
+  var inp = document.getElementById('proof-file');
+  if (inp) { inp.value = ''; inp.click(); }
+}
+
+function onProofFile(inp) {
+  var f = inp.files && inp.files[0];
+  if (!f) return;
+  var img = new Image();
+  var url = URL.createObjectURL(f);
+  img.onload = function() {
+    var max = 480, sc = Math.min(1, max / Math.max(img.width, img.height));
+    var cv = document.createElement('canvas');
+    cv.width = Math.round(img.width * sc); cv.height = Math.round(img.height * sc);
+    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+    URL.revokeObjectURL(url);
+    proofData = cv.toDataURL('image/jpeg', 0.6);
+    var pi = document.getElementById('proof-img');
+    pi.src = proofData; pi.style.display = 'block';
+    document.getElementById('proof-preview').classList.add('has-photo');
+    document.getElementById('proof-ico').style.display = 'none';
+    document.getElementById('proof-lbl').style.display = 'none';
+    document.getElementById('proof-sublbl').style.display = 'none';
+  };
+  img.onerror = function() { URL.revokeObjectURL(url); crToast("Couldn't read that photo — try again"); };
+  img.src = url;
+}
+
+function resetProof() {
+  proofData = '';
+  var pi = document.getElementById('proof-img');
+  if (pi) { pi.removeAttribute('src'); pi.style.display = 'none'; }
+  var pv = document.getElementById('proof-preview'); if (pv) pv.classList.remove('has-photo');
+  ['proof-ico','proof-lbl','proof-sublbl'].forEach(function(id){ var el = document.getElementById(id); if (el) el.style.display = ''; });
+}
+
+/* Quest screen: shows the photo box only when the parent asked for proof */
+function refreshProofScreen() {
+  var e = dayEntry(activeWarrior);
+  var idx = e ? e.chore : CHORES.indexOf(currentChore);
+  var ask = needsProof(idx), self = isParentPlayer(activeWarrior);
+  var show = function(id, on){ var el = document.getElementById(id); if (el) el.style.display = on ? '' : 'none'; };
+  show('proof-preview', ask); show('proof-note', ask);
+  var t = document.getElementById('proof-title'); if (t) t.textContent = ask ? 'Photo Proof' : 'Quest Time';
+  var b = document.getElementById('submit-proof-btn');
+  if (b) b.textContent = self ? '✅ Done!' : ask ? '📤 Send photo for approval' : '✅ Done — send for approval';
+  var st = document.getElementById('proof-status');
+  if (st) {
+    var rej = e && e.status === 'rejected';
+    st.style.display = rej ? '' : 'none';
+    st.textContent = rej ? '↩ Sent back' + (e.reason ? ': “' + e.reason + '”' : '') + ' — fix it and tap Done again.' : '';
+  }
 }
 
 function stopClock() {
@@ -1904,64 +1996,115 @@ function stopClock() {
   if (e && e.acceptedAt && !e.finishedAt) { e.finishedAt = Date.now(); saveState(); }
 }
 
-function goToParentVerify() {
+function finishQuest() {
+  var e = dayEntry(activeWarrior);
+  if (!e) { goTo('s-home'); return; }
+  if (e.done) { completeChore(false); return; }
+  if (e.status === 'pending') { crToast('⏳ Already sent — waiting for a parent'); return; }
+  if (needsProof(e.chore) && !proofData) { crToast('📸 This one needs a photo — tap the box'); return; }
   stopClock();
-  // If photo was taken, go to parent verify for bonus XP; else skip straight to reward
-  if (photoTaken) {
-    setPinMode(getParentPIN() ? 'verify' : 'set');
-    var wEl = document.getElementById('pin-warrior-name');
-    if (wEl) wEl.textContent = PLAYER_NAMES[activeWarrior] || 'Player 1';
-    goTo('s-parent');
+  if (isParentPlayer(activeWarrior)) { completeChore(!!proofData); resetProof(); return; }  // parents' own chores count right away
+  submitForApproval(e);
+}
+
+function submitForApproval(e) {
+  var photo = !!proofData;
+  e.status = 'pending'; delete e.reason; e.photo = photo;
+  var id = 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  var rec = { pid: activeWarrior, date: e.date, chore: e.chore, photo: photo };
+  if (FAM && FAM.on) {
+    saveState();
+    FAM.submit(id, rec, proofData);
   } else {
-    submitProof();
+    rec.at = Date.now();
+    if (photo) rec.img = proofData;
+    STATE.approvals[id] = rec;
+    saveState();
   }
+  var a = awardFor(e, photo);
+  resetProof();
+  refreshWarriorDisplay();
+  fillReward(a, true);
+  goTo('s-reward');
 }
 
-function submitProof() {
-  completeChore(false);
+/* XP for a finished day entry: chore + photo bonus (if proof) + ⚡ speed bonus */
+function awardFor(e, photo) {
+  var c = CHORES[e.chore] || CHORES[0];
+  var left = timeLeftMs(e, c);
+  var speed = (left !== null && left > 0) ? speedBonus(c) : 0;
+  var ph = photo ? c.bonus : 0;
+  return { chore: c, base: c.xp, photo: ph, speed: speed, total: c.xp + ph + speed, left: left };
 }
 
-function skipPhoto() {
-  stopClock();
-  photoTaken = false;
-  completeChore(false);
+/* The only place XP is granted (parent approval, or a parent's own chore) */
+function grantAward(pid, e, a, id) {
+  if (FAM && FAM.on) { FAM.grant(pid, e, a, id); return; }
+  awardXP(pid, a.total);
+  e.done = true; e.awarded = a.total; e.speedRun = a.speed > 0; e.status = 'approved'; delete e.reason;
+  if (a.speed) STATE.warriors[pid].speedRuns = (STATE.warriors[pid].speedRuns || 0) + 1;
+  saveState();
+}
+
+/* Parent decisions (same-phone mode; family mode routes through FAM) */
+function approveChore(id) {
+  if (FAM && FAM.on) { FAM.approve(id); return; }
+  var r = STATE.approvals[id]; if (!r) return;
+  var e = STATE.daily[r.pid];
+  if (!e || e.date !== r.date) e = { date: r.date, chore: r.chore, acceptedAt: 0, finishedAt: 0 };
+  var a = awardFor(e, r.photo);
+  delete STATE.approvals[id];
+  grantAward(r.pid, e, a, id);
+  refreshWarriorDisplay(); refreshLeaderboard();
+  crToast('✅ ' + (PLAYER_NAMES[r.pid] || 'Player') + ' +' + a.total + ' XP');
+}
+
+function rejectChore(id, reason) {
+  if (FAM && FAM.on) { FAM.reject(id, reason); return; }
+  var r = STATE.approvals[id]; if (!r) return;
+  var e = STATE.daily[r.pid];
+  if (e && e.date === r.date && !e.done) { e.status = 'rejected'; e.reason = reason || ''; e.finishedAt = 0; }
+  delete STATE.approvals[id];
+  saveState();
+  refreshWarriorDisplay();
 }
 
 /* Single place that awards a finished chore and fills the reward screen.
-   photoVerified = parent confirmed the photo with the PIN. */
+   Used for a parent's own chore (no one else to approve it). */
 function completeChore(photoVerified) {
   var e = dayEntry(activeWarrior);
   if (e && e.done) { goTo('s-reward'); return; }
-  var base = currentChore.xp;
-  var photo = photoVerified ? currentChore.bonus : 0;
-  var left = timeLeftMs(e, currentChore);
-  var speed = (left !== null && left > 0) ? speedBonus(currentChore) : 0;
-  var total = base + photo + speed;
-  awardXP(activeWarrior, total);
-  if (e) { e.done = true; e.awarded = total; e.speedRun = speed > 0; }
-  if (speed) STATE.warriors[activeWarrior].speedRuns = (STATE.warriors[activeWarrior].speedRuns || 0) + 1;
-  saveState();
+  if (!e) { goTo('s-home'); return; }
+  var a = awardFor(e, photoVerified);
+  grantAward(activeWarrior, e, a, null);
   refreshWarriorDisplay();
   refreshLeaderboard();
-  var parts = [base + ' chore'];
-  if (photo) parts.push(photo + ' 📸 photo');
-  if (speed) parts.push(speed + ' ⚡ speed');
+  fillReward(a, false);
+  goTo('s-reward');
+}
+
+function fillReward(a, pending) {
+  var parts = [a.base + ' chore'];
+  if (a.photo) parts.push(a.photo + ' 📸 photo');
+  if (a.speed) parts.push(a.speed + ' ⚡ speed');
   var rs = document.getElementById('reward-speed');
   if (rs) {
-    rs.style.display = left === null ? 'none' : '';
-    rs.className = 'speed-pill' + (speed ? '' : ' late');
-    rs.textContent = speed ? '⚡ SPEED RUN! Beat the clock with ' + fmtMs(left) + ' to spare' : '⏱ Done! Beat the clock next time for ⚡ bonus XP';
+    rs.style.display = a.left === null ? 'none' : '';
+    rs.className = 'speed-pill' + (a.speed ? '' : ' late');
+    rs.textContent = a.speed ? '⚡ SPEED RUN! Beat the clock with ' + fmtMs(a.left) + ' to spare' : '⏱ Done! Beat the clock next time for ⚡ bonus XP';
   }
-  var w = STATE.warriors[activeWarrior];
-  document.getElementById('reward-chore').textContent = currentChore.name;
-  document.getElementById('reward-xp').textContent = '+' + total;
+  var w = STATE.warriors[activeWarrior] || {streak:0, xp:0, totalChores:0};
+  var who = (FAM && FAM.on && FAM.parentName()) || 'a parent';
+  document.getElementById('reward-trophy').textContent = pending ? '📨' : '🏆';
+  document.getElementById('reward-title').textContent = pending ? 'Sent to ' + who + ' ✓' : 'Quest Complete!';
+  document.getElementById('xp-pop-lbl').textContent = pending ? 'XP WHEN APPROVED' : 'XP EARNED';
+  document.getElementById('reward-chore').textContent = a.chore.name;
+  document.getElementById('reward-xp').textContent = '+' + a.total;
   document.getElementById('reward-breakdown').textContent = parts.length > 1 ? parts.join(' + ') + ' XP' : '';
   document.getElementById('rw-streak').textContent = '🔥 ' + w.streak;
   document.getElementById('rw-total').textContent = w.xp.toLocaleString();
   document.getElementById('rw-chores').textContent = w.totalChores;
   document.getElementById('rw-goal').textContent = (STATE.boss.hp || 0) + '%';
-  photoTaken = false;
-  goTo('s-reward');
 }
 
 /* ── FIREWORKS ───────────────────────────────────────────── */
@@ -2007,8 +2150,7 @@ function checkRankUp(warrior, oldXP, newXP) {
   var oldRank = getWarriorRank(oldXP);
   var newRank = getWarriorRank(newXP);
   if (newRank.min > oldRank.min) {
-    var names = { jakob: PLAYER_NAMES.jakob, dean: PLAYER_NAMES.dean, dave: PLAYER_NAMES.dave };
-    showRankUpToast(names[warrior] || warrior, newRank);
+    showRankUpToast(PLAYER_NAMES[warrior] || warrior, newRank);
   }
 }
 
@@ -2043,6 +2185,7 @@ function hideBossDefeated() {
   var overlay = document.getElementById('boss-defeated-overlay');
   if (overlay) overlay.classList.remove('show');
   _bossDefeatedShown = false;
+  if (FAM && FAM.on) { FAM.bossReset(); return; }
   // Reset boss for next raid
   STATE.boss.hp = 0;
   saveState();
@@ -2078,12 +2221,10 @@ function launchKaboom() {
 function showSovereignProclamation() {
   var w = STATE.warriors;
   // Find winner (highest XP)
-  var top = 'jakob';
-  if (w.dean.xp > w[top].xp) top = 'dean';
-  if (w.dave.xp > w[top].xp) top = 'dave';
-
-  var names = { jakob: PLAYER_NAMES.jakob, dean: PLAYER_NAMES.dean, dave: PLAYER_NAMES.dave };
-  var topName = names[top];
+  var keys = allKeys().filter(function(k){ return w[k]; });
+  var top = keys[0];
+  keys.forEach(function(k){ if (w[k].xp > w[top].xp) top = k; });
+  var topName = PLAYER_NAMES[top];
   var topXP = w[top].xp;
   var topChores = w[top].totalChores;
   var topStreak = w[top].streak;
@@ -2099,6 +2240,8 @@ function showSovereignProclamation() {
   if (stEl) stEl.textContent = topStreak;
 
   var overlay = document.getElementById('sovereign-overlay');
+  var fresh = document.getElementById('sov-fresh');
+  if (fresh) fresh.style.display = (FAM && FAM.on && !FAM.isParent()) ? 'none' : '';
   if (overlay) overlay.classList.add('show');
   launchCrownRain();
 }
@@ -2114,6 +2257,7 @@ function hideSovereignAndReset() {
 }
 
 function weeklyReset() {
+  if (FAM && FAM.on) { FAM.weeklyReset(); return; }
   // Reset XP, streaks — keep totalChores as all-time record
   var w = STATE.warriors;
   Object.keys(w).forEach(function(k) {
@@ -2157,25 +2301,28 @@ function launchCrownRain() {
 function refreshLeaderboard() {
   var w = STATE.warriors;
   // Sort warriors by XP
-  var sorted = [
-    { key:'jakob', name:PLAYER_NAMES.jakob, icon:'🌟', xp:w.jakob.xp, streak:w.jakob.streak, totalChores:w.jakob.totalChores },
-    { key:'dean',  name:PLAYER_NAMES.dean,  icon:'⭐', xp:w.dean.xp,  streak:w.dean.streak,  totalChores:w.dean.totalChores  },
-    { key:'dave',  name:PLAYER_NAMES.dave,  icon:'💫', xp:w.dave.xp,  streak:w.dave.streak,  totalChores:w.dave.totalChores  }
-  ].sort(function(a, b) { return b.xp - a.xp; });
+  var sorted = allKeys().filter(function(k){ return w[k]; }).map(function(k) {
+    return { key:k, name:PLAYER_NAMES[k], icon:PICONS[k] || '🌟', xp:w[k].xp, streak:w[k].streak, totalChores:w[k].totalChores };
+  }).sort(function(a, b) { return b.xp - a.xp; });
 
   // Podium (positions: 2nd, 1st, 3rd visually)
   var order = [sorted[1], sorted[0], sorted[2]];
   var podSpots = document.querySelectorAll('.podium-spot');
   podSpots.forEach(function(spot, i) {
     var d = order[i];
+    spot.style.visibility = d ? '' : 'hidden';
     if (!d) return;
     spot.querySelector('.podium-av').textContent = d.icon;
     spot.querySelector('.podium-name').textContent = d.name;
     spot.querySelector('.podium-xp').textContent = d.xp.toLocaleString();
   });
 
-  // List rows
+  // List rows — one per player
+  var lbList = document.querySelector('.lb-list');
   var rows = document.querySelectorAll('.lb-row');
+  for (var ri = rows.length; ri < sorted.length; ri++) lbList.appendChild(rows[0].cloneNode(true));
+  rows = document.querySelectorAll('.lb-row');
+  rows.forEach(function(row, i) { row.style.display = sorted[i] ? '' : 'none'; row.querySelector('.lb-rank').textContent = i === 0 ? '👑' : (i + 1); });
   rows.forEach(function(row, i) {
     var d = sorted[i];
     if (!d) return;
@@ -2204,8 +2351,7 @@ function refreshLeaderboard() {
 function renderQuests() {
   var list = document.getElementById('quest-list');
   if (!list) return;
-  var PICONS = {jakob:'🌟', dean:'⭐', dave:'💫'};
-  var keys = isPremium() ? ['jakob','dean','dave'] : ['jakob'];
+  var keys = (FAM && FAM.on) ? allKeys() : isPremium() ? ['jakob','dean','dave'] : ['jakob'];
   list.innerHTML = '';
   keys.forEach(function(k) {
     var e = dayEntry(k);
@@ -2214,15 +2360,20 @@ function renderQuests() {
     row.className = 'quest';
     row.style.cursor = 'pointer';
     var meta;
-    if (!e) meta = 'Not spun yet · tap to spin';
+    var mine = !(FAM && FAM.on) || k === activeWarrior;
+    if (!e) meta = 'Not spun yet' + (mine ? ' · tap to spin' : '');
     else if (e.done) meta = '+' + (e.awarded || c.xp) + ' XP earned' + (e.speedRun ? ' · ⚡ Speed Run' : '');
-    else meta = '+' + c.xp + ' XP' + (e.acceptedAt ? ' · in progress' : ' · tap to accept');
+    else if (e.status === 'pending') meta = '⏳ waiting for approval';
+    else if (e.status === 'rejected') meta = '↩ sent back' + (e.reason ? ': ' + e.reason : '');
+    else meta = '+' + c.xp + ' XP' + (e.acceptedAt ? ' · in progress' : mine ? ' · tap to accept' : '');
     row.innerHTML = '<span class="quest-ico"></span><div class="quest-body"><div class="quest-name"></div><div class="quest-meta"></div></div><div class="quest-check"></div>';
     row.querySelector('.quest-ico').textContent = c ? c.emoji : '🎡';
     row.querySelector('.quest-name').textContent = c ? c.name : 'Daily spin';
     row.querySelector('.quest-meta').textContent = (PICONS[k] || '') + ' ' + (PLAYER_NAMES[k] || '') + ' · ' + meta;
     var chk = row.querySelector('.quest-check');
     if (e && e.done) { chk.classList.add('done'); chk.textContent = '✓'; }
+    else if (e && e.status === 'pending') chk.textContent = '⏳';
+    if (FAM && FAM.on && k !== activeWarrior) { row.style.cursor = 'default'; list.appendChild(row); return; }
     row.onclick = function() {
       if (k !== activeWarrior) switchPlayer(k);
       if (!(e && e.done)) openSpin();
@@ -2292,7 +2443,7 @@ function showTab(tab) {
 
   // First run: show onboarding if no names set
   try {
-    if (!localStorage.getItem('cr_names') && !localStorage.getItem('cr_onboarded')) {
+    if (!localStorage.getItem('cr_names') && !localStorage.getItem('cr_onboarded') && !/[?&]join=/.test(location.search) && !localStorage.getItem('cr_fam_link')) {
       setTimeout(showOnboarding, 400);
     }
   } catch(e) {}
@@ -2303,6 +2454,7 @@ function showTab(tab) {
 var pinEntry = '';
 var pinMode = 'verify';   // 'verify' | 'set' | 'confirm' | 'old'
 var pinDraft = '';
+var pinThen = null;       // what a correct PIN unlocks
 
 function getParentPIN() {
   return STATE.parentPIN || '';
@@ -2315,7 +2467,7 @@ function setPinMode(mode) {
   var ss = document.getElementById('pin-sub-set');
   var h = document.getElementById('pin-hint');
   var texts = {
-    set: ['Create Parent PIN', 'Parents: choose a 4-digit PIN. Kids will need you to verify photo proof.'],
+    set: ['Create Parent PIN', 'Parents: choose a 4-digit PIN. You will use it to approve chores on this phone.'],
     confirm: ['Confirm PIN', 'Enter the same 4 digits again.'],
     old: ['Current PIN', 'Enter the current parent PIN to change it.']
   };
@@ -2382,7 +2534,8 @@ function checkPIN() {
       updatePinDots();
       res.textContent = '';
       res.className = 'pin-result';
-      completeChore(true);
+      var fn = pinThen; pinThen = null;
+      if (fn) fn();
     }, 800);
   } else {
     res.textContent = 'Wrong PIN — try again';
@@ -2527,7 +2680,7 @@ function applyPlayerNames() {
     <div style="font-size:40px;margin-bottom:var(--s2)">👑</div>
     <div class="pin-title" id="pin-title">Parent PIN</div>
     <div class="pin-sub" id="pin-sub-set" style="display:none"></div>
-    <div class="pin-sub" id="pin-sub-verify">Parent verifies <span id="pin-warrior-name">Player 1</span>'s chore — award +<span class="bonus-xp">15</span> bonus XP</div>
+    <div class="pin-sub" id="pin-sub-verify">Parents only — enter your PIN to approve chores</div>
     <div class="pin-dots" id="pin-dots">
       <div class="pin-dot" id="pd0"></div>
       <div class="pin-dot" id="pd1"></div>
@@ -2571,6 +2724,7 @@ function applyPlayerNames() {
     <label class="ob-label">Player 3 Name (optional)</label>
     <input class="ob-field" id="ob-p3" placeholder="Player 3" maxlength="12">
     <button class="ob-btn" onclick="saveOnboarding()">🚀 Let's Play!</button>
+    <span class="ob-skip" onclick="skipOnboarding(); openFamily()">📱 Each player on their own phone? Set up a family</span>
     <span class="ob-skip" onclick="skipOnboarding()">Skip — use defaults</span>
   </div>
 </div>
@@ -2593,6 +2747,869 @@ function applyPlayerNames() {
     <div class="modal-close" onclick="closePremiumModal()">Close</div>
   </div>
 </div>
+
+<!-- ═══ SCREEN 8: FAMILY (own phone per player) ═══════════════ -->
+<div class="screen hidden" id="s-family">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="topbar-title">Family</div>
+    <div style="width:38px"></div>
+  </div>
+  <div class="body">
+    <!-- same-phone mode -->
+    <div id="fam-local">
+      <div class="chore-desc">📱 Everyone plays on <b>this phone</b> right now. Want each player on their own phone? Create a family and share the code on WhatsApp.</div>
+      <div class="fam-note" id="fam-off-note" style="display:none">Family sync isn't switched on in this version yet — same-phone play works as usual.</div>
+      <div class="fam-stack">
+        <button class="btn btn-purple" id="fam-create-open" onclick="famPanel('create')">👑 Create a family</button>
+        <button class="btn btn-ghost" id="fam-join-open" onclick="famPanel('join')">🔑 Join with a code</button>
+      </div>
+    </div>
+    <!-- create -->
+    <div id="fam-create" style="display:none">
+      <div class="section-hd"><div class="section-title">New family</div></div>
+      <label class="ob-label">Family name</label>
+      <input class="ob-field" id="fc-name" maxlength="24" placeholder="e.g. The Smiths">
+      <label class="ob-label">Players — first names or nicknames only</label>
+      <div id="fc-rows"></div>
+      <button class="mini-btn" id="fc-add" onclick="famAddRow('', 'kid')">＋ Add player</button>
+      <div class="fam-note" style="margin-top:10px">The first row is you. Kids join from their own phones and tap their name.</div>
+      <div class="fam-stack">
+        <button class="btn btn-purple" id="fc-go" onclick="famCreate()">🚀 Create family</button>
+        <button class="btn btn-ghost" onclick="famPanel('local')">Cancel</button>
+      </div>
+      <div class="pin-result err" id="fc-msg"></div>
+    </div>
+    <!-- join -->
+    <div id="fam-join" style="display:none">
+      <div class="section-hd"><div class="section-title">Join a family</div></div>
+      <label class="ob-label">Family code</label>
+      <div class="fam-row">
+        <input class="ob-field" id="fj-code" maxlength="6" placeholder="ABC234" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase;letter-spacing:.2em;font-family:var(--mono)">
+        <button class="mini-btn ok" style="height:46px" onclick="famLookup()">Find</button>
+      </div>
+      <div id="fj-found" style="display:none">
+        <div class="chore-desc" id="fj-fam" style="text-align:center"></div>
+        <div class="ob-label">Who are you?</div>
+        <div id="fj-players"></div>
+      </div>
+      <div class="pin-result" id="fj-msg"></div>
+      <div class="fam-stack"><button class="btn btn-ghost" onclick="famPanel('local')">Cancel</button></div>
+    </div>
+    <!-- waiting for a parent to let a second parent in -->
+    <div id="fam-wait" style="display:none">
+      <div class="chore-desc" id="fw-text">⏳ Waiting for a parent in the family to let you in…</div>
+      <div class="fam-stack"><button class="btn btn-ghost" onclick="famCancelRequest()">Cancel</button></div>
+    </div>
+    <!-- in a family -->
+    <div id="fam-in" style="display:none">
+      <div class="chore-desc" style="text-align:center">
+        <div id="fi-name" style="font-family:'Fredoka One',cursive;font-size:20px;color:var(--tx0)"></div>
+        <div class="fam-code" id="fi-code"></div>
+        <div style="font-size:12px;color:var(--tx2)" id="fi-sync"></div>
+      </div>
+      <div class="fam-stack">
+        <button class="modal-wa-btn" style="margin:0" onclick="famShareWA()">💬 Invite on WhatsApp</button>
+        <button class="btn btn-ghost" style="height:44px;font-size:16px" onclick="famCopyLink()">🔗 Copy invite link</button>
+      </div>
+    </div>
+    <!-- parent area: approvals + ask-for-proof -->
+    <div id="fam-lock" style="display:none" class="fam-stack">
+      <button class="btn btn-ghost" onclick="famUnlock()">🔒 Parent area — approvals <span id="fl-count"></span></button>
+    </div>
+    <div id="fam-parent" style="display:none">
+      <div class="section-hd"><div class="section-title">Approvals</div></div>
+      <div id="fp-list"></div>
+      <div class="section-hd" style="margin-top:14px"><div class="section-title">Ask for proof</div></div>
+      <div class="fam-note">Off: they tap Done, you approve. On: they also send a photo (+bonus XP).</div>
+      <div id="fp-proof"></div>
+    </div>
+    <div id="fam-players-wrap" style="display:none">
+      <div class="section-hd" style="margin-top:14px"><div class="section-title">Players</div></div>
+      <div id="fi-players"></div>
+      <div class="fam-row" id="fi-add" style="display:none">
+        <input class="ob-field" id="fi-add-name" maxlength="16" placeholder="Add a player">
+        <button class="mini-btn ok" style="height:46px" onclick="famAddPlayer()">＋</button>
+      </div>
+      <div class="fam-stack" style="margin-top:12px"><button class="btn btn-ghost" style="height:44px;font-size:16px" onclick="famLeave()">🚪 Leave family on this phone</button></div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="goTo('s-home')"><span class="ico">🏠</span>Home</button>
+    <button class="nav-item" onclick="showTab('missions')"><span class="ico">📋</span>Missions</button>
+    <button class="nav-item" onclick="goTo('s-leaderboard')"><span class="ico">🏆</span>Squad</button>
+    <button class="nav-item on"><span class="ico">👪<span class="nav-badge" style="display:none"></span></span>Family</button>
+  </nav>
+</div>
+<div class="cr-toast" id="cr-toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ═══ FAMILY SYNC — every player on their own phone ══════════════════════
+   Firebase Realtime Database over REST + Server-Sent Events, anonymous auth.
+   No SDK, no paid services (Spark free plan). Rules: database.rules.json.
+
+   FIREBASE_CONFIG = null  →  same-phone mode only (everything stays local).
+   To switch family sync on, paste the web app's two values:
+     { apiKey: 'AIza…', databaseURL: 'https://<project>-default-rtdb.<region>.firebasedatabase.app' }
+   (Anonymous sign-in must be enabled in Firebase Auth.)                       */
+var FIREBASE_CONFIG = null;
+if (window.CR_FIREBASE_CONFIG) FIREBASE_CONFIG = window.CR_FIREBASE_CONFIG;   // QA harness (local emulator) only
+
+var _toastT = null;
+function crToast(msg) {
+  var t = document.getElementById('cr-toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(_toastT);
+  _toastT = setTimeout(function(){ t.classList.remove('show'); }, 3200);
+}
+
+(function familySync() {
+  var CFG = FIREBASE_CONFIG;
+  var LSK = { link:'cr_fam_link', cache:'cr_fam_cache', out:'cr_fam_outbox', auth:'cr_fb_auth', req:'cr_fam_request' };
+  var SV = { '.sv': 'timestamp' };
+  var ICONS = ['🌟','⭐','💫','🚀','🦄','🐯'];
+  var CODE_ABC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  function lsGet(k) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch(e) { return null; } }
+  function lsSet(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
+  function clone(o) { return o == null ? o : JSON.parse(JSON.stringify(o)); }
+  function rnd(n, abc) {
+    abc = abc || 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    var a = new Uint32Array(n), s = '';
+    (window.crypto || window.msCrypto).getRandomValues(a);
+    for (var i = 0; i < n; i++) s += abc[a[i] % abc.length];
+    return s;
+  }
+  function resolveSV(v) {   // optimistic copy: server timestamps → local clock
+    if (v && typeof v === 'object') {
+      if (v['.sv'] === 'timestamp') return Date.now();
+      var o = Array.isArray(v) ? [] : {};
+      Object.keys(v).forEach(function(k){ o[k] = resolveSV(v[k]); });
+      return o;
+    }
+    return v;
+  }
+  function prune(v) {        // in the database, null means "not there"
+    if (!v || typeof v !== 'object') return v;
+    var out = Array.isArray(v) ? [] : {}, any = false;
+    Object.keys(v).forEach(function(k){ var c = prune(v[k]); if (c !== null && c !== undefined) { out[k] = c; any = true; } });
+    return any ? out : null;
+  }
+  function setAt(obj, parts, val) {
+    val = prune(val);
+    var o = obj;
+    for (var i = 0; i < parts.length - 1; i++) {
+      if (!o[parts[i]] || typeof o[parts[i]] !== 'object') o[parts[i]] = {};
+      o = o[parts[i]];
+    }
+    if (val === null || val === undefined) delete o[parts[parts.length - 1]];
+    else o[parts[parts.length - 1]] = val;
+  }
+  function split(p) { return String(p).split('/').filter(Boolean); }
+  function $(id) { return document.getElementById(id); }
+  function show(id, on) { var el = $(id); if (el) el.style.display = on ? '' : 'none'; }
+
+  var link = CFG ? lsGet(LSK.link) : null;       // { fid, pid, code }
+  var mirror = link ? lsGet(LSK.cache) : null;   // last known family tree
+  var outbox = link ? (lsGet(LSK.out) || []) : [];
+  var auth = lsGet(LSK.auth);
+  var online = false, es = null, retryT = null, projT = null, firstProjection = true;
+  var panel = 'local', parentUnlocked = false, rejectOpen = null, rejectDraft = '';
+  var proofCache = {}, lookup = null, pollT = null;
+  var LOCAL = { STATE: STATE, NAMES: PLAYER_NAMES, ICONS: PICONS, FAMILY: FAMILY_NAME };
+
+  /* ── anonymous auth (Identity Toolkit REST) ── */
+  var signing = null;
+  function authUrl(svc) { return (CFG.authEmulator ? CFG.authEmulator + '/' : 'https://') + svc + '?key=' + encodeURIComponent(CFG.apiKey); }
+  function okJson(r) { if (!r.ok) { var e = new Error('HTTP ' + r.status); e.status = r.status; throw e; } return r.json(); }
+  function signIn() {
+    if (auth && auth.idToken && auth.exp - Date.now() > 300000) return Promise.resolve(auth);
+    if (signing) return signing;
+    var p = (auth && auth.refreshToken)
+      ? fetch(authUrl('securetoken.googleapis.com/v1/token'), { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          body:'grant_type=refresh_token&refresh_token=' + encodeURIComponent(auth.refreshToken) }).then(okJson)
+          .then(function(r){ return { uid:r.user_id, idToken:r.id_token, refreshToken:r.refresh_token, exp:Date.now() + (+r.expires_in) * 1000 }; })
+      : fetch(authUrl('identitytoolkit.googleapis.com/v1/accounts:signUp'), { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ returnSecureToken: true }) }).then(okJson)
+          .then(function(r){ return { uid:r.localId, idToken:r.idToken, refreshToken:r.refreshToken, exp:Date.now() + (+r.expiresIn) * 1000 }; });
+    signing = p.then(function(a){ auth = a; lsSet(LSK.auth, a); signing = null; return a; },
+                     function(e){ signing = null; throw e; });
+    return signing;
+  }
+
+  /* ── database REST ── */
+  function dbUrl(path, a) {
+    var u = CFG.databaseURL.replace(/\/$/, '') + '/' + path + '.json?auth=' + encodeURIComponent(a.idToken);
+    return CFG.ns ? u + '&ns=' + encodeURIComponent(CFG.ns) : u;
+  }
+  function req(method, path, body) {
+    return signIn().then(function(a){
+      return fetch(dbUrl(path, a), { method: method, body: body === undefined ? undefined : JSON.stringify(body) }).then(okJson);
+    });
+  }
+  function famPath(p) { return 'families/' + link.fid + (p ? '/' + p : ''); }
+
+  /* ── outbox: writes survive being offline and replay in order ── */
+  var flushing = false, authRetries = 0;
+  function enqueue(op) { outbox.push(op); lsSet(LSK.out, outbox); flush(); }
+  function flush() {
+    if (flushing || !outbox.length || !link) return;
+    flushing = true;
+    var op = outbox[0];
+    req(op.m, op.p, op.v).then(function(res) {
+      outbox.shift(); lsSet(LSK.out, outbox); flushing = false; authRetries = 0;
+      if (mirror && op.p.indexOf(famPath('')) === 0 && res !== null) {    // keep the server's timestamps
+        var parts = split(op.p.slice(famPath('').length));
+        if (op.m === 'PATCH') Object.keys(op.v).forEach(function(k) {    // only the paths we wrote
+          var v = res, ks = split(k);
+          if (Object.prototype.hasOwnProperty.call(res, k)) v = res[k];
+          else for (var i = 0; i < ks.length && v != null; i++) v = v[ks[i]];
+          if (v !== undefined) setAt(mirror, parts.concat(ks), v);
+        });
+        else if (op.m === 'PUT' && parts.length) setAt(mirror, parts, res);
+        scheduleProject();
+      }
+      setOnline(true); flush();
+    }, function(err) {
+      flushing = false;
+      if (err.status === 401 && authRetries++ < 2) { if (auth) auth.exp = 0; setTimeout(flush, 300); return; }
+      if (err.status) { outbox.shift(); lsSet(LSK.out, outbox); resync(); flush(); return; }  // refused by the rules → drop, reload truth
+      setOnline(false); clearTimeout(flush._t); flush._t = setTimeout(flush, 5000);
+    });
+  }
+  function applyOp(op) {
+    if (!mirror || op.p.indexOf(famPath('')) !== 0) return;
+    var base = split(op.p.slice(famPath('').length));
+    if (op.m === 'PATCH') Object.keys(op.v).forEach(function(k){ setAt(mirror, base.concat(split(k)), resolveSV(op.v[k])); });
+    else if (base.length) setAt(mirror, base, op.m === 'DELETE' ? null : resolveSV(op.v));
+  }
+  function patchFam(u) {
+    var op = { m:'PATCH', p: famPath(''), v: u };
+    applyOp(op); project();
+    enqueue(op);
+  }
+
+  /* ── live stream (SSE) ── */
+  function closeStream() { if (es) { es.close(); es = null; } }
+  function openStream() {
+    if (!link || typeof EventSource === 'undefined') return;
+    closeStream(); clearTimeout(retryT);
+    signIn().then(function(a) {
+      if (!link) return;
+      es = new EventSource(dbUrl(famPath(''), a));
+      es.addEventListener('put', function(ev){ onEvent(ev, false); });
+      es.addEventListener('patch', function(ev){ onEvent(ev, true); });
+      es.addEventListener('keep-alive', function(){ setOnline(true); });
+      es.addEventListener('cancel', function(){ closeStream(); checkMembership(); });
+      es.addEventListener('auth_revoked', function(){ closeStream(); if (auth) auth.exp = 0; openStream(); });
+      es.onopen = function(){ setOnline(true); flush(); };
+      es.onerror = function(){ setOnline(false); closeStream(); retryT = setTimeout(openStream, 4000); };
+    }, function() { setOnline(false); retryT = setTimeout(openStream, 5000); });
+  }
+  function onEvent(ev, isPatch) {
+    var msg; try { msg = JSON.parse(ev.data); } catch(e) { return; }
+    if (!msg) return;
+    var parts = split(msg.path);
+    if (!parts.length && !isPatch) mirror = msg.data;
+    else {
+      mirror = mirror || {};
+      if (isPatch) Object.keys(msg.data || {}).forEach(function(k){ setAt(mirror, parts.concat(split(k)), msg.data[k]); });
+      else setAt(mirror, parts, msg.data);
+    }
+    setOnline(true);
+    if (!mirror || !mirror.members || !auth || !mirror.members[auth.uid]) { checkMembership(); return; }
+    outbox.forEach(applyOp);          // writes not yet confirmed stay visible
+    scheduleProject();
+  }
+  function resync() {
+    if (!link) return;
+    req('GET', famPath('')).then(function(d) {
+      if (!d) { checkMembership(); return; }
+      mirror = d; outbox.forEach(applyOp); project();
+    }, function(){});
+  }
+  function checkMembership() {
+    if (!link || !auth) return;
+    req('GET', famPath('members/' + auth.uid)).then(function(m) {
+      if (!m) { crToast('This phone was unlinked from the family'); leaveLocal(); }
+      else { retryT = setTimeout(openStream, 3000); }
+    }, function(){ retryT = setTimeout(openStream, 5000); });
+  }
+  function setOnline(v) {
+    if (online === v) return;
+    online = v;
+    var s = $('fi-sync');
+    if (s) s.textContent = v ? '🟢 Synced with the family' : "📴 Offline — changes sync when you're back";
+  }
+
+  /* ── projection: family tree → the game's STATE ── */
+  function prevDay(d) { var t = new Date(d + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() - 1); return t.toISOString().slice(0, 10); }
+  // XP, streaks, chores and the family goal are computed from the approvals ledger,
+  // so two parents approving at once can never overwrite each other.
+  function derive(m, ids) {
+    var meta = m.meta || {}, resetAt = meta.resetAt || 0, bossAt = Math.max(meta.bossResetAt || 0, resetAt);
+    var W = {}, hp = 0;
+    ids.forEach(function(p) {
+      var b = (m.base || {})[p] || {}, fresh = (b.at || 0) >= resetAt;
+      W[p] = { xp: fresh ? b.xp || 0 : 0, streak: fresh ? b.streak || 0 : 0, lastChoreDate: fresh ? b.lastChoreDate || '' : '',
+               totalChores: b.totalChores || 0, speedRuns: b.speedRuns || 0 };
+    });
+    var L = m.ledger || {};
+    Object.keys(L).map(function(k){ return L[k]; }).filter(function(e){ return e && W[e.pid]; })
+      .sort(function(a, b){ return (a.at || 0) - (b.at || 0); })
+      .forEach(function(e) {
+        var w = W[e.pid], after = (e.at || 0) >= resetAt;
+        if (w.lastChoreDate !== e.date || !after) {
+          if (after) { w.streak = w.lastChoreDate === prevDay(e.date) ? w.streak + 1 : 1; w.lastChoreDate = e.date; }
+          w.totalChores++;
+        }
+        if (after) w.xp += e.xp || 0;
+        if (e.speed) w.speedRuns++;
+        if ((e.at || 0) >= bossAt) hp = Math.min(100, hp + 3);
+      });
+    return { w: W, hp: hp };
+  }
+  function scheduleProject() { clearTimeout(projT); projT = setTimeout(project, 30); }
+  function project() {
+    clearTimeout(projT);
+    if (!mirror || !link || !mirror.players) return;
+    lsSet(LSK.cache, mirror);
+    var m = mirror, players = m.players, ids = Object.keys(players).sort();
+    var names = {}, icons = {};
+    ids.forEach(function(p, i){ names[p] = players[p].name; icons[p] = players[p].icon || ICONS[i % ICONS.length]; });
+    var old = FAM.on ? STATE : null;
+    var oldMe = old && old.daily ? clone(old.daily[link.pid]) : null;
+    var d = derive(m, ids);
+    STATE = { v: 2, warriors: d.w, boss: { hp: d.hp }, daily: clone(m.daily || {}), approvals: clone(m.approvals || {}),
+              proof: clone((m.settings || {}).proof || {}), lastSpinDate: '', quests: {} };
+    PLAYER_NAMES = names; PICONS = icons; FAMILY_NAME = (m.meta && m.meta.name) || 'Our Family';
+    activeWarrior = link.pid;
+    FAM.on = true;
+    if (old && !firstProjection) notify(old, oldMe, m);
+    firstProjection = false;
+    paint();
+  }
+  function notify(old, oldMe, m) {
+    var me = link.pid, now = STATE.daily[me];
+    if (oldMe && now && oldMe.date === now.date && oldMe.status !== now.status) {
+      if (now.status === 'approved' && now.done) crToast('✅ Approved! +' + (now.awarded || 0) + ' XP');
+      if (now.status === 'rejected') crToast('↩ Sent back' + (now.reason ? ': ' + now.reason : '') + ' — fix it and tap Done again');
+    }
+    allKeys().forEach(function(k) {
+      var a = old.warriors[k], b = STATE.warriors[k];
+      if (a && b && b.xp > a.xp) checkRankUp(k, a.xp, b.xp);
+    });
+    if ((old.boss.hp || 0) < 100 && STATE.boss.hp >= 100) checkBossDefeated();
+    if (FAM.isParent()) {
+      Object.keys(STATE.approvals).forEach(function(id) {
+        if (old.approvals[id]) return;
+        var r = STATE.approvals[id], c = CHORES[r.chore];
+        if (r.pid !== me && c) crToast('📨 ' + (PLAYER_NAMES[r.pid] || 'Someone') + ' finished ' + c.name);
+      });
+    }
+  }
+  function paint() {
+    var ft = $('family-title'); if (ft) ft.textContent = FAMILY_NAME + ' 👑';
+    var pills = document.querySelector('.player-pills'); if (pills) pills.style.display = FAM.on ? 'none' : '';
+    var ub = $('upgrade-banner'); if (ub) ub.style.display = FAM.on ? 'none' : (isPremium() ? 'none' : 'flex');
+    refreshHeroCard(); refreshWarriorDisplay(); refreshLeaderboard();
+    if (currentScreen === 's-chore' || currentScreen === 's-proof') {
+      var e = dayEntry(activeWarrior);
+      if (e) { currentChore = CHORES[e.chore]; updateChoreScreen(currentChore); }
+    }
+    renderBadges();
+    if (currentScreen === 's-family') renderFamily();
+  }
+
+  /* ── public hook used by the game ── */
+  FAM = {
+    on: false,
+    ids: function(){ return mirror && mirror.players ? Object.keys(mirror.players).sort() : []; },
+    role: function(k){ return mirror && mirror.players && mirror.players[k] ? mirror.players[k].role : null; },
+    isParent: function(){ return !!(FAM.on && auth && mirror.members && mirror.members[auth.uid] && mirror.members[auth.uid].role === 'parent'); },
+    parentName: function() {
+      var ids = FAM.ids().filter(function(k){ return k !== link.pid && FAM.role(k) === 'parent'; });
+      return ids.length ? PLAYER_NAMES[ids[0]] : '';
+    },
+    pushLocal: function() {          // your own day entry (spin, re-roll, start clock, done)
+      var me = link.pid, loc = STATE.daily[me], rem = mirror.daily && mirror.daily[me];
+      if (!loc || JSON.stringify(loc) === JSON.stringify(rem)) return;
+      var path = famPath('daily/' + me), op;
+      var stamp = function(k, v){ return (k === 'acceptedAt' || k === 'finishedAt') && v ? SV : v; };  // the server clocks the Speed Run
+      if (!rem || rem.date !== loc.date) {           // new day: replace the whole entry
+        var v = {}; Object.keys(loc).forEach(function(k){ v[k] = stamp(k, loc[k]); });
+        op = { m:'PUT', p: path, v: v };
+      } else {                                       // same day: send only what changed
+        var u = {};
+        Object.keys(loc).concat(Object.keys(rem)).forEach(function(k) {
+          if (JSON.stringify(loc[k]) !== JSON.stringify(rem[k])) u[k] = loc[k] === undefined ? null : stamp(k, loc[k]);
+        });
+        op = { m:'PATCH', p: path, v: u };
+      }
+      mirror.daily = mirror.daily || {}; mirror.daily[me] = clone(loc);
+      lsSet(LSK.cache, mirror);
+      enqueue(op);
+    },
+    submit: function(id, rec, img) {
+      var v = clone(rec); v.at = SV;
+      var op = { m:'PUT', p: famPath('approvals/' + id), v: v };
+      applyOp(op); enqueue(op);
+      if (img) enqueue({ m:'PUT', p: 'proofs/' + link.fid + '/' + id, v: img });
+      project();
+    },
+    grant: function(pid, e, a, id) {
+      id = id || ('s' + Date.now().toString(36) + rnd(4));
+      var u = {}, d = 'daily/' + pid + '/';
+      u['ledger/' + id] = { pid: pid, xp: a.total, date: e.date, chore: e.chore, speed: a.speed > 0, photo: a.photo > 0, at: SV };
+      var cur = mirror.daily && mirror.daily[pid];
+      if (cur && cur.date === e.date) {
+        u[d + 'done'] = true; u[d + 'awarded'] = a.total; u[d + 'speedRun'] = a.speed > 0; u[d + 'status'] = 'approved'; u[d + 'reason'] = null;
+      }
+      var had = mirror.approvals && mirror.approvals[id];
+      if (had) u['approvals/' + id] = null;
+      patchFam(u);
+      if (had && had.photo) { enqueue({ m:'DELETE', p: 'proofs/' + link.fid + '/' + id }); delete proofCache[id]; }
+    },
+    approve: function(id) {
+      if (!FAM.isParent()) return;
+      var r = mirror.approvals && mirror.approvals[id]; if (!r) return;
+      var e = mirror.daily && mirror.daily[r.pid];
+      if (!e || e.date !== r.date) e = { date: r.date, chore: r.chore, acceptedAt: 0, finishedAt: 0 };
+      var a = awardFor(e, !!r.photo);
+      FAM.grant(r.pid, e, a, id);
+      crToast('✅ ' + (PLAYER_NAMES[r.pid] || 'Player') + ' +' + a.total + ' XP');
+    },
+    reject: function(id, reason) {
+      if (!FAM.isParent()) return;
+      var r = mirror.approvals && mirror.approvals[id]; if (!r) return;
+      var u = {}, e = mirror.daily && mirror.daily[r.pid], d = 'daily/' + r.pid + '/';
+      u['approvals/' + id] = null;
+      if (e && e.date === r.date && !e.done) { u[d + 'status'] = 'rejected'; u[d + 'reason'] = (reason || '').slice(0, 80); u[d + 'finishedAt'] = 0; }
+      patchFam(u);
+      if (r.photo) { enqueue({ m:'DELETE', p: 'proofs/' + link.fid + '/' + id }); delete proofCache[id]; }
+      crToast('↩ Sent back to ' + (PLAYER_NAMES[r.pid] || 'player'));
+    },
+    weeklyReset: function() {
+      if (!FAM.isParent()) { crToast('Only a parent can start a fresh week'); return; }
+      patchFam({ 'meta/resetAt': SV, 'daily': null });
+    },
+    bossReset: function() { if (FAM.isParent()) patchFam({ 'meta/bossResetAt': SV }); else refreshWarriorDisplay(); }
+  };
+
+  /* ── badges + home banner: approvals waiting for a parent ── */
+  function pendingCount() {
+    var n = Object.keys(STATE.approvals || {}).length;
+    if (FAM.on) n += Object.keys((mirror && mirror.requests) || {}).length;
+    return n;
+  }
+  window.renderBadges = function() {
+    var canSee = FAM.on ? FAM.isParent() : true;
+    var n = canSee ? pendingCount() : 0;
+    document.querySelectorAll('.nav-badge').forEach(function(b){ b.textContent = n; b.style.display = n ? '' : 'none'; });
+    var bn = $('appr-banner');
+    if (bn) {
+      bn.style.display = n ? 'flex' : 'none';
+      var t = $('appr-banner-text'); if (t) t.textContent = '✅ ' + n + ' chore' + (n === 1 ? '' : 's') + ' waiting for approval';
+    }
+  };
+
+  /* ── family screen ── */
+  window.openFamily = function() {
+    parentUnlocked = false;
+    panel = lsGet(LSK.req) ? 'wait' : 'local';
+    renderFamily();
+    goTo('s-family');
+  };
+  window.famPanel = function(p) {
+    if ((p === 'create' || p === 'join') && !CFG) return;
+    panel = p;
+    if (p === 'create') {
+      $('fc-name').value = FAMILY_NAME !== 'Our Family' ? FAMILY_NAME : '';
+      $('fc-rows').innerHTML = '';
+      famAddRow('', 'parent');
+      ['jakob','dean','dave'].forEach(function(k){
+        var n = LOCAL.NAMES[k];
+        if (n && !/^Player \d$/.test(n)) famAddRow(n, 'kid');
+      });
+      if ($('fc-rows').children.length < 2) famAddRow('', 'kid');
+      $('fc-msg').textContent = '';
+    }
+    if (p === 'join') { $('fj-found').style.display = 'none'; $('fj-msg').textContent = ''; }
+    renderFamily();
+  };
+  window.famAddRow = function(name, role) {
+    var rows = $('fc-rows');
+    if (rows.children.length >= 6) return;
+    var r = document.createElement('div');
+    r.className = 'fam-row';
+    var inp = document.createElement('input');
+    inp.className = 'ob-field'; inp.maxLength = 16; inp.value = name || '';
+    inp.placeholder = rows.children.length ? 'Player name' : 'Your name';
+    var sel = document.createElement('select');
+    sel.className = 'fam-sel';
+    [['kid','Kid'],['parent','Parent']].forEach(function(o){ var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; sel.appendChild(op); });
+    sel.value = role || 'kid';
+    if (!rows.children.length) sel.disabled = true;
+    r.appendChild(inp); r.appendChild(sel); rows.appendChild(r);
+    $('fc-add').style.display = rows.children.length >= 6 ? 'none' : '';
+  };
+
+  function renderFamily() {
+    var on = FAM.on, req = lsGet(LSK.req);
+    if (!on && req) panel = 'wait';
+    if (!on && panel === 'wait' && !req) panel = 'local';
+    show('fam-local', !on && panel === 'local');
+    show('fam-create', !on && panel === 'create');
+    show('fam-join', !on && panel === 'join');
+    show('fam-wait', !on && panel === 'wait');
+    show('fam-off-note', !CFG);
+    ['fam-create-open','fam-join-open'].forEach(function(id){ var b = $(id); if (b) { b.disabled = !CFG; b.style.opacity = CFG ? '' : '.45'; } });
+    if (req) $('fw-text').textContent = '⏳ Waiting for a parent in ' + req.family + ' to let you in as ' + req.name + '…';
+    var parentView = on ? FAM.isParent() : (panel === 'local' && parentUnlocked);
+    show('fam-in', on);
+    show('fam-players-wrap', on);
+    show('fam-parent', parentView);
+    show('fam-lock', !on && panel === 'local' && !parentUnlocked);
+    var lc = $('fl-count'); if (lc) { var n = pendingCount(); lc.textContent = n ? '(' + n + ')' : ''; }
+    if (on) {
+      $('fi-name').textContent = FAMILY_NAME + ' 👑';
+      $('fi-code').textContent = link.code;
+      var waiting = outbox.length;
+      $('fi-sync').textContent = online ? '🟢 Synced with the family' : "📴 Offline — " + (waiting ? waiting + ' change' + (waiting === 1 ? '' : 's') + ' waiting' : "changes sync when you're back");
+      renderPlayers();
+      show('fi-add', FAM.isParent() && FAM.ids().length < 6);
+    }
+    if (parentView) { renderApprovals(); renderProofToggles(); }
+  }
+  window.renderFamily = renderFamily;
+
+  function row(icon, name, meta) {
+    var r = document.createElement('div');
+    r.className = 'quest';
+    r.innerHTML = '<span class="quest-ico"></span><div class="quest-body"><div class="quest-name"></div><div class="quest-meta"></div></div><div class="quest-actions"></div>';
+    r.querySelector('.quest-ico').textContent = icon;
+    r.querySelector('.quest-name').textContent = name;
+    r.querySelector('.quest-meta').textContent = meta || '';
+    return r;
+  }
+  function miniBtn(label, cls, fn, aria) {
+    var b = document.createElement('button');
+    b.className = 'mini-btn' + (cls ? ' ' + cls : '');
+    b.textContent = label;
+    if (aria) b.setAttribute('aria-label', aria);
+    b.onclick = fn;
+    return b;
+  }
+
+  function renderApprovals() {
+    var list = $('fp-list');
+    if (list.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return;  // don't wipe a reason mid-typing
+    list.innerHTML = '';
+    var A = STATE.approvals || {};
+    var ids = Object.keys(A).sort(function(a, b){ return (A[a].at || 0) - (A[b].at || 0); });
+    var reqs = FAM.on ? ((mirror && mirror.requests) || {}) : {};
+    Object.keys(reqs).forEach(function(uid) {
+      var q = reqs[uid], p = mirror.players[q.player] || {};
+      var r = row('🙋', (p.name || 'Someone') + ' wants to join', 'as a parent on a new phone');
+      var act = r.querySelector('.quest-actions');
+      act.appendChild(miniBtn('✓', 'ok', function(){ answerRequest(uid, q.player, true); }, 'Let in'));
+      act.appendChild(miniBtn('✕', '', function(){ answerRequest(uid, q.player, false); }, 'Decline'));
+      list.appendChild(r);
+    });
+    if (!ids.length && !Object.keys(reqs).length) {
+      list.appendChild(row('🎉', 'All caught up', 'Nothing waiting for approval'));
+      return;
+    }
+    ids.forEach(function(id) {
+      var a = A[id], c = CHORES[a.chore] || CHORES[0];
+      var e = STATE.daily[a.pid];
+      if (!e || e.date !== a.date) e = { date: a.date, chore: a.chore, acceptedAt: 0, finishedAt: 0 };
+      var aw = awardFor(e, !!a.photo);
+      var meta = (PICONS[a.pid] || '') + ' ' + (PLAYER_NAMES[a.pid] || 'Player') + ' · +' + aw.total + ' XP' +
+                 (aw.speed ? ' · ⚡ beat the clock' : '') + (a.photo ? ' · 📸' : '');
+      var r = row(c.emoji, c.name, meta);
+      r.classList.add('wrap');
+      r.dataset.approval = id;
+      var act = r.querySelector('.quest-actions');
+      act.appendChild(miniBtn('✓', 'ok', function(){ approveChore(id); }, 'Approve'));
+      act.appendChild(miniBtn('✕', '', function(){ rejectOpen = rejectOpen === id ? null : id; rejectDraft = ''; renderApprovals(); }, 'Send back'));
+      if (a.photo) {
+        var src = a.img || proofCache[id];
+        if (src) { var im = document.createElement('img'); im.className = 'appr-thumb'; im.alt = 'Photo proof'; im.src = src; r.appendChild(im); }
+        else if (FAM.on) fetchProof(id);
+      }
+      if (rejectOpen === id) {
+        var box = document.createElement('div'); box.className = 'appr-reject';
+        var inp = document.createElement('input'); inp.className = 'ob-field'; inp.maxLength = 80;
+        inp.placeholder = 'What needs fixing? (optional)'; inp.value = rejectDraft;
+        inp.oninput = function(){ rejectDraft = inp.value; };
+        box.appendChild(inp);
+        box.appendChild(miniBtn('Send back', '', function(){ var why = inp.value.trim(); rejectOpen = null; rejectChore(id, why); renderFamily(); }));
+        r.appendChild(box);
+      }
+      list.appendChild(r);
+    });
+  }
+  function fetchProof(id) {
+    if (proofCache[id] !== undefined) return;
+    proofCache[id] = '';
+    req('GET', 'proofs/' + link.fid + '/' + id).then(function(img) {
+      if (img) { proofCache[id] = img; renderApprovals(); }
+      else { delete proofCache[id]; setTimeout(function(){ if (STATE.approvals[id]) fetchProof(id); }, 2500); }
+    }, function(){ delete proofCache[id]; });
+  }
+  function answerRequest(uid, pid, yes) {
+    var u = {}; u['requests/' + uid] = null;
+    if (yes) { u['members/' + uid] = { player: pid, role: 'parent', joinedAt: SV }; u['players/' + pid + '/claimedBy'] = uid; }
+    patchFam(u);
+  }
+
+  function renderProofToggles() {
+    var box = $('fp-proof');
+    box.innerHTML = '';
+    CHORES.forEach(function(c, i) {
+      var on = !!(STATE.proof && STATE.proof[i]);
+      var r = row(c.emoji, c.name, c.mins ? '⏱ ' + c.mins + ' min Speed Run' : '');
+      var t = document.createElement('button');
+      t.className = 'toggle' + (on ? ' on' : '');
+      t.setAttribute('role', 'switch'); t.setAttribute('aria-checked', on ? 'true' : 'false');
+      t.setAttribute('aria-label', 'Ask for a photo: ' + c.name);
+      t.onclick = function(){ setProof(i, !on); };
+      r.querySelector('.quest-actions').appendChild(t);
+      box.appendChild(r);
+    });
+  }
+  function setProof(i, on) {
+    if (FAM.on) { var u = {}; u['settings/proof/' + i] = on; patchFam(u); }
+    else { STATE.proof[i] = on; saveState(); }
+    renderFamily();
+  }
+
+  function renderPlayers() {
+    var box = $('fi-players'); box.innerHTML = '';
+    var P = mirror.players || {}, parent = FAM.isParent();
+    FAM.ids().forEach(function(pid) {
+      var p = P[pid], mine = pid === link.pid;
+      var meta = (p.role === 'parent' ? '👑 Parent' : 'Player') + ' · ' + (mine ? 'this phone' : p.claimedBy ? '📱 on their phone' : '⏳ not joined yet');
+      var r = row(PICONS[pid] || '🌟', p.name + (mine ? ' (you)' : ''), meta);
+      if (parent && !mine && p.claimedBy) {
+        r.querySelector('.quest-actions').appendChild(miniBtn('Unlink', '', function() {
+          if (!confirm('Unlink ' + p.name + "'s phone? They can join again with the family code.")) return;
+          var u = {}; u['players/' + pid + '/claimedBy'] = null; u['members/' + p.claimedBy] = null; patchFam(u);
+        }));
+      }
+      box.appendChild(r);
+    });
+  }
+  window.famAddPlayer = function() {
+    var inp = $('fi-add-name'), name = inp.value.trim().slice(0, 16);
+    if (!name || !FAM.isParent()) return;
+    var n = 1; while (mirror.players['p' + n]) n++;
+    if (n > 6) return;
+    var u = {}; u['players/p' + n] = { name: name, role: 'kid', icon: ICONS[(n - 1) % ICONS.length] };
+    patchFam(u); inp.value = '';
+  };
+
+  /* ── create ── */
+  window.famCreate = function() {
+    if (!CFG) return;
+    var msg = $('fc-msg'), btn = $('fc-go');
+    var fname = ($('fc-name').value || '').trim().slice(0, 24) || 'Our Family';
+    var rows = [].slice.call($('fc-rows').children).map(function(r){
+      return { name: r.querySelector('input').value.trim().slice(0, 16), role: r.querySelector('select').value };
+    }).filter(function(r, i){ return r.name || i === 0; });
+    if (!rows[0].name) { msg.className = 'pin-result err'; msg.textContent = 'Add your name in the first row'; return; }
+    rows[0].role = 'parent';
+    btn.disabled = true; msg.className = 'pin-result'; msg.textContent = 'Creating your family…';
+    var fid = rnd(20), code = rnd(6, CODE_ABC);
+    signIn().then(function(a) {
+      return req('GET', 'codes/' + code).then(function(taken) {
+        if (taken) code = rnd(6, CODE_ABC);
+        var players = {}, base = {}, members = {}, proof = {};
+        rows.forEach(function(r, i) {
+          var pid = 'p' + (i + 1);
+          players[pid] = { name: r.name, role: r.role, icon: ICONS[i] };
+          // carry this phone's progress over for the same names
+          ['jakob','dean','dave'].forEach(function(k) {
+            var w = LOCAL.STATE.warriors[k];
+            if (LOCAL.NAMES[k] === r.name && w && (w.xp || w.totalChores)) {
+              base[pid] = { xp: w.xp || 0, streak: w.streak || 0, lastChoreDate: w.lastChoreDate || '', totalChores: w.totalChores || 0, speedRuns: w.speedRuns || 0, at: SV };
+            }
+          });
+        });
+        players.p1.claimedBy = a.uid;
+        members[a.uid] = { player: 'p1', role: 'parent', joinedAt: SV };
+        Object.keys(LOCAL.STATE.proof || {}).forEach(function(k){ if (LOCAL.STATE.proof[k]) proof[k] = true; });
+        var fam = { meta: { name: fname, code: code, createdBy: a.uid, createdAt: SV, resetAt: 0, bossResetAt: 0 },
+                    players: players, members: members, base: base, settings: { proof: proof } };
+        return req('PUT', 'families/' + fid, fam).then(function(saved) {
+          return req('PUT', 'codes/' + code, fid).then(function() {
+            link = { fid: fid, pid: 'p1', code: code };
+            lsSet(LSK.link, link);
+            mirror = saved;
+            enterFamily();
+            crToast('🎉 Family created! Share the code ' + code);
+          });
+        });
+      });
+    }).catch(function() {
+      msg.className = 'pin-result err'; msg.textContent = "Couldn't reach the family server — check your connection and try again";
+    }).then(function(){ btn.disabled = false; });
+  };
+
+  /* ── join ── */
+  window.famLookup = function(pre) {
+    if (!CFG) return;
+    var code = String(pre || $('fj-code').value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    var msg = $('fj-msg');
+    $('fj-code').value = code;
+    if (code.length !== 6) { msg.className = 'pin-result err'; msg.textContent = 'Family codes have 6 letters and numbers'; return; }
+    msg.className = 'pin-result'; msg.textContent = 'Looking for your family…';
+    req('GET', 'codes/' + code).then(function(fid) {
+      if (!fid) { msg.className = 'pin-result err'; msg.textContent = 'No family with that code — check it with a parent'; return; }
+      return Promise.all([req('GET', 'families/' + fid + '/meta/name'), req('GET', 'families/' + fid + '/players')]).then(function(r) {
+        lookup = { fid: fid, code: code, name: r[0] || 'Your family', players: r[1] || {} };
+        msg.textContent = '';
+        renderPicker();
+      });
+    }).catch(function() { msg.className = 'pin-result err'; msg.textContent = "Couldn't reach the family server — check your connection"; });
+  };
+  function renderPicker() {
+    $('fj-found').style.display = '';
+    $('fj-fam').textContent = '👑 ' + lookup.name;
+    var box = $('fj-players'); box.innerHTML = '';
+    Object.keys(lookup.players).sort().forEach(function(pid) {
+      var p = lookup.players[pid], mine = auth && p.claimedBy === auth.uid, taken = p.claimedBy && !mine;
+      var r = row(p.icon || '🌟', p.name, taken ? 'already on another phone' : p.role === 'parent' ? '👑 Parent' : 'tap to play as ' + p.name);
+      r.style.cursor = taken ? 'default' : 'pointer';
+      if (taken) r.style.opacity = '.5';
+      else { r.onclick = function(){ famPick(pid, p); }; r.querySelector('.quest-actions').appendChild(miniBtn("That's me", 'ok', null)); }
+      box.appendChild(r);
+    });
+  }
+  function famPick(pid, p) {
+    var L = lookup, msg = $('fj-msg');
+    msg.className = 'pin-result'; msg.textContent = 'Joining…';
+    signIn().then(function(a) {
+      if (p.role === 'parent') {
+        return req('PUT', 'families/' + L.fid + '/requests/' + a.uid, { player: pid, at: SV }).then(function() {
+          lsSet(LSK.req, { fid: L.fid, code: L.code, pid: pid, name: p.name, family: L.name });
+          panel = 'wait'; renderFamily(); pollRequest();
+        });
+      }
+      var claim = p.claimedBy === a.uid ? Promise.resolve() : req('PUT', 'families/' + L.fid + '/players/' + pid + '/claimedBy', a.uid);
+      return claim.then(function() {
+        return req('PUT', 'families/' + L.fid + '/members/' + a.uid, { player: pid, role: 'kid', joinedAt: SV });
+      }).then(function() {
+        link = { fid: L.fid, pid: pid, code: L.code };
+        lsSet(LSK.link, link);
+        return req('GET', famPath('')).then(function(d) {
+          mirror = d; enterFamily();
+          crToast('🎉 Welcome to ' + L.name + ', ' + p.name + '!');
+          goTo('s-home');
+        });
+      });
+    }).catch(function(err) {
+      msg.className = 'pin-result err';
+      msg.textContent = err.status ? 'Someone already picked that name — ask a parent to free it' : "Couldn't reach the family server — check your connection";
+      if (err.status) famLookup(L.code);
+    });
+  }
+  function pollRequest() {
+    clearTimeout(pollT);
+    var q = lsGet(LSK.req);
+    if (!q || !CFG) return;
+    signIn().then(function(a) {
+      return req('GET', 'families/' + q.fid + '/members/' + a.uid).then(function(m) {
+        if (m) {
+          lsSet(LSK.req, null);
+          link = { fid: q.fid, pid: m.player, code: q.code };
+          lsSet(LSK.link, link);
+          return req('GET', famPath('')).then(function(d){ mirror = d; enterFamily(); crToast("🎉 You're in, " + q.name + '!'); });
+        }
+        return req('GET', 'families/' + q.fid + '/requests/' + a.uid).then(function(r) {
+          if (!r) { lsSet(LSK.req, null); crToast('A parent declined the request'); panel = 'local'; renderFamily(); return; }
+          pollT = setTimeout(pollRequest, 4000);
+        });
+      });
+    }).catch(function(){ pollT = setTimeout(pollRequest, 6000); });
+  }
+  window.famCancelRequest = function() {
+    var q = lsGet(LSK.req);
+    lsSet(LSK.req, null); clearTimeout(pollT); panel = 'local'; renderFamily();
+    if (q && auth) req('DELETE', 'families/' + q.fid + '/requests/' + auth.uid).catch(function(){});
+  };
+
+  /* ── share ── */
+  function inviteLink() { return location.origin + location.pathname + '?join=' + link.code; }
+  window.famShareWA = function() {
+    var text = 'Join ' + FAMILY_NAME + ' on Chore Royale 👑 Tap to join: ' + inviteLink() + ' (family code ' + link.code + ')';
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
+  };
+  window.famCopyLink = function() {
+    var t = inviteLink();
+    var done = function(){ crToast('🔗 Invite link copied'); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, function(){ prompt('Copy this link:', t); });
+    else prompt('Copy this link:', t);
+  };
+
+  /* ── same-phone parent area (PIN) ── */
+  window.famUnlock = function() {
+    setPinMode(getParentPIN() ? 'verify' : 'set');
+    pinThen = function(){ parentUnlocked = true; goBack(); renderFamily(); };
+    goTo('s-parent');
+  };
+
+  /* ── enter / leave ── */
+  function enterFamily() {
+    firstProjection = true;
+    if (mirror) project();
+    renderFamily();
+    openStream();
+    flush();
+  }
+  function leaveLocal() {
+    closeStream(); clearTimeout(retryT);
+    link = null; mirror = null; outbox = [];
+    lsSet(LSK.link, null); lsSet(LSK.cache, null); lsSet(LSK.out, null);
+    FAM.on = false;
+    STATE = LOCAL.STATE; PLAYER_NAMES = LOCAL.NAMES; PICONS = LOCAL.ICONS; FAMILY_NAME = LOCAL.FAMILY;
+    activeWarrior = 'jakob';
+    panel = 'local';
+    paint();
+    setActiveWarrior('jakob');
+    renderFamily();
+  }
+  window.famLeave = function() {
+    var only = FAM.isParent() && FAM.ids().filter(function(k){ return FAM.role(k) === 'parent' && mirror.players[k].claimedBy; }).length <= 1;
+    if (!confirm('Leave the family on this phone?' + (only ? "\n\nYou're the only parent linked — nobody will be able to approve chores until a parent joins again." : '') +
+                 '\n\nThe family keeps its scores. This phone goes back to same-phone play.')) return;
+    var me = link, uid = auth && auth.uid, wasClaim = mirror && mirror.players[me.pid] && mirror.players[me.pid].claimedBy === uid;
+    leaveLocal();
+    if (!uid) return;
+    (wasClaim ? req('DELETE', 'families/' + me.fid + '/players/' + me.pid + '/claimedBy') : Promise.resolve())
+      .then(function(){ return req('DELETE', 'families/' + me.fid + '/members/' + uid); }).catch(function(){});
+  };
+
+  /* ── boot ── */
+  if (CFG && link) enterFamily();
+  renderBadges();
+  if (CFG && lsGet(LSK.req)) pollRequest();
+  var jm = /[?&]join=([A-Za-z0-9]{6})/.exec(location.search);
+  if (jm) {
+    try { history.replaceState(null, '', location.pathname); } catch(e) {}
+    var code = jm[1].toUpperCase();
+    if (!(link && link.code === code)) {
+      setTimeout(function() {
+        var ob = $('ob-modal'); if (ob) ob.classList.add('hidden');
+        openFamily();
+        if (CFG && !link) { famPanel('join'); famLookup(code); }
+      }, 50);
+    }
+  }
+})();
+</script>
 
 </body>
 </html>
