@@ -1000,6 +1000,16 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   width:50%;
 }
 
+/* ── TIMED CHORES (Speed Run) ─────────────────────────────── */
+.speed-pill{
+  display:inline-flex;align-items:center;gap:6px;margin-top:8px;
+  background:rgba(245,158,11,.14);border:1px solid rgba(245,158,11,.4);
+  border-radius:20px;padding:6px 14px;
+  font-size:14px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums;
+}
+.speed-pill.late{background:rgba(255,255,255,.06);border-color:var(--border-bright);color:var(--tx1)}
+#proof-timer{margin:0 0 16px}
+
 /* ── PLAYER SWITCHER PILLS ────────────────────────────────────── */
 .player-pills{display:flex;gap:8px;margin-bottom:0}
 .ppill{
@@ -1158,10 +1168,12 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <div class="chore-warrior" id="chore-warrior">🌟 PLAYER 1'S TURN</div>
       <div class="chore-title" id="chore-title">Clean the Living Room</div>
       <div class="chore-xp">⭐ <span id="chore-xp">+30 XP</span></div>
+      <div><div class="speed-pill cd-timer" id="chore-timer" style="display:none"></div></div>
     </div>
     <div class="chore-body">
       <div class="chore-desc" id="chore-desc">Make sure the whole living room is clean — pick up toys, cushions back in place, and vacuum the carpet.</div>
       <div class="chore-tips">
+        <div class="tip" id="speed-tip" style="display:none"><span class="tip-ico">⚡</span><span id="speed-tip-text"></span></div>
         <div class="tip"><span class="tip-ico">✅</span>Tidy all surfaces first</div>
         <div class="tip"><span class="tip-ico">✅</span>Vacuum or sweep floor</div>
         <div class="tip"><span class="tip-ico">📸</span><span>Take a photo when done for +<span class="bonus-xp">15</span> bonus XP</span></div>
@@ -1169,7 +1181,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     </div>
   </div>
   <div class="chore-actions">
-    <button class="btn btn-orange" onclick="goTo('s-proof')">✅ Challenge Accepted!</button>
+    <button class="btn btn-orange" id="accept-btn" onclick="acceptChore()">✅ Challenge Accepted!</button>
     <button class="btn btn-ghost" id="reroll-btn" onclick="rerollChore()">🔄 Re-roll (1 remaining)</button>
   </div>
 </div>
@@ -1182,6 +1194,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     <div style="width:38px"></div>
   </div>
   <div class="proof-zone">
+    <div class="speed-pill cd-timer" id="proof-timer" style="display:none"></div>
     <div class="proof-preview" id="proof-preview" onclick="takeFakePhoto()">
       <img id="proof-img" src="" alt="">
       <span class="proof-ico" id="proof-ico">📸</span>
@@ -1207,6 +1220,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <div class="xp-pop-num" id="reward-xp">+45</div>
       <div class="xp-pop-lbl">XP EARNED</div>
     </div>
+    <div class="speed-pill" id="reward-speed" style="display:none;margin:-10px 0 18px"></div>
     <div class="proof-note" id="reward-breakdown" style="margin:-12px 0 18px"></div>
     <div class="reward-stats">
       <div class="rstat">
@@ -1455,12 +1469,12 @@ var navHistory = [];
 var photoTaken = false;
 
 var CHORES = [
-  {emoji:'🧹',name:'Clean the Living Room',xp:30,bonus:15,desc:'Make sure the whole living room is clean — pick up toys, cushions back in place, and vacuum the carpet.'},
-  {emoji:'🍽️',name:'Wash All the Dishes',xp:20,bonus:10,desc:'Wash every dish, pot and utensil. Dry them and put them back in the cupboard.'},
+  {emoji:'🧹',name:'Clean the Living Room',xp:30,bonus:15,mins:15,desc:'Make sure the whole living room is clean — pick up toys, cushions back in place, and vacuum the carpet.'},
+  {emoji:'🍽️',name:'Wash All the Dishes',xp:20,bonus:10,mins:20,desc:'Wash every dish, pot and utensil. Dry them and put them back in the cupboard.'},
   {emoji:'🛁',name:'Clean the Bathroom',xp:35,bonus:15,desc:'Scrub the sink, toilet and shower. Wipe surfaces and replace the towels.'},
-  {emoji:'🗑️',name:'Take Out the Trash',xp:15,bonus:5,desc:'Empty all bins in the house. Take bags to the outdoor bin.'},
+  {emoji:'🗑️',name:'Take Out the Trash',xp:15,bonus:5,mins:10,desc:'Empty all bins in the house. Take bags to the outdoor bin.'},
   {emoji:'🧺',name:'Do the Laundry',xp:25,bonus:10,desc:'Put clothes in the machine, add detergent, set the right cycle. Move to dryer when done.'},
-  {emoji:'🌿',name:'Water the Plants',xp:10,bonus:5,desc:'Water all indoor plants and the balcony plants. Check soil is moist, not soaked.'},
+  {emoji:'🌿',name:'Water the Plants',xp:10,bonus:5,mins:10,desc:'Water all indoor plants and the balcony plants. Check soil is moist, not soaked.'},
   {emoji:'🐕',name:'Walk the Dog',xp:20,bonus:10,desc:'Take the dog for a full walk around the block. Clean up after them.'},
   {emoji:'🪟',name:'Clean the Windows',xp:30,bonus:15,desc:'Use glass cleaner on all windows and glass doors. Wipe until no streaks.'},
 ];
@@ -1804,6 +1818,16 @@ function updateChoreScreen(chore) {
   document.getElementById('chore-xp').textContent = '+' + chore.xp + ' XP';
   document.getElementById('chore-desc').textContent = chore.desc;
   document.querySelectorAll('.bonus-xp').forEach(function(el){ el.textContent = chore.bonus; });
+  var st = document.getElementById('speed-tip');
+  if (st) {
+    st.style.display = chore.mins ? '' : 'none';
+    if (chore.mins) document.getElementById('speed-tip-text').textContent =
+      'Speed Run! Finish within ' + chore.mins + ' min for +' + speedBonus(chore) + ' bonus XP. Late is OK — you still get full XP.';
+  }
+  var ab = document.getElementById('accept-btn');
+  var e0 = dayEntry(activeWarrior);
+  if (ab) ab.textContent = (e0 && e0.acceptedAt) ? '▶ Continue' : (chore.mins ? '⏱ Start the Clock!' : '✅ Challenge Accepted!');
+  tickTimers();
   var e = dayEntry(activeWarrior);
   var rb = document.getElementById('reroll-btn');
   if (rb) {
@@ -1824,6 +1848,44 @@ function rerollChore() {
   if (typeof renderQuests === 'function') renderQuests();
 }
 
+/* ── TIMED CHORES ────────────────────────────────────────── */
+// Timers are stored as timestamps (acceptedAt/finishedAt) so they survive reloads.
+function speedBonus(chore) { return chore.mins ? Math.round(chore.xp * 0.5) : 0; }
+
+function acceptChore() {
+  var e = dayEntry(activeWarrior);
+  if (e && !e.acceptedAt) { e.acceptedAt = Date.now(); saveState(); }
+  updateChoreScreen(currentChore);
+  goTo('s-proof');
+}
+
+function timeLeftMs(e, chore) {
+  if (!e || !e.acceptedAt || !chore.mins) return null;
+  var end = e.acceptedAt + chore.mins * 60000;
+  return end - (e.finishedAt || Date.now());
+}
+
+function fmtMs(ms) {
+  var t = Math.max(0, Math.ceil(ms / 1000));
+  var m = Math.floor(t / 60), sec = t % 60;
+  return m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+function tickTimers() {
+  var e = dayEntry(activeWarrior);
+  var chore = e ? CHORES[e.chore] : null;
+  var els = document.querySelectorAll('.cd-timer');
+  els.forEach(function(el) {
+    if (!chore || !chore.mins || e.done) { el.style.display = 'none'; return; }
+    el.style.display = '';
+    var left = timeLeftMs(e, chore);
+    if (left === null) { el.className = 'speed-pill cd-timer'; el.textContent = '⏱ ' + chore.mins + ' min Speed Run'; return; }
+    el.className = 'speed-pill cd-timer' + (left <= 0 ? ' late' : '');
+    el.textContent = left > 0 ? '⏱ ' + fmtMs(left) + ' left for ⚡ +' + speedBonus(chore) + ' XP' : "⏰ Time's up — finish anyway for full XP!";
+  });
+}
+setInterval(tickTimers, 1000);
+
 /* ── PHOTO PROOF ─────────────────────────────────────────── */
 function takeFakePhoto() {
   photoTaken = true;
@@ -1837,7 +1899,13 @@ function takeFakePhoto() {
   sublbl.textContent = 'Tap to retake';
 }
 
+function stopClock() {
+  var e = dayEntry(activeWarrior);
+  if (e && e.acceptedAt && !e.finishedAt) { e.finishedAt = Date.now(); saveState(); }
+}
+
 function goToParentVerify() {
+  stopClock();
   // If photo was taken, go to parent verify for bonus XP; else skip straight to reward
   if (photoTaken) {
     setPinMode(getParentPIN() ? 'verify' : 'set');
@@ -1854,6 +1922,7 @@ function submitProof() {
 }
 
 function skipPhoto() {
+  stopClock();
   photoTaken = false;
   completeChore(false);
 }
@@ -1865,11 +1934,22 @@ function completeChore(photoVerified) {
   if (e && e.done) { goTo('s-reward'); return; }
   var base = currentChore.xp;
   var photo = photoVerified ? currentChore.bonus : 0;
-  var total = base + photo;
+  var left = timeLeftMs(e, currentChore);
+  var speed = (left !== null && left > 0) ? speedBonus(currentChore) : 0;
+  var total = base + photo + speed;
   awardXP(activeWarrior, total);
-  if (e) { e.done = true; e.awarded = total; saveState(); }
+  if (e) { e.done = true; e.awarded = total; e.speedRun = speed > 0; }
+  if (speed) STATE.warriors[activeWarrior].speedRuns = (STATE.warriors[activeWarrior].speedRuns || 0) + 1;
+  saveState();
   var parts = [base + ' chore'];
   if (photo) parts.push(photo + ' 📸 photo');
+  if (speed) parts.push(speed + ' ⚡ speed');
+  var rs = document.getElementById('reward-speed');
+  if (rs) {
+    rs.style.display = left === null ? 'none' : '';
+    rs.className = 'speed-pill' + (speed ? '' : ' late');
+    rs.textContent = speed ? '⚡ SPEED RUN! Beat the clock with ' + fmtMs(left) + ' to spare' : '⏱ Done! Beat the clock next time for ⚡ bonus XP';
+  }
   var w = STATE.warriors[activeWarrior];
   document.getElementById('reward-chore').textContent = currentChore.name;
   document.getElementById('reward-xp').textContent = '+' + total;
@@ -2101,7 +2181,8 @@ function refreshLeaderboard() {
     row.querySelector('.lb-name').textContent = d.name;
     row.querySelector('.lb-xp').textContent = d.xp.toLocaleString();
     var streak = row.querySelector('.lb-streak');
-    if (streak) streak.textContent = '🔥 ' + d.streak + ' day streak · 📸 ' + d.totalChores + ' chores';
+    var sr = (w[d.key].speedRuns || 0);
+    if (streak) streak.textContent = '🔥 ' + d.streak + ' day streak · ✅ ' + d.totalChores + ' chores' + (sr ? ' · ⚡ ' + sr : '');
   });
 
   // Boss bar on leaderboard
