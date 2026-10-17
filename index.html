@@ -1941,6 +1941,8 @@ function completeChore(photoVerified) {
   if (e) { e.done = true; e.awarded = total; e.speedRun = speed > 0; }
   if (speed) STATE.warriors[activeWarrior].speedRuns = (STATE.warriors[activeWarrior].speedRuns || 0) + 1;
   saveState();
+  refreshWarriorDisplay();
+  refreshLeaderboard();
   var parts = [base + ' chore'];
   if (photo) parts.push(photo + ' 📸 photo');
   if (speed) parts.push(speed + ' ⚡ speed');
@@ -2508,6 +2510,8 @@ function applyPlayerNames() {
   var op2 = document.getElementById('opt-dean'); if(op2) op2.text = '⭐ ' + (PLAYER_NAMES.dean||'Player 2') + (isPremium()?'':' 🔒');
   var op3 = document.getElementById('opt-dave'); if(op3) op3.text = '💫 ' + (PLAYER_NAMES.dave||'Player 3') + (isPremium()?'':' 🔒');
   refreshLeaderboard();
+  refreshHeroCard();
+  renderQuests();
 }
 
 </script>
