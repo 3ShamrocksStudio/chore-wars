@@ -1105,10 +1105,10 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     <div class="raid-card">
       <div class="raid-label">🏆 Family Goal Progress</div>
       <div class="raid-name" id="goal-reward-name">🍕 Pizza Night</div>
-      <div class="boss-bar"><div class="boss-fill" id="boss-fill" style="width:68%"></div></div>
+      <div class="boss-bar"><div class="boss-fill" id="boss-fill" style="width:0%"></div></div>
       <div class="raid-meta">
-        <span class="raid-pct" id="goal-pct">68% complete</span>
-        <span class="raid-warriors" id="goal-players">⭐ 3 players crushing it</span>
+        <span class="raid-pct" id="goal-pct">0% complete</span>
+        <span class="raid-warriors" id="goal-players"></span>
       </div>
     </div>
 
@@ -1322,9 +1322,9 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <div style="font-size:14px;font-weight:800;color:var(--gold);margin-bottom:4px">🏆 Weekly Family Prize</div>
       <div style="font-size:13px;font-weight:600;color:var(--tx1)" id="lb-goal-desc">Complete chores together to unlock the family reward!</div>
       <div style="margin-top:10px;height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden">
-        <div id="lb-boss-fill" style="width:71%;height:100%;background:linear-gradient(90deg,var(--jakob),var(--gold));border-radius:4px;transition:width .8s"></div>
+        <div id="lb-boss-fill" style="width:0%;height:100%;background:linear-gradient(90deg,var(--jakob),var(--gold));border-radius:4px;transition:width .8s"></div>
       </div>
-      <div id="lb-boss-text" style="font-size:12px;color:var(--tx2);margin-top:4px">71% — almost there!</div>
+      <div id="lb-boss-text" style="font-size:12px;color:var(--tx2);margin-top:4px">0%</div>
     </div>
     <button class="crown-btn" onclick="showSovereignProclamation()" style="font-family:'Fredoka One',cursive">
       <span style="font-size:22px">🏆</span> Crown the Champion
@@ -1534,6 +1534,13 @@ function refreshWarriorDisplay() {
   if(sEl) sEl.textContent = best;
   // Boss bar
   if(bf) { bf.style.transition='width .8s'; bf.style.width = STATE.boss.hp + '%'; }
+  var gp = document.getElementById('goal-pct');
+  if(gp) gp.textContent = (STATE.boss.hp || 0) + '% complete';
+  var gpl = document.getElementById('goal-players');
+  if(gpl) {
+    var active = ['jakob','dean','dave'].filter(function(k){ return w[k].totalChores > 0; }).length;
+    gpl.textContent = active ? '⭐ ' + active + ' player' + (active > 1 ? 's' : '') + ' crushing it' : '⭐ Spin to get started';
+  }
   // Spin button — one spin per player per day
   var spinBtn = document.getElementById('spin-btn');
   if(spinBtn && !isSpinning) {
