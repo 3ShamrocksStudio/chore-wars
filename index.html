@@ -1041,7 +1041,7 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <div class="streak-badge">
         <span class="streak-fire">🔥</span>
         <div>
-          <div class="streak-num" id="clan-streak">7</div>
+          <div class="streak-num" id="clan-streak">0</div>
           <div class="streak-lbl">Day Streak</div>
         </div>
       </div>
@@ -1267,19 +1267,19 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
     <div class="podium-spot podium-2">
       <div class="podium-av" id="pod-av-2">⭐</div>
       <div class="podium-name" id="pod-name-2">Player 2</div>
-      <div class="podium-xp">1,920</div>
+      <div class="podium-xp">0</div>
       <div class="podium-block">2</div>
     </div>
     <div class="podium-spot podium-1">
       <div class="podium-av" id="pod-av-1">💫</div>
       <div class="podium-name" id="pod-name-1">Player 3</div>
-      <div class="podium-xp">4,100</div>
+      <div class="podium-xp">0</div>
       <div class="podium-block">1</div>
     </div>
     <div class="podium-spot podium-3">
       <div class="podium-av" id="pod-av-3">🌟</div>
       <div class="podium-name" id="pod-name-3">Player 1</div>
-      <div class="podium-xp">2,885</div>
+      <div class="podium-xp">0</div>
       <div class="podium-block">3</div>
     </div>
   </div>
@@ -1292,27 +1292,27 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
       <div class="lb-av">👑</div>
       <div class="lb-info">
         <div class="lb-name">Player 3</div>
-        <div class="lb-streak">🔥 12 day streak</div>
+        <div class="lb-streak">🔥 0 day streak</div>
       </div>
-      <div class="lb-xp">4,100</div>
+      <div class="lb-xp">0</div>
     </div>
     <div class="lb-row">
       <div class="lb-rank">2</div>
       <div class="lb-av">⚔️</div>
       <div class="lb-info">
         <div class="lb-name">Player 1</div>
-        <div class="lb-streak">🔥 8 day streak · 📸 23 photos</div>
+        <div class="lb-streak">🔥 0 day streak</div>
       </div>
-      <div class="lb-xp">2,885</div>
+      <div class="lb-xp">0</div>
     </div>
     <div class="lb-row">
       <div class="lb-rank">3</div>
       <div class="lb-av">🛡️</div>
       <div class="lb-info">
         <div class="lb-name">Player 2</div>
-        <div class="lb-streak">🔥 5 day streak · 📸 11 photos</div>
+        <div class="lb-streak">🔥 0 day streak</div>
       </div>
-      <div class="lb-xp">1,920</div>
+      <div class="lb-xp">0</div>
     </div>
   </div>
 
@@ -1353,15 +1353,15 @@ body{font-family:var(--font);color:var(--tx0);overscroll-behavior:none;
   <div class="sovereign-title" id="sov-title">🌟 Top Player This Week!</div>
   <div class="sovereign-stats">
     <div class="sov-stat">
-      <div class="sov-stat-n" id="sov-xp">4,100</div>
+      <div class="sov-stat-n" id="sov-xp">0</div>
       <div class="sov-stat-l">Points</div>
     </div>
     <div class="sov-stat">
-      <div class="sov-stat-n" id="sov-chores">41</div>
+      <div class="sov-stat-n" id="sov-chores">0</div>
       <div class="sov-stat-l">Chores Done</div>
     </div>
     <div class="sov-stat">
-      <div class="sov-stat-n" id="sov-streak">12</div>
+      <div class="sov-stat-n" id="sov-streak">0</div>
       <div class="sov-stat-l">Day Streak</div>
     </div>
   </div>
@@ -1394,11 +1394,12 @@ var SAVE_KEY = 'choreroyal_v1';
 function defaultState() {
   return {
     warriors: {
-      jakob: { xp: 2840, streak: 8, lastChoreDate: '', totalChores: 23 },
-      dean:  { xp: 1920, streak: 5, lastChoreDate: '', totalChores: 11 },
-      dave:  { xp: 4100, streak: 12, lastChoreDate: '', totalChores: 41 }
+      jakob: { xp: 0, streak: 0, lastChoreDate: '', totalChores: 0 },
+      dean:  { xp: 0, streak: 0, lastChoreDate: '', totalChores: 0 },
+      dave:  { xp: 0, streak: 0, lastChoreDate: '', totalChores: 0 }
     },
-    boss: { hp: 68 },
+    boss: { hp: 0 },
+    v: 2,
     lastSpinDate: '',
     spinUsedToday: false,
     quests: {}
@@ -1412,12 +1413,28 @@ function loadState() {
       var s = JSON.parse(raw);
       // Merge with defaults so new fields always exist
       var def = defaultState();
-      return Object.assign(def, s, {
-        warriors: Object.assign(def.warriors, s.warriors || {})
-      });
+      if (!s.v) stripDemoSeed(s);
+      var ws = s.warriors || {};
+      Object.keys(def.warriors).forEach(function(k){ Object.assign(def.warriors[k], ws[k] || {}); });
+      var out = Object.assign(def, s, { warriors: def.warriors, v: 2 });
+      return out;
     }
   } catch(e) {}
   return defaultState();
+}
+
+// Older builds seeded new families with demo XP/streaks. Remove that seed once.
+function stripDemoSeed(s) {
+  var seed = { jakob:{xp:2840,streak:8,tc:23}, dean:{xp:1920,streak:5,tc:11}, dave:{xp:4100,streak:12,tc:41} };
+  var played = 0;
+  Object.keys(seed).forEach(function(k){
+    var w = s.warriors && s.warriors[k]; if (!w) return;
+    if (w.xp >= seed[k].xp) w.xp -= seed[k].xp;
+    if (w.streak >= seed[k].streak) w.streak -= seed[k].streak;
+    if (w.totalChores >= seed[k].tc) w.totalChores -= seed[k].tc;
+    played += w.totalChores || 0;
+  });
+  if (s.boss) s.boss.hp = s.boss.hp >= 68 ? s.boss.hp - 68 : Math.min(s.boss.hp || 0, played * 3);
 }
 
 function saveState() {
@@ -1478,7 +1495,9 @@ function awardXP(warrior, amount) {
   var newXP = STATE.warriors[warrior].xp;
   var today = todayStr();
   if (STATE.warriors[warrior].lastChoreDate !== today) {
-    STATE.warriors[warrior].streak++;
+    var y = new Date(); y.setDate(y.getDate()-1);
+    var cont = STATE.warriors[warrior].lastChoreDate === y.toISOString().slice(0,10);
+    STATE.warriors[warrior].streak = cont ? STATE.warriors[warrior].streak + 1 : 1;
     STATE.warriors[warrior].lastChoreDate = today;
     STATE.warriors[warrior].totalChores++;
   }
