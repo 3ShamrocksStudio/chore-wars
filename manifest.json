@@ -1,24 +1,15 @@
 {
   "name": "Chore Royale",
   "short_name": "Chore Royale",
-  "description": "Turn family chores into an epic daily quest",
+  "description": "Knights of the household realm — beat Balagan's mess, earn XP, win the weekly crown",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#1A0F2E",
-  "theme_color": "#FF6B35",
+  "background_color": "#14072A",
+  "theme_color": "#1B0B36",
   "orientation": "portrait",
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
