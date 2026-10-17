@@ -1,7 +1,7 @@
 # Chore Royale Plus — proposal (not built)
 
-> **NEEDS YOUR EYES.** A proposal for Dave. Nothing below is built. The in-app "Plus / coming
-> soon" modal still lists the old v1 perks; it gets updated once you pick a package.
+> **Decided:** $19.99 / year per family (option A). Not built yet. The in-app "Plus — coming soon"
+> pop-up lists the 4 pillars below, with no price shown.
 
 ## The constraint: one player per phone
 

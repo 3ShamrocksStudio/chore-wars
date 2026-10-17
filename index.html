@@ -510,6 +510,7 @@ picture{display:contents}
 /* ── PLUS (premium) ── */
 .premium-badge{display:inline-flex;align-items:center;gap:4px;margin-left:6px;vertical-align:middle;background:var(--grad-gold);color:var(--gold-900);
   -webkit-text-fill-color:var(--gold-900);font-family:var(--font);font-size:10px;font-weight:900;letter-spacing:.08em;padding:3px 8px;border-radius:50px;border:1.5px solid var(--ink)}
+#upgrade-banner{display:none !important}  /* one player per phone: no "unlock players" upsell */
 .upgrade-banner{
   border-radius:18px;padding:12px 14px;margin:0 0 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;
   background:radial-gradient(60% 120% at 100% 50%,rgba(244,192,75,.22),transparent 70%),linear-gradient(160deg,var(--royal-600),var(--royal-800));
@@ -2462,14 +2463,12 @@ function applyPlayerNames() {
     <picture><source srcset="assets/brand/wordmark.webp" type="image/webp"><img class="modal-crest" src="assets/brand/wordmark.png" alt="Chore Royale" width="440" height="259" decoding="async"></picture>
     <div class="modal-title">Chore Royale Plus</div>
     <div class="modal-price">Coming soon</div>
-    <div class="modal-price-sub">Plus isn't on sale yet — we'll announce it in the app.</div>
+    <div class="modal-price-sub">Plus isn't ready yet. When it is, one parent unlocks it once for every phone in the family. Everything you play today stays free.</div>
     <ul class="modal-features">
-      <li>3 players — customize all names</li>
-      <li>All chores, no limits</li>
-      <li>Double XP on every chore</li>
-      <li>Parent verify + bonus 15 XP</li>
-      <li>Weekly family goals & rewards</li>
-      <li>Streak records & special prizes</li>
+      <li>Custom Quests — write your own family's quests</li>
+      <li>Seasonal Armor — new looks for every knight</li>
+      <li>Family Chronicle — your castle's history book</li>
+      <li>Villain Packs — Big Boss Balagan and new minions</li>
     </ul>
     <div class="modal-close" onclick="closePremiumModal()">Close</div>
   </div>
