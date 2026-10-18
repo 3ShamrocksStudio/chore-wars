@@ -1,6 +1,6 @@
 // PREVIEW service worker. Lives in /chore-wars/preview/, so its scope can never reach the live root app.
 const PREFIX='chorewars-preview-';
-const CACHE=PREFIX+'v1';
+const CACHE=PREFIX+'v2';
 const B='/chore-wars/preview/';
 const ASSETS=[B,B+'index.html',B+'manifest.json',B+'assets/brand/knight.webp',B+'assets/brand/lockup.webp',B+'assets/brand/lockup.png',
   B+'assets/brand/wordmark.webp',B+'assets/brand/favicon-32.png',B+'icon-192.png'];
