@@ -3697,7 +3697,10 @@ function crToast(msg, ms) {
           panel = 'wait'; renderFamily(); pollRequest();
         });
       }
-      return req('PUT', 'families/' + L.fid + '/members/' + a.uid, { player: pid, role: 'kid', joinedAt: SV }).then(function() {
+      return req('GET', 'families/' + L.fid + '/members/' + a.uid).then(function(m) {   // already let in → straight in
+        return m && m.player === pid ? null : req('PUT', 'families/' + L.fid + '/members/' + a.uid, { player: pid, role: 'kid', joinedAt: SV });
+      }).then(function() {
+        lsSet(LSK.req, null);
         link = { fid: L.fid, pid: pid, code: L.code };
         lsSet(LSK.link, link);
         return req('GET', famPath('')).then(function(d) {
@@ -3724,11 +3727,16 @@ function crToast(msg, ms) {
           lsSet(LSK.link, link);
           return req('GET', famPath('')).then(function(d){ mirror = d; enterFamily(); crToast("🎉 You're in, " + q.name + '!'); goTo('s-home'); });
         }
-        var gone = function() { lsSet(LSK.req, null); crToast('A parent declined the request'); panel = 'local'; renderFamily(); };
+        var gone = function() {   // the parent's OK may have landed between our two reads: check membership once more
+          return req('GET', 'families/' + q.fid + '/members/' + a.uid).then(function(m2) {
+            if (m2) { pollRequest(); return; }
+            lsSet(LSK.req, null); crToast('A parent declined the request'); panel = 'local'; renderFamily();
+          });
+        };
         return req('GET', 'families/' + q.fid + '/requests/' + q.pid).then(function(r) {
-          if (!r || r.uid !== a.uid) { gone(); return; }
+          if (!r || r.uid !== a.uid) return gone();
           pollT = setTimeout(pollRequest, 4000);
-        }, function(err) { if (err.status === 401 || err.status === 403) gone(); else throw err; });
+        }, function(err) { if (err.status === 401 || err.status === 403) return gone(); throw err; });
       });
     }).catch(function(){ pollT = setTimeout(pollRequest, 6000); });
   }
