@@ -5,6 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#6a21c4">
 <title>Chore Royale™ — Spin · Battle · Win · The M Clan</title>
+<meta name="description" content="The family game show for chores. Spin the Chore Roulette to win your chores, battle a sibling in a live Splat Showdown to dodge them, and trade stars for real prizes. A parent referees. A 3Shamrocks Studio app.">
+<!-- Social share card -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Chore Royale">
+<meta property="og:title" content="Chore Royale — Spin · Battle · Win">
+<meta property="og:description" content="The family game show for chores. Spin to win your chores, battle to dodge them, trade stars for real prizes.">
+<meta property="og:url" content="https://3shamrocksstudio.github.io/chore-wars/">
+<meta property="og:image" content="https://3shamrocksstudio.github.io/chore-wars/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Chore Royale — Spin · Battle · Win">
+<meta name="twitter:description" content="The family game show for chores. Spin to win your chores, battle to dodge them, trade stars for real prizes.">
+<meta name="twitter:image" content="https://3shamrocksstudio.github.io/chore-wars/assets/og.png">
 <!-- Self-contained PWA. Online battles (opt-in) load supabase-js from jsdelivr + talk to *.supabase.co only when a parent enables it. No eval. -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'none'">
 <link rel="manifest" href="manifest.json">
@@ -461,7 +475,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
 /* ── ONBOARDING ── */
 #onboard{align-items:center;justify-content:flex-start;padding:calc(16px + var(--safe-t)) var(--space-5) calc(12px + var(--safe-b))}
-#onboard .crestlg{width:54px;height:54px}
+#onboard .crestlg{width:54px;height:54px;animation:logopop .5s cubic-bezier(.2,1.4,.4,1) both, logofloat 3.2s ease-in-out 1.2s infinite}
+@keyframes logopop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes logofloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 /* every screen carries its own © credit at its natural bottom (3S QA gate §5) */
 .ob-dots{display:flex;gap:7px;margin:9px 0 12px}
 .ob-dots i{width:8px;height:8px;border-radius:var(--radius-pill);background:color-mix(in srgb,#fff 30%,transparent);transition:var(--dur-base) var(--ease)}
@@ -545,6 +561,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .pointer::after{content:"";position:absolute;top:-27px;left:-7px;width:13px;height:13px;background:var(--accent);border-radius:50%;border:3px solid #fff}
 svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-lg))}
 .seg-emoji{font-size:17px} .seg-label{font-family:var(--font-display);font-weight:var(--weight-bold);fill:#fff;font-size:9.5px}
+/* winning wedge glows gold when the pointer lands */
+.wheel .seg.won{stroke:var(--signature-400);stroke-width:5;filter:brightness(1.12);animation:wonpulse 1.1s ease-in-out 3}
+@keyframes wonpulse{0%,100%{filter:brightness(1.12)}50%{filter:brightness(1.4)}}
 .hub{position:absolute;top:50%;left:50%;width:62px;height:62px;transform:translate(-50%,-50%);border-radius:50%;background:var(--surface);box-shadow:var(--shadow-md),inset 0 0 0 4px var(--signature-400);display:grid;place-items:center;z-index:5;overflow:hidden}
 .hub img{width:100%;height:100%;object-fit:cover}
 .spinbtn{margin-top:16px;width:100%;max-width:320px;background:var(--accent-gradient);color:var(--brand-contrast);font-family:var(--font-display);font-size:var(--text-lg);padding:15px;border-radius:var(--radius-pill);box-shadow:var(--shadow-lg);display:flex;align-items:center;justify-content:center;gap:9px;transition:transform var(--dur-fast) var(--ease),opacity var(--dur-base);min-height:48px}
@@ -771,7 +790,7 @@ svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-l
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:85;overflow:hidden}
 .confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.9}}
-@media (prefers-reduced-motion:reduce){svg.wheel{transition:none !important}.winbox,.ob-step,.handoff .hbig,.vsbox .pe,.splat .sz{animation:none}.spinbtn.coach{animation:none}.confetti{display:none}}
+@media (prefers-reduced-motion:reduce){svg.wheel{transition:none !important}.winbox,.ob-step,.handoff .hbig,.vsbox .pe,.splat .sz,#onboard .crestlg,.wheel .seg.won{animation:none}.spinbtn.coach{animation:none}.confetti{display:none}}
 </style>
 </head>
 <body>
@@ -824,7 +843,7 @@ svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-l
       <div class="loopline" style="margin-bottom:8px">
         <div class="lr"><span class="em">🔥</span><div><b>Build a streak</b><span>Play daily — shields protect it</span></div></div>
         <div class="lr"><span class="em">🏆</span><div><b>Fill the family meter</b><span>A goal the whole clan earns together</span></div></div>
-        <div class="lr"><span class="em">☀️</span><div><b>Summer Splash is live</b><span>Limited-time tiles &amp; a summer prize</span></div></div>
+        <div class="lr"><span class="em">🏆</span><div><b>Royale Season is live</b><span>Limited-time tiles &amp; a big prize</span></div></div>
       </div>
       <button class="ob-btn" onclick="finishOnboard()">Start the show →</button>
     </div>
@@ -1015,7 +1034,7 @@ const TILES=[
   {key:'mystery',e:'🎁', t:'Mystery',  c:'#EC4899', w:2},
   {key:'steal',  e:'🦝', t:'Steal',    c:'#FF6B35', w:1},
   {key:'freeze', e:'❄️', t:'Freeze',   c:'#38BDF8', w:2},
-  {key:'summer', e:'☀️', t:'Summer',   c:'#FBBF24', w:2},
+  {key:'summer', e:'🏆', t:'Season',   c:'#FBBF24', w:2},
   {key:'trade',  e:'🔄', t:'Trade',    c:'#EF4444', w:1},
 ];
 const N=TILES.length, STEP=360/N;
@@ -1030,10 +1049,11 @@ function mkKid(name,i,avatar){
     pending:[], questsToday:0, buyOffsToday:0, battleWins:0, cooldowns:{}, challenge:null};
 }
 function seed(){
+  const seasonEnd=new Date(Date.now()+45*86400000).toISOString().slice(0,10);   // always live for new clans
   return {
     onboarded:false, view:'onboard', current:null, deviceChampion:null, familyCode:'MCLAN', clan:'The M Clan', refMode:true, coached:false, mode:'light',
     meter:{progress:40, target:100, reward:'Family pizza & movie night 🍕'},
-    season:{name:'Summer Splash', emoji:'☀️', progress:25, target:60, prize:'Water-park day out 🏖️', endsISO:'2026-08-31'},
+    season:{name:'Royale Season', emoji:'🏆', progress:25, target:60, prize:'Big family day-out 🎢', endsISO:seasonEnd},
     members:{
       k1:Object.assign(mkKid('Jakob',0)),
       k2:Object.assign(mkKid('Dean',1)),
@@ -1105,7 +1125,7 @@ function buildWheel(){
   TILES.forEach((s,i)=>{
     const a0=(i*STEP-90-STEP/2)*Math.PI/180, a1=a0+STEP*Math.PI/180;
     const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
-    h+=`<path d="M${cx},${cy} L${x0.toFixed(1)},${y0.toFixed(1)} A${r},${r} 0 0 1 ${x1.toFixed(1)},${y1.toFixed(1)} Z" fill="${s.c}" stroke="#fff" stroke-width="2.5"/>`;
+    h+=`<path id="seg${i}" class="seg" d="M${cx},${cy} L${x0.toFixed(1)},${y0.toFixed(1)} A${r},${r} 0 0 1 ${x1.toFixed(1)},${y1.toFixed(1)} Z" fill="${s.c}" stroke="#fff" stroke-width="2.5"/>`;
     const am=(i*STEP-90)*Math.PI/180, lr=r*0.66, lx=cx+lr*Math.cos(am), ly=cy+lr*Math.sin(am), deg=(i*STEP);
     h+=`<g transform="translate(${lx.toFixed(1)},${ly.toFixed(1)}) rotate(${deg})"><text class="seg-emoji" text-anchor="middle" y="-4">${s.e}</text><text class="seg-label" text-anchor="middle" y="11">${s.t}</text></g>`;
   });
@@ -1122,6 +1142,7 @@ function doSpin(){
   markActive(k);
   if(freeAvail(k)) k.freeSpinDate=today(); else k.spins--;
   k.spinsToday++; tickCooldowns(k); spinning=true; save(); renderKid();
+  document.querySelectorAll('.wheel .seg.won').forEach(p=>p.classList.remove('won'));  // clear previous win glow
   const idx=weightedPick(), tile=TILES[idx];
   const jitter=Math.random()*30-15;
   const base=((curRot%360)+360)%360;
@@ -1131,7 +1152,8 @@ function doSpin(){
   wheel.style.transition=reduce?'none':'transform 4.6s cubic-bezier(.15,.85,.18,1)';
   requestAnimationFrame(()=>{wheel.style.transform=`rotate(${curRot}deg)`;});
   let done=false;
-  const finish=()=>{if(done)return;done=true;wheel.removeEventListener('transitionend',finish);const r=resolveTile(tile);spinning=false;showResult(r);renderKid();};
+  const hiWin=()=>{const seg=document.getElementById('seg'+idx);if(seg)seg.classList.add('won');};
+  const finish=()=>{if(done)return;done=true;wheel.removeEventListener('transitionend',finish);hiWin();const r=resolveTile(tile);spinning=false;showResult(r);renderKid();};
   if(reduce){const r=resolveTile(tile);spinning=false;showResult(r);renderKid();}
   else{wheel.addEventListener('transitionend',finish);setTimeout(finish,5200);}
 }
@@ -1182,7 +1204,7 @@ function resolveTile(tile){
       else{k.shields++;r={...r,title:'Mystery! 🎁',prize:'❄️ Streak Shield',msg:'A shield to protect your streak.'};}
       break;}
     case 'freeze':k.shields++;r={...r,title:'Freeze!',prize:'❄️ Streak Shield',msg:'Protects your streak if you miss a day.'};break;
-    case 'summer':{const b=10;k.stars+=b;addWeek(k,b);bumpSeason(10);r={...r,title:'Summer Splash! ☀️',prize:`+${b} ⭐ + summer goal`,msg:'Limited-time! Closer to the summer prize.',confetti:true};break;}
+    case 'summer':{const b=10;k.stars+=b;addWeek(k,b);bumpSeason(10);r={...r,title:'Royale Season! 🏆',prize:`+${b} ⭐ + season goal`,msg:'Limited-time! Closer to the season prize.',confetti:true};break;}
   }
   save(); return r;
 }
