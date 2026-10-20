@@ -1,0 +1,27 @@
+{
+  "name": "Chore Royale — Spin, Battle, Win",
+  "short_name": "Chore Royale",
+  "description": "The family game show for chores. Spin the Chore Roulette, battle a sibling in a Splat Showdown to dodge a chore, and trade stars for real prizes. A parent referees. A 3Shamrocks Studio app.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#200b39",
+  "theme_color": "#6a21c4",
+  "lang": "en",
+  "categories": ["games", "education", "lifestyle"],
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
