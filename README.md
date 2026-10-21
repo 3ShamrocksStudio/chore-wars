@@ -106,3 +106,23 @@ python3 -m http.server 8080
 ## License
 
 © 2026 3Shamrocks Studio. All rights reserved. **Chore Royale™** — a 3Shamrocks Studio app.
+
+## 💰 Monetization — Coin Store (Merchant of Record)
+
+The Store (`👑` button → **Coin Store**) sells 🪙 coin packs for real money, priced in ₪
+(incl. VAT), via a **Merchant of Record** (Lemon Squeezy assumed — Israel-friendly, handles
+tax/fraud/payouts). Coins spend only on power-ups — chores, stars and battle fairness are
+never affected.
+
+- **Packs:** Coin Pouch 120 / ₪9.90 · Coin Chest 450 / ₪29.90 · Coin Vault 1200 / ₪59.90.
+- **Until an account is connected:** a working **test checkout** proves the full flow
+  (sheet → pay with test card → coins credited + receipt), clearly labelled *DEMO — no charge*.
+- **Wiring:** `store-config.js` holds the per-pack checkout links. Configured → "Buy" opens the
+  real MoR checkout (test or live per store mode); on the `?purchase=<pack>` success redirect
+  the app credits coins and records a receipt (`S.receipts`).
+- **The one Dave step:** create the MoR store, add the three pack products, paste the checkout
+  links into `store-config.js`, then connect payout + flip to live. Full steps are in the
+  header comment of [`store-config.js`](store-config.js). *The agent never enters credentials
+  or connects payouts.*
+- **Fulfilment note:** client-side credit on success-redirect is the MVP; add a webhook →
+  serverless credit for tamper-proof fulfilment before scaling.

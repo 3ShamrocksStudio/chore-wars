@@ -20,7 +20,8 @@
 <meta name="twitter:description" content="The family game show for chores. Spin to win your chores, battle to dodge them, trade stars for real prizes.">
 <meta name="twitter:image" content="https://3shamrocksstudio.github.io/chore-wars/assets/og.png">
 <!-- Self-contained PWA. Online battles (opt-in) load supabase-js from jsdelivr + talk to *.supabase.co only when a parent enables it. No eval. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob: https://*.lemonsqueezy.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://assets.lemonsqueezy.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.lemonsqueezy.com; frame-src https://*.lemonsqueezy.com; base-uri 'none'">
+<script src="store-config.js"></script>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="assets/logo.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -761,6 +762,30 @@ svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-l
 .pl-cta{width:100%;background:var(--signature-500);color:#3a2600;font-family:var(--font-display);font-size:var(--text-lg);padding:15px;border-radius:var(--radius-pill);box-shadow:var(--shadow-lg);margin-top:4px;min-height:48px}
 .pl-back{width:100%;background:var(--glass);border:1px solid var(--glass-line);color:var(--on-hero);font-family:var(--font-display);font-size:var(--text-base);padding:13px;border-radius:var(--radius-pill);margin-top:10px;min-height:44px}
 .pl-fine{text-align:center;color:var(--on-hero-dim);font-weight:var(--weight-bold);font-size:var(--text-xs);margin-top:12px;line-height:1.4}
+/* ── coin store ── */
+.coinpacks{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:6px}
+.coinpack{position:relative;background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--radius-md);padding:14px 8px 12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
+.coinpack.feat{border-color:var(--signature-400);box-shadow:0 0 0 1px var(--signature-400)}
+.cp-tag{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--signature-500);color:#3a2600;font-family:var(--font-display);font-size:.56rem;font-weight:700;letter-spacing:.04em;padding:3px 8px;border-radius:var(--radius-pill);white-space:nowrap}
+.cp-e{font-size:2rem;line-height:1}
+.cp-coins{font-family:var(--font-display);font-size:var(--text-lg);color:var(--on-hero)}
+.cp-sub{font-size:.62rem;font-weight:var(--weight-bold);color:var(--on-hero-dim);min-height:24px}
+.cp-buy{width:100%;background:var(--accent-gradient);color:var(--brand-contrast);font-family:var(--font-display);font-size:var(--text-base);padding:9px;border-radius:var(--radius-pill);margin-top:4px;min-height:40px}
+.cp-buy:active{transform:scale(.97)}
+/* ── checkout sheet ── */
+.paybox{background:var(--surface-raised);border:1px solid var(--border);border-radius:var(--radius-xl);box-shadow:var(--shadow-xl);padding:var(--space-5);max-width:360px;width:100%;color:var(--text);animation:pop var(--dur-slow) var(--ease-spring)}
+.pay-head{display:flex;align-items:center;font-family:var(--font-display);font-size:var(--text-xl);margin-bottom:var(--space-4)}
+.pay-x{margin-left:auto;width:34px;height:34px;border-radius:var(--radius-sm);background:var(--surface-sunken);color:var(--text-secondary);font-size:1rem}
+.pay-line{display:flex;align-items:center;justify-content:space-between;background:var(--surface-sunken);border-radius:var(--radius-sm);padding:12px 14px;font-weight:var(--weight-bold);margin-bottom:var(--space-3)}
+.pay-line b{font-family:var(--font-display);font-size:var(--text-lg);color:var(--accent-text)}
+.pay-field{flex:1;margin-bottom:var(--space-3)}
+.pay-field label{display:block;font-size:var(--text-xs);font-weight:var(--weight-bold);color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+.pay-field input{width:100%;padding:11px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--field-border);background:var(--field-bg);color:var(--text);font-weight:var(--weight-bold);font-size:var(--text-base)}
+.pay-row{display:flex;gap:10px}
+.pay-mor{font-size:var(--text-xs);font-weight:var(--weight-bold);color:var(--text-muted);text-align:center;margin-top:2px}
+.pay-pay{width:100%;background:var(--accent-gradient);color:var(--brand-contrast);font-family:var(--font-display);font-size:var(--text-lg);padding:14px;border-radius:var(--radius-pill);box-shadow:var(--shadow-lg);margin-top:var(--space-4);min-height:48px}
+.pay-pay:active{transform:scale(.98)}
+.pay-note{text-align:center;color:var(--text-muted);font-weight:var(--weight-bold);font-size:var(--text-xs);margin-top:var(--space-3)}
 
 /* ── RESULT / WIN MODAL ── */
 .scrim{position:fixed;inset:0;background:var(--overlay);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:80;padding:24px}
@@ -997,6 +1022,15 @@ svg.wheel{display:block;width:100%;height:100%;filter:drop-shadow(var(--shadow-l
     </div>
   </div>
 
+  <!-- CHECKOUT (test sheet; real MoR overlay opens separately when configured) -->
+  <div class="scrim" id="payScrim">
+    <div class="paybox">
+      <div class="pay-head"><span id="payTitle">Checkout</span><button class="pay-x" onclick="closePay()" aria-label="Close">✕</button></div>
+      <div id="payBody"></div>
+      <button class="pay-pay" id="payBtn">Pay</button>
+      <div class="pay-note">🔒 You won't be charged in demo/test mode. Powered by a Merchant of Record.</div>
+    </div>
+  </div>
 
   <div class="toast" id="toast"></div>
 </div>
@@ -1677,6 +1711,87 @@ function renderFamily(){
 function toggleRef(){S.refMode=!S.refMode;save();renderFamily();}
 
 /* ── PLUS STORE ── */
+/* ════════════════════ COIN STORE — real money → coins (Merchant-of-Record) ════════════════════
+   Parents top up a champion's 🪙 coins with real money. Coins spend on power-ups (never on
+   chores/stars/battle outcomes — fairness is untouched).
+   RAIL: a Merchant of Record (Lemon Squeezy assumed) handles VAT/tax/fraud + is Israel-friendly.
+   WIRING: window.CHORE_ROYALE_STORE (from store-config.js) holds the per-pack checkout links.
+     • Configured  → "Buy" opens the real MoR checkout (test or live per Dave's store mode); on the
+       success redirect (?purchase=<pack>) the coins are credited + a receipt recorded.
+     • Not configured → a faithful TEST checkout proves the full flow end-to-end (no real charge).
+   The ONE Dave step: create the MoR store, add these pack products, paste the links — see README. */
+const COIN_PACKS=[
+  {id:'pouch', e:'🪙', name:'Coin Pouch', coins:120,  price:'₪9.90',  amt:9.90,  sub:'Starter top-up'},
+  {id:'chest', e:'💰', name:'Coin Chest', coins:450,  price:'₪29.90', amt:29.90, sub:'Most popular', tag:'POPULAR'},
+  {id:'vault', e:'🏆', name:'Coin Vault', coins:1200, price:'₪59.90', amt:59.90, sub:'Best value',   tag:'BEST VALUE'},
+];
+function packById(id){return COIN_PACKS.find(p=>p.id===id);}
+function storeCfg(){return (typeof window!=='undefined' && window.CHORE_ROYALE_STORE) || null;}
+function storeLive(){const c=storeCfg();return !!(c&&c.checkout);}
+function storeMode(){const c=storeCfg();return c? (c.test===false?'LIVE':'TEST (MoR test mode)') : 'DEMO (no charge — awaiting account)';}
+function coinBuyer(){const k=cur(); if(k&&k.role==='kid')return S.current; return S.deviceChampion||kids()[0]||null;}
+
+function openCheckout(packId){
+  const p=packById(packId); if(!p)return;
+  const c=storeCfg();
+  if(c&&c.checkout&&c.checkout[packId]){
+    // REAL Merchant-of-Record checkout. Credit happens on the success redirect (?purchase=).
+    try{localStorage.setItem('cr_pending_buyer', coinBuyer()||'');}catch(e){}
+    let url=c.checkout[packId];
+    const ret=location.origin+location.pathname+'?purchase='+encodeURIComponent(packId);
+    const sep=url.includes('?')?'&':'?';
+    url+=sep+'checkout[success_url]='+encodeURIComponent(ret)+'&checkout[custom][pack]='+encodeURIComponent(packId);
+    if(window.LemonSqueezy&&window.LemonSqueezy.Url){ window.LemonSqueezy.Url.Open(url); }     // overlay if lemon.js loaded
+    else { window.open(url,'_blank','noopener'); }
+    return;
+  }
+  openTestCheckout(packId);   // no account yet → prove the flow in test
+}
+
+/* ── test checkout (mimics the MoR sheet so the end-to-end flow is real before connecting) ── */
+function openTestCheckout(packId){
+  const p=packById(packId);
+  $('payTitle').textContent=`${p.e} ${p.name}`;
+  $('payBody').innerHTML=
+    `<div class="pay-line"><span>${p.coins} 🪙 coins</span><b>${p.price}</b></div>`+
+    `<div class="pay-field"><label>Card number</label><input id="payCard" inputmode="numeric" value="4242 4242 4242 4242" autocomplete="off"></div>`+
+    `<div class="pay-row"><div class="pay-field"><label>Expiry</label><input id="payExp" value="12 / 34"></div><div class="pay-field"><label>CVC</label><input id="payCvc" value="123"></div></div>`+
+    `<div class="pay-mor">Secure checkout by <b>Merchant of Record</b> · VAT handled · ${storeMode()}</div>`;
+  $('payBtn').textContent=`Pay ${p.price}`;
+  $('payBtn').onclick=()=>{ closePay(); setTimeout(()=>creditPack(packId,'test'),250); };
+  $('payScrim').dataset.pack=packId;
+  $('payScrim').classList.add('on');
+}
+function closePay(){$('payScrim').classList.remove('on');}
+
+function creditPack(packId, mode){
+  const p=packById(packId); if(!p)return;
+  let buyerId=coinBuyer(); try{const pend=localStorage.getItem('cr_pending_buyer'); if(pend&&S.members[pend])buyerId=pend; localStorage.removeItem('cr_pending_buyer');}catch(e){}
+  const k=S.members[buyerId]; if(!k||k.role!=='kid'){toast('Pick a champion to top up their coins');return;}
+  k.coins=(k.coins||0)+p.coins;
+  (S.receipts=S.receipts||[]).push({pack:p.id, coins:p.coins, price:p.price, mode:mode||(storeLive()?'live':'test'), at:new Date().toISOString(), to:buyerId});
+  save();
+  confetti();
+  toast(`${mode==='test'?'TEST ✓ ':''}+${p.coins} 🪙 added to ${esc(k.name)}'s wallet!`);
+  if(S.view==='plus')renderPlus();
+}
+
+/* credit after a real MoR success redirect (?purchase=<pack>) */
+function handlePurchaseReturn(){
+  const u=new URLSearchParams(location.search); const pid=u.get('purchase');
+  if(pid&&packById(pid)){ creditPack(pid,'live'); history.replaceState({},'',location.pathname); return true; }
+  return false;
+}
+
+/* load lemon.js overlay only when a store is configured */
+function loadStoreThen(cb){
+  const c=storeCfg();
+  if(!c || (c.provider&&c.provider!=='lemonsqueezy') || window.LemonSqueezy){cb&&cb();return;}
+  const s=document.createElement('script'); s.src='https://assets.lemonsqueezy.com/lemon.js'; s.defer=true;
+  s.onload=()=>{try{window.createLemonSqueezy&&window.createLemonSqueezy();}catch(e){} cb&&cb();};
+  s.onerror=()=>cb&&cb(); document.head.appendChild(s);
+}
+
 const PLUS_FEATURES=[
   {e:'🦸',t:'Avatar & skin packs',m:'Unlock heroes, crowns and seasonal looks'},
   {e:'📦',t:'Chore & quest packs',m:'Themed chore sets — chef, garden, pet care'},
@@ -1692,11 +1807,20 @@ function renderPlus(){
   $('plusBody').innerHTML=`
     <div class="btop"><div class="bttl">👑 Store</div><button class="bquit" onclick="backFromPlus()">Close</button></div>
     <div class="pl-hero">
-      <div class="crown">👑</div>
-      <h1>Chore Royale <b>Plus</b></h1>
-      <p>Everything in the free game, plus more ways to play, customise and stay motivated all year.</p>
+      <div class="crown">🪙</div>
+      <h1>Coin <b>Store</b></h1>
+      <p>Top up ${esc((S.members[coinBuyer()]||{}).name||'a champion')}'s 🪙 coins — spend them on power-ups. Chores, stars &amp; battles are never affected.</p>
     </div>
-    <div class="pl-price"><div class="amt">From <b>$3.99</b></div><div class="per">per month · whole family · cancel anytime</div></div>
+    <div class="coinpacks">${COIN_PACKS.map(p=>`
+      <div class="coinpack${p.tag?' feat':''}">${p.tag?`<span class="cp-tag">${p.tag}</span>`:''}
+        <div class="cp-e">${p.e}</div>
+        <div class="cp-coins">${p.coins} 🪙</div>
+        <div class="cp-sub">${p.sub}</div>
+        <button class="cp-buy" onclick="openCheckout('${p.id}')">${p.price}</button>
+      </div>`).join('')}</div>
+    <div class="pl-fine" style="margin:4px 0 2px">🔒 Secure checkout · prices in ₪ incl. VAT · Merchant of Record · <b>${storeMode()}</b></div>
+    <div class="sec-t" style="color:#cdd6ff;margin-top:18px">Or go all-in</div>
+    <div class="pl-price"><div class="amt">Chore Royale <b>Plus</b> · ₪19.90</div><div class="per">per month · whole family · cancel anytime</div></div>
     ${PLUS_FEATURES.map(f=>`<div class="pl-feat"><span class="fe">${f.e}</span><div><div class="ft2">${f.t}</div><div class="fm">${f.m}</div></div></div>`).join('')}
     <div class="sec-t" style="color:#cdd6ff;margin-top:16px">Cosmetic packs</div>
     <div class="pl-packs">${PLUS_PACKS.map(p=>`<div class="pl-pack"><div class="pe2">${p.e}</div><div class="pn2">${p.n}</div><div class="pp2">${p.p}</div></div>`).join('')}</div>
@@ -1735,6 +1859,7 @@ function resetAll(){try{localStorage.removeItem(KEY);}catch(e){}S=seed();save();
 $('spinBtn').addEventListener('click',()=>{S.coached=true;doSpin();});
 $('winKeep').addEventListener('click',()=>$('scrim').classList.remove('on'));
 $('scrim').addEventListener('click',e=>{if(e.target===$('scrim'))$('scrim').classList.remove('on');});
+$('payScrim').addEventListener('click',e=>{if(e.target===$('payScrim'))closePay();});
 document.querySelectorAll('.ptab .t').forEach(b=>b.addEventListener('click',()=>{pTab=b.dataset.tab;renderParent();}));
 
 /* ════════════════════ CROSS-DEVICE MULTIPLAYER (free-tier, no spend) ════════════════════
@@ -1996,6 +2121,8 @@ buildWheel();
 loadNetThen(()=>{
   if(S.deviceChampion && S.members[S.deviceChampion]) joinFamily();   // rejoin the family channel on return
 });
+loadStoreThen();                 // load the MoR overlay if a store is configured
+handlePurchaseReturn();          // credit coins after a real checkout success redirect
 if(!S.onboarded){show('onboard');obShow(0);}
 else if(S.current&&S.members[S.current]){const m=S.members[S.current];if(m.role==='parent'){show('parent');renderParent();}else{show('kid');renderKid();}}
 else{show('who');renderWho();}
