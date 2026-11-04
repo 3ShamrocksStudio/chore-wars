@@ -1,5 +1,5 @@
 """Chore Wars QA: 3 separate browser contexts (= 3 phones) at 390x844.
-Proves realtime sync between devices and captures every main screen.
+Proves realtime sync, parent-approved joins, stranger isolation, PIN lockout; captures every main screen.
 Usage: python3 tools/qa_sync.py BASE_URL OUT_DIR
 """
 import sys, os, time, json, base64, struct, zlib
@@ -9,12 +9,19 @@ BASE, OUT = sys.argv[1].rstrip('/') + '/', sys.argv[2]
 os.makedirs(OUT, exist_ok=True)
 errors, results, shots = [], [], []
 
-def png(path):
-    w, h = 64, 48
-    raw = b''.join(b'\x00' + bytes([40, 200, 230]) * w for _ in range(h))
-    def chunk(t, d): return struct.pack('>I', len(d)) + t + d + struct.pack('>I', zlib.crc32(t + d) & 0xffffffff)
-    open(path, 'wb').write(b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b''))
-PHOTO = os.path.join(OUT, '_proof.png'); png(PHOTO)
+def photo(path):
+    """A realistic-looking proof photo (JPEG): a plate rack drawn with PIL."""
+    from PIL import Image, ImageDraw, ImageFilter
+    im = Image.new('RGB', (1600, 1200), (214, 196, 170)); d = ImageDraw.Draw(im)
+    d.rectangle([0, 760, 1600, 1200], fill=(120, 92, 70))
+    for i in range(6):
+        x = 220 + i * 200
+        d.ellipse([x, 380, x + 180, 760], fill=(245, 245, 240), outline=(170, 170, 170), width=8)
+        d.ellipse([x + 45, 470, x + 135, 670], fill=(225, 230, 235))
+    d.rectangle([180, 720, 1420, 780], fill=(90, 90, 100))
+    im = im.filter(ImageFilter.GaussianBlur(2)); im.save(path, 'JPEG', quality=88)
+PHOTO = os.path.join(OUT, '_proof.jpg'); photo(PHOTO)
+PIN_JS = "(g)=>window.supabase.createClient(CW_CONFIG.url, CW_CONFIG.key).rpc('cw_parent',{p_code:document.getElementById('f_code').value,p_pin:g,p_device:'qa-pin-device-0001'}).then(r=>r.data&&r.data.err)"
 
 def phone(browser, name):
     ctx = browser.new_context(viewport={'width': 390, 'height': 844}, device_scale_factor=2, is_mobile=True, has_touch=True)
@@ -39,22 +46,47 @@ def wait_sync(label, pg, js, t0, timeout=12):
 
 with sync_playwright() as p:
     br = p.chromium.launch()
-    A = phone(br, 'parent'); B = phone(br, 'jakob'); C = phone(br, 'dean')
+    A = phone(br, 'parent'); B = phone(br, 'zap'); C = phone(br, 'nova')
 
     # Parent: onboarding -> create family
     A.goto(BASE); A.wait_for_selector('.onb'); shot(A, '01-onboarding')
-    tap(A, '#onbNext'); A.wait_for_timeout(500); tap(A, '#onbNext'); A.wait_for_timeout(500); shot(A, '02-onboarding-3'); tap(A, '#onbNext')
+    tap(A, '#onbNext'); A.wait_for_timeout(500); tap(A, '#onbNext'); A.wait_for_timeout(500); tap(A, '#onbNext')
     A.wait_for_selector('[data-act=go_create]'); shot(A, '03-start')
     tap(A, '[data-act=go_create]')
-    A.fill('#f_house', 'QA Clan'); A.fill('#f_name', 'Daddy'); A.fill('#f_pin', '4321'); shot(A, '04-create')
+    A.fill('#f_house', 'QA House'); A.fill('#f_name', 'Captain'); A.fill('#f_pin', '4321'); shot(A, '04-create')
     tap(A, '[data-act=create]'); A.wait_for_selector('.bigcode', timeout=15000)
     code = A.inner_text('.bigcode').strip(); shot(A, '05-parent-invite-qr')
 
-    # Two kids join on their own phones through the invite link
-    B.goto(BASE + '?join=' + code); B.wait_for_selector('#f_name', timeout=15000); B.fill('#f_name', 'Jakob')
-    tap(B, '[data-act=pick_av][data-id=wolf]'); shot(B, '06-join'); tap(B, '[data-act=join_new]'); B.wait_for_selector('nav.tabs', timeout=15000)
-    C.goto(BASE + '?join=' + code); C.wait_for_selector('#f_name', timeout=15000); C.fill('#f_name', 'Dean'); tap(C, '[data-act=join_new]'); C.wait_for_selector('nav.tabs', timeout=15000)
-    t0 = time.time(); wait_sync('join visible on parent phone', A, "document.querySelectorAll('.mgr').length>=3", t0)
+    # Kids ask to join on their own phones; the parent approves each one
+    def ask(pg, name, avatar=None, badge=None):
+        pg.goto(BASE + '?join=' + code); pg.wait_for_selector('#f_name', timeout=15000); pg.fill('#f_name', name)
+        if avatar: tap(pg, f'[data-act=pick_av][data-id={avatar}]')
+        if badge: tap(pg, f'[data-act=pick_bd][data-id={badge}]')
+        return pg
+    ask(B, 'Zap', 'shark', 'rocket'); shot(B, '06-join-pick-badge'); tap(B, '[data-act=join_new]'); B.wait_for_selector('.waitroom', timeout=15000)
+    t0 = time.time(); wait_sync('join request reaches parent phone', A, "!!document.querySelector('[data-act=req_ok]')", t0)
+    shot(B, '07-kid-waiting'); shot(A, '08-parent-approve-join')
+    no_leak = B.evaluate("!document.body.innerText.includes('QA House') && !document.body.innerText.includes('Captain') && !CW_DEBUG.state()")
+    results.append(('pending kid sees no household data', 'PASS' if no_leak else 'FAIL', 0))
+    t0 = time.time(); tap(A, '[data-act=req_ok]')
+    wait_sync('parent approves -> kid phone enters game', B, "!!document.querySelector('nav.tabs')", t0)
+    B.wait_for_timeout(600); shot(B, '09-kid-first-screen-chores')
+    first_tab = B.evaluate("document.querySelector('nav.tabs button.on').dataset.id")
+    results.append(('kid opens on Chores with Grab highlighted', 'PASS' if first_tab == 'chores' and B.evaluate("!!document.querySelector('.btn.grab.first')") else 'FAIL', 0))
+    ask(C, 'Nova', 'cat', 'star'); tap(C, '[data-act=join_new]'); C.wait_for_selector('.waitroom', timeout=15000)
+    A.wait_for_selector('[data-act=req_ok]', timeout=15000); tap(A, '[data-act=req_ok]'); C.wait_for_selector('nav.tabs', timeout=15000)
+    t0 = time.time(); wait_sync('both kids visible on parent phone', A, "document.querySelectorAll('.mgr').length>=3", t0)
+
+    # Stranger with only the code: waits, sees nothing, parent says No
+    X = phone(br, 'stranger'); ask(X, 'Stranger'); tap(X, '[data-act=join_new]'); X.wait_for_selector('.waitroom', timeout=15000)
+    X.wait_for_timeout(1500)
+    txt = X.evaluate("document.body.innerText")
+    leak = [n for n in ('QA House', 'Captain', 'Zap', 'Nova') if n in txt] or X.evaluate("!!CW_DEBUG.state()")
+    results.append(('stranger with code sees nothing before approval', 'FAIL' if leak else 'PASS', 0))
+    shot(X, '10-stranger-waiting')
+    A.wait_for_selector('[data-act=req_no]', timeout=15000); t0 = time.time(); tap(A, '[data-act=req_no]')
+    wait_sync('parent says No -> stranger is out', X, "!document.querySelector('.waitroom')", t0)
+    results.append(('stranger never got a session', 'PASS' if X.evaluate("!localStorage.getItem('cw_session')") else 'FAIL', 0))
 
     sid = lambda pg, i: pg.evaluate(f"CW_DEBUG.state().chores[{i}].id")
     for pg in (B, C): tap(pg, '[data-act=tab][data-id=chores]')
@@ -64,45 +96,68 @@ with sync_playwright() as p:
 
     # 1. claim syncs
     t0 = time.time(); tap(B, f'[data-act=claim][data-id="{ch_dishes}"]')
-    wait_sync('Jakob grabs Dishes -> Dean sees it', C, f"!!document.querySelector('[data-chore=\"{ch_dishes}\"] [data-act=steal]')", t0)
+    wait_sync('Zap grabs Dishes -> Nova sees it', C, f"!!document.querySelector('[data-chore=\"{ch_dishes}\"] [data-act=steal]')", t0)
     shot(B, '07-player-chores')
     # 2. steal syncs
     t0 = time.time(); tap(C, f'[data-act=steal][data-id="{ch_dishes}"]')
-    wait_sync('Dean steals Dishes -> Jakob loses it', B, f"CW_DEBUG.state().chores.find(c=>c.id==='{ch_dishes}').owner!==CW_DEBUG.state().me", t0)
+    wait_sync('Nova steals Dishes -> Zap loses it', B, f"CW_DEBUG.state().chores.find(c=>c.id==='{ch_dishes}').owner!==CW_DEBUG.state().me", t0)
     B.wait_for_timeout(300); shot(B, '08-stolen-alert')
     # 3. swap offer / accept
     tap(B, f'[data-act=claim][data-id="{ch_trash}"]'); B.wait_for_timeout(1200)
     tap(B, f'[data-act=swap_sheet][data-id="{ch_dishes}"]'); B.wait_for_selector('#sheet'); shot(B, '09-swap-offer'); tap(B, '[data-sheet=send]')
-    t0 = time.time(); wait_sync('Jakob offers swap -> Dean sees offer', C, "CW_DEBUG.state().trades.some(t=>t.status==='open'&&t.to===CW_DEBUG.state().me)", t0)
+    t0 = time.time(); wait_sync('Zap offers swap -> Nova sees offer', C, "CW_DEBUG.state().trades.some(t=>t.status==='open'&&t.to===CW_DEBUG.state().me)", t0)
     tap(C, '[data-act=tab][data-id=trades]'); shot(C, '10-swap-incoming')
     t0 = time.time(); tap(C, '[data-act=accept]')
-    wait_sync('Dean accepts swap -> Jakob owns Dishes', B, f"CW_DEBUG.state().chores.find(c=>c.id==='{ch_dishes}').owner===CW_DEBUG.state().me", t0)
+    wait_sync('Nova accepts swap -> Zap owns Dishes', B, f"CW_DEBUG.state().chores.find(c=>c.id==='{ch_dishes}').owner===CW_DEBUG.state().me", t0)
     # 4. head-to-head challenge
     tap(B, '[data-act=tab][data-id=arena]'); tap(B, '[data-act=challenge_pick]'); B.wait_for_selector('#sheet [data-r]'); tap(B, '#sheet [data-r]')
     t0 = time.time(); tap(C, '[data-act=tab][data-id=arena]')
-    wait_sync('Jakob challenges -> Dean sees Fight', C, "!!document.querySelector('[data-act=chal_yes]')", t0)
+    wait_sync('Zap challenges -> Nova sees Fight', C, "!!document.querySelector('[data-act=chal_yes]')", t0)
     tap(C, '[data-act=chal_yes]'); C.wait_for_timeout(800)
     # 5. done with photo -> parent verify
     tap(B, '[data-act=tab][data-id=chores]'); tap(B, f'[data-act=done_sheet][data-id="{ch_dishes}"]'); B.wait_for_selector('#proofIn', state='attached')
     shot(B, '11-proof-sheet')
     t0 = time.time(); B.set_input_files('#proofIn', PHOTO)
     tap(A, '[data-act=tab][data-id=verify]')
-    wait_sync('Jakob sends photo proof -> parent sees it', A, "!!document.querySelector('.ver img.ph')", t0)
-    shot(A, '12-parent-verify')
+    wait_sync('Zap sends photo proof -> parent sees it', A, "!!document.querySelector('.ver img.ph')", t0)
+    A.wait_for_timeout(400); shot(A, '12-parent-verify-photo')
+    sz = A.evaluate("CW_DEBUG.state().chores.find(c=>c.status==='done').proof.length")
+    dims = A.evaluate("(()=>{const i=document.querySelector('.ver img.ph');return [i.naturalWidth,i.naturalHeight]})()")
+    results.append((f'proof photo <=720px JPEG ({dims[0]}x{dims[1]}, {sz} chars)', 'PASS' if max(dims) <= 720 and sz < 400000 else 'FAIL', 0))
     t0 = time.time(); tap(A, '[data-act=approve]')
-    wait_sync('Parent approves -> Jakob gets points', B, "CW_DEBUG.state().players.find(p=>p.id===CW_DEBUG.state().me).pts>0", t0)
+    wait_sync('Parent approves -> Zap gets points', B, "CW_DEBUG.state().players.find(p=>p.id===CW_DEBUG.state().me).pts>0", t0)
     B.wait_for_timeout(200); shot(B, '13-points-burst')
     # 6. bounty
     tap(A, '[data-act=tab][data-id=chores]'); t0 = time.time(); tap(A, f'[data-act=bounty][data-id="{ch_bed}"]')
-    wait_sync('Parent bounty -> Dean sees bounty', C, f"CW_DEBUG.state().chores.find(c=>c.id==='{ch_bed}').bounty===10", t0)
+    wait_sync('Parent bounty -> Nova sees bounty', C, f"CW_DEBUG.state().chores.find(c=>c.id==='{ch_bed}').bounty===10", t0)
     shot(A, '14-parent-chores')
     tap(B, '[data-act=tab][data-id=arena]'); B.wait_for_timeout(1600); shot(B, '15-arena-leaderboard')
     tap(C, '[data-act=tab][data-id=chores]'); shot(C, '16-chores-bounty')
     tap(B, '[data-act=tab][data-id=cards]'); shot(B, '17-cards-shop')
-    tap(B, '[data-act=ad]'); B.wait_for_selector('#adn'); shot(B, '18-ad-slot')
-    B.wait_for_timeout(5600); shot(B, '19-card-won')
+    tap(B, '[data-act=ad]'); B.wait_for_selector('#adn'); B.wait_for_timeout(1500); shot(B, '18-ad-countdown')
+    B.wait_for_timeout(4300); shot(B, '19-ad-card-reveal'); B.wait_for_timeout(2500)
     tap(B, '[data-act=profile]'); B.wait_for_selector('#sheet'); shot(B, '20-profile-rank')
     tap(A, '[data-act=tab][data-id=arena]'); shot(A, '21-parent-arena')
+    B.evaluate("document.getElementById('sheet')&&document.getElementById('sheet').remove()")
+    B.evaluate("CW_DEBUG.crown()"); B.wait_for_timeout(2300); shot(B, '22-crown-ceremony'); tap(B, '[data-crown]'); B.wait_for_timeout(400)
+
+    # Freed kid seat: only a parent-approved request can take it back
+    tap(A, '[data-act=tab][data-id=invite]'); A.wait_for_timeout(500)
+    nova_id = A.evaluate("CW_DEBUG.state().players.find(p=>p.name==='Nova').id")
+    tap(A, f'[data-act=free_seat][data-id="{nova_id}"]'); A.wait_for_timeout(1200)
+    N = phone(br, 'nova-new-phone'); ask(N, 'Nova'); tap(N, '[data-act=join_new]'); N.wait_for_selector('.waitroom', timeout=15000)
+    A.wait_for_selector('[data-act=req_seat]', timeout=15000); shot(A, '23-parent-seat-claim')
+    t0 = time.time(); tap(A, f'[data-act=req_seat][data-seat="{nova_id}"]')
+    wait_sync('freed seat taken back only after parent approval', N, f"!!document.querySelector('nav.tabs') && CW_DEBUG.state().me==='{nova_id}'", t0)
+
+    # 6 wrong parent PINs -> locked out: the 5th wrong try locks for 15 min, even the right PIN
+    P2 = phone(br, 'pin-guesser'); P2.goto(BASE + '?join=' + code); P2.wait_for_selector('[data-act=parent_mode]', timeout=15000)
+    tap(P2, '[data-act=parent_mode]'); P2.wait_for_selector('#f_pin')
+    pin_res = [P2.evaluate(PIN_JS, g) for g in ['0000', '1111', '2222', '3333', '5555', '6666']]
+    right = P2.evaluate(PIN_JS, '4321')
+    ok_lock = pin_res[:4] == ['bad_pin'] * 4 and pin_res[4:] == ['locked', 'locked'] and right == 'locked'
+    results.append((f'6 wrong PINs -> lockout {pin_res}, then right PIN={right}', 'PASS' if ok_lock else 'FAIL', 0))
+    P2.fill('#f_pin', '9999'); tap(P2, '[data-act=parent_in]'); P2.wait_for_timeout(1200); shot(P2, '24-pin-locked')
 
     for pg in (A, B, C): pg.wait_for_timeout(300)
     br.close()
