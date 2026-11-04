@@ -185,11 +185,11 @@ nav.tabs .badge{position:absolute;top:2px;right:calc(50% - 26px);min-width:22px;
 .seg{display:flex;gap:8px;justify-content:center}
 .seg button{min-width:72px;height:52px;border-radius:16px;border:3px solid var(--ink);background:#fff;font-family:var(--display);font-size:18px;display:flex;align-items:center;justify-content:center;gap:2px}
 .seg button.on{background:var(--zap);box-shadow:0 4px 0 var(--ink)}
-.toasts{position:fixed;top:12px;left:0;right:0;z-index:60;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 16px}
+.toasts{position:fixed;bottom:calc(104px + var(--safe-b));left:0;right:0;z-index:60;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 16px}
 .toast{display:flex;align-items:center;gap:10px;background:#fff;border:3px solid var(--ink);border-radius:20px;padding:8px 16px 8px 8px;box-shadow:0 5px 0 var(--ink);font-size:17px;animation:toastIn .45s var(--pop);max-width:440px}
 .toast.bad{background:var(--rival);color:#fff}
 .toast.good{background:var(--zap)}
-@keyframes toastIn{from{transform:translateY(-30px) scale(.8);opacity:0}}
+@keyframes toastIn{from{transform:translateY(30px) scale(.8);opacity:0}}
 .fx{position:fixed;inset:0;pointer-events:none;z-index:55;display:grid;place-items:center}
 .fx .gain{font-family:var(--display);font-size:84px;color:var(--zap);-webkit-text-stroke:3px var(--ink);text-shadow:0 8px 0 var(--ink);animation:gain 1.4s var(--pop) both;display:flex;align-items:center}
 @keyframes gain{0%{transform:scale(.2);opacity:0}25%{transform:scale(1.15);opacity:1}70%{transform:scale(1)}100%{transform:translateY(-120px) scale(.8);opacity:0}}
@@ -291,7 +291,8 @@ nav.tabs .badge{position:absolute;top:2px;right:calc(50% - 26px);min-width:22px;
 .adtag{position:absolute;top:-8px;left:0;font-size:12px;font-weight:900;background:var(--ink);color:#fff;border-radius:6px;padding:2px 8px;letter-spacing:.05em}
 .ring{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--zap) calc(var(--p) * 360deg),var(--lilac) 0);border:3px solid var(--ink);box-shadow:0 5px 0 var(--ink);transition:background .9s linear}
 .ring .num{width:68px;height:68px;border-radius:50%;background:#fff;border:3px solid var(--ink);display:grid;place-items:center;font-size:34px}
-.ring.done{display:none}
+.ring.done{background:var(--zap)}
+.ring.done .num{background:var(--zap)}
 .adbrand img{width:220px;height:auto}
 .reveal{display:none;perspective:800px}
 .reveal.show{display:block;animation:pop .4s var(--pop)}
@@ -308,3 +309,27 @@ nav.tabs .badge{position:absolute;top:2px;right:calc(50% - 26px);min-width:22px;
 .demobar button{background:#fff;border:2px solid var(--ink);border-radius:99px;padding:4px 10px;font-size:13px;display:flex;align-items:center}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* 2026-11-04c: shop lock, masked PIN, ad card preview, victory, rival, streak flame */
+.item.soon{position:relative;background:var(--lilac)}
+.item.soon>.ic{opacity:.55}
+.item .lk{position:absolute;top:-10px;right:-8px;width:34px;height:34px;border-radius:50%;background:var(--zap);box-shadow:0 0 0 2px var(--ink);display:grid;place-items:center;border:3px solid #fff}
+.item .cs{font-size:11px;background:#fff;border:2px solid var(--ink);border-radius:99px;padding:1px 8px;line-height:1.3;white-space:nowrap}
+.pinbox{position:relative}
+.pin-in{color:transparent!important;-webkit-text-fill-color:transparent;caret-color:transparent;text-align:center;letter-spacing:1em}
+.pin-in::selection{background:transparent}
+.pindots{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:20px;pointer-events:none}
+.pindots i{width:20px;height:20px;border-radius:50%;border:3px solid var(--ink);background:#fff;display:grid;place-items:center;font-style:normal;font-family:var(--display);font-size:24px;line-height:1;transition:transform .15s var(--pop)}
+.pindots i.on{background:var(--ink);transform:scale(1.05)}
+.pindots i.peek{width:28px;height:28px;margin:-4px;background:var(--zap);color:var(--ink);border-radius:10px;animation:pop .2s var(--pop)}
+.admoment{gap:12px;padding:6px 0 0;min-height:0}
+.adbrand img{width:170px}
+.flipcard.spin{animation:cardSpin 1.6s linear infinite}
+@keyframes cardSpin{from{transform:rotateY(0)}to{transform:rotateY(360deg)}}
+.flipcard .front .q{font-size:84px;color:var(--ink);-webkit-text-stroke:2px var(--ink)}
+.adrow{display:flex;align-items:center;gap:14px;background:#fff;border:3px solid var(--ink);border-radius:20px;padding:10px 16px 10px 10px;box-shadow:0 5px 0 var(--ink);width:100%;max-width:340px}
+.adrow .ring{width:72px;height:72px;flex:none;box-shadow:none}
+.adrow .ring .num{width:52px;height:52px;font-size:26px}
+.adtxt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.adtxt b{font-family:var(--display);font-size:20px;line-height:1.1}
+.adtxt .fine{text-align:left}

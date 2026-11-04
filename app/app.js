@@ -366,8 +366,8 @@
     h += '<div class="h">' + ic('ad', 28) + 'Free card</div><div class="panel adslot">' + ic('ad', 56) + '<div class="txt">Watch, win a card<div class="dots">' +
       [0, 1, 2].map(function (i) { return '<i class="' + (i < used ? 'used' : '') + '"></i>'; }).join('') + '</div></div>' +
       '<button class="btn" data-act="ad" ' + (used >= 3 ? 'disabled' : '') + '>Watch</button></div>';
-    h += '<div class="h">' + ic('gift', 28) + 'Shop <span class="eyes">NEEDS YOUR EYES</span></div><div class="shop">' +
-      [['crown', 'Skins'], ['trophy', 'Season pass'], ['cards', 'Card pack']].map(function (s) { return '<div class="item">' + ic(s[0], 48) + '<b>' + s[1] + '</b><span class="tbd">price TBD</span></div>'; }).join('') + '</div>';
+    h += '<div class="h">' + ic('gift', 28) + 'Shop</div><div class="shop">' +
+      [['crown', 'Skins'], ['trophy', 'Season pass'], ['cards', 'Card pack']].map(function (s) { return '<div class="item soon" aria-label="' + s[1] + ', coming soon"><span class="lk">' + ic('lock', 22) + '</span>' + ic(s[0], 48) + '<b>' + s[1] + '</b><span class="cs">Coming soon</span></div>'; }).join('') + '</div>';
     return h;
   }
 
@@ -447,6 +447,20 @@
   }
   function avPicker(sel) { return '<div class="avpick">' + AV_NAMES.map(function (n) { return '<button type="button" class="' + (n === sel ? 'on' : '') + '" data-act="pick_av" data-id="' + n + '" aria-label="' + n + '">' + av(n, 56) + '</button>'; }).join('') + '</div>'; }
   function badgePicker(sel) { return '<div class="field"><span>Your badge</span></div><div class="bdpick">' + BADGES.map(function (n) { return '<button type="button" class="' + (n === sel ? 'on' : '') + '" data-act="pick_bd" data-id="' + n + '" aria-label="' + n + '">' + ic(n, 40) + '</button>'; }).join('') + '</div>'; }
+  /* PIN: digits are masked as dots; only the digit just typed shows, briefly */
+  function pinField(id, label) {
+    return '<label class="field">' + (label ? '<span>' + label + '</span>' : '') + '<div class="pinbox"><input id="' + id + '" class="pin-in" type="text" inputmode="numeric" maxlength="4" pattern="[0-9]*" autocomplete="off" spellcheck="false" aria-label="' + (label || 'Parent PIN') + '">' +
+      '<div class="pindots" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div></label>';
+  }
+  var peekT = null;
+  document.addEventListener('input', function (e) {
+    var el = e.target; if (!el.classList || !el.classList.contains('pin-in')) return;
+    var v = el.value.replace(/\D/g, '').slice(0, 4); if (v !== el.value) el.value = v;
+    var dots = el.parentNode.querySelectorAll('.pindots i'), peek = e.inputType && e.inputType.indexOf('insert') === 0 ? v.length - 1 : -1;
+    clearTimeout(peekT);
+    dots.forEach(function (d, k) { d.className = k < v.length ? (k === peek ? 'on peek' : 'on') : ''; d.textContent = k === peek ? v[k] : ''; });
+    if (peek >= 0) peekT = setTimeout(function () { dots.forEach(function (d) { if (d.classList.contains('peek')) { d.classList.remove('peek'); d.textContent = ''; } }); }, 700);
+  });
   function keepDraft() { var v = function (q) { var el = document.querySelector(q); return el ? el.value : null; }; ['house', 'name'].forEach(function (k) { var x = v('#f_' + k); if (x !== null) S.draft[k] = x; }); }
   function createForm() {
     var dr = S.draft; dr.av = dr.av || 'owl'; dr.bd = dr.bd || 'crown';
@@ -454,15 +468,15 @@
       '<label class="field"><span>Family name</span><input id="f_house" maxlength="24" placeholder="The Thunder House" value="' + esc(dr.house || '') + '"></label>' +
       '<label class="field"><span>Your name</span><input id="f_name" maxlength="14" placeholder="Captain" value="' + esc(dr.name || '') + '"></label>' +
       avPicker(dr.av) +
-      '<label class="field"><span>Parent PIN (4 digits)</span><input id="f_pin" inputmode="numeric" maxlength="4" pattern="[0-9]*" placeholder="••••"></label>' +
+      pinField('f_pin', 'Parent PIN (4 digits)') +
       '<button class="btn big" data-act="create">' + ic('crown', 30) + 'Create</button></div><button class="btn ghost" data-act="home">Back</button>';
   }
   function joinForm() {
     var dr = S.draft;
     if (dr.parent) {
       return '<div class="hero-logo" style="padding-top:20px"><img src="brand/mark.svg" alt="" style="width:110px"></div><div class="panel stack">' +
-        '<label class="field"><span>Family code</span><input id="f_code" class="code-in" maxlength="6" autocomplete="off" autocapitalize="characters" value="' + esc(S.joinCode || '') + '"></label>' +
-        '<label class="field"><span>Parent PIN</span><input id="f_pin" class="code-in" inputmode="numeric" maxlength="4" pattern="[0-9]*"></label>' +
+        '<label class="field"><span>Family code</span><input id="f_code" class="code-in" maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false" value="' + esc(S.joinCode || '') + '"></label>' +
+        pinField('f_pin', 'Parent PIN') +
         '<button class="btn big" data-act="parent_in">' + ic('lock', 28) + 'Referee in</button></div><button class="btn ghost" data-act="home">Back</button>';
     }
     if (!dr.code) {
@@ -584,7 +598,7 @@
     s.querySelector('[data-sheet="add"]').addEventListener('click', function () { var t = s.querySelector('#c_title').value.trim(); if (!t) { toast(ic('cross', 28) + 'Add a name', 'bad'); return; } closeSheet(); act('add_chore', { icon: sel.icon, title: t, pts: sel.pts }).catch(function () { /* shown */ }); });
   }
   function pinSheet(cb) {
-    var s = sheet('<div class="ttl">Parent PIN</div><label class="field"><input id="p_pin" class="code-in" inputmode="numeric" maxlength="4" pattern="[0-9]*"></label><button class="btn big" style="margin-top:14px" data-sheet="ok">OK</button>');
+    var s = sheet('<div class="ttl">Parent PIN</div>' + pinField('p_pin', '') + '<button class="btn big" style="margin-top:14px" data-sheet="ok">OK</button>');
     s.querySelector('[data-sheet="ok"]').addEventListener('click', function () { var v = s.querySelector('#p_pin').value; closeSheet(); cb(v); });
     setTimeout(function () { var i = s.querySelector('#p_pin'); if (i) i.focus(); }, 50);
   }
@@ -602,20 +616,22 @@
      The slot is where a non-personalised ad network will render (see model page); none is wired yet. */
   function adSheet() {
     var n = 5;
-    var s = sheet('<div class="admoment"><span class="adtag">Ad</span><div class="ring" style="--p:0"><span class="num" id="adn">5</span></div>' +
-      '<div class="adbrand"><img src="brand/lockup.svg" alt="Chore Wars"></div><div class="fine">Your free card is coming</div>' +
-      '<div class="reveal" id="rev"><div class="flipcard"><div class="face back">' + ic('cards', 72) + '</div><div class="face front" id="revf"></div></div></div></div>');
+    var s = sheet('<div class="admoment"><span class="adtag">Ad</span><div class="adbrand"><img src="brand/lockup.svg" alt="Chore Wars"></div>' +
+      '<div class="reveal show" id="rev"><div class="flipcard spin"><div class="face back">' + ic('cards', 72) + '</div><div class="face front" id="revf"><span class="q">?</span></div></div></div>' +
+      '<div class="adrow"><div class="ring" style="--p:0"><span class="num" id="adn">5</span></div><div class="adtxt"><b id="adname">Free power card</b><span class="fine" id="adsub">Steal, Shield or 2X</span></div></div></div>');
     var ring = s.querySelector('.ring');
     var t = setInterval(function () {
       if (!document.body.contains(s)) { clearInterval(t); return; }
       n -= 1; ring.style.setProperty('--p', (5 - n) / 5);
       if (n > 0) { s.querySelector('#adn').textContent = n; fx('tick'); return; }
-      clearInterval(t); s.querySelector('#adn').textContent = '';
-      ring.classList.add('done'); s.querySelector('#rev').classList.add('show');
+      clearInterval(t); s.querySelector('#adn').innerHTML = ic('check', 40);
+      ring.classList.add('done'); s.querySelector('#adsub').textContent = 'Unlocking…';
       act('ad_reward').then(function (got) {
         var k = got || 'cards', nm = { steal: 'Steal', shield: 'Shield', double: '2X' }[k] || 'Card';
         s.querySelector('#revf').innerHTML = ic(k, 84) + '<b>' + nm + '</b>';
-        setTimeout(function () { s.querySelector('.flipcard').classList.add('flip'); fx('card'); }, 250);
+        s.querySelector('#adname').textContent = nm + ' card!'; s.querySelector('#adsub').textContent = 'Added to your deck';
+        var fc = s.querySelector('.flipcard'); fc.classList.remove('spin');
+        setTimeout(function () { fc.classList.add('flip'); fx('card'); }, 250);
         setTimeout(function () { burst(1); fx('win'); }, 900);
         setTimeout(closeSheet, 2600);
       }).catch(function () { closeSheet(); });
