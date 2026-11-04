@@ -7,7 +7,10 @@ from playwright.sync_api import sync_playwright
 
 BASE, OUT = sys.argv[1].rstrip('/') + '/', sys.argv[2]
 os.makedirs(OUT, exist_ok=True)
-errors, results, shots = [], [], []
+errors, shots = [], []
+class Results(list):
+    def append(self, r): super().append(r); print(r, flush=True)
+results = Results()
 
 def photo(path):
     """A realistic-looking proof photo (JPEG): a plate rack drawn with PIL."""
@@ -28,11 +31,17 @@ def phone(browser, name):
     pg = ctx.new_page()
     pg.on('console', lambda m: m.type == 'error' and errors.append(f'{name}: {m.text}'))
     pg.on('pageerror', lambda e: errors.append(f'{name}: pageerror {e}'))
+    pg.on('crash', lambda p: errors.append(f'{name}: CRASH'))
     return pg
 
 def shot(pg, n):
     pg.wait_for_timeout(700)
-    p = os.path.join(OUT, n + '.png'); pg.screenshot(path=p); shots.append(p)
+    n = '%02d-%s' % (len(shots) + 1, n.split('-', 1)[1])
+    p = os.path.join(OUT, n + '.png')
+    for i in range(3):
+        try: pg.screenshot(path=p); break
+        except Exception: pg.wait_for_timeout(600)
+    shots.append(p)
 
 def tap(pg, sel):
     pg.locator(sel).first.click()
@@ -87,6 +96,7 @@ with sync_playwright() as p:
     A.wait_for_selector('[data-act=req_no]', timeout=15000); t0 = time.time(); tap(A, '[data-act=req_no]')
     wait_sync('parent says No -> stranger is out', X, "!document.querySelector('.waitroom')", t0)
     results.append(('stranger never got a session', 'PASS' if X.evaluate("!localStorage.getItem('cw_session')") else 'FAIL', 0))
+    X.context.close()   # keep at most 4 phones open: more renderers at 2x crash the 2-CPU QA box
 
     sid = lambda pg, i: pg.evaluate(f"CW_DEBUG.state().chores[{i}].id")
     for pg in (B, C): tap(pg, '[data-act=tab][data-id=chores]')
@@ -145,10 +155,12 @@ with sync_playwright() as p:
     tap(A, '[data-act=tab][data-id=invite]'); A.wait_for_timeout(500)
     nova_id = A.evaluate("CW_DEBUG.state().players.find(p=>p.name==='Nova').id")
     tap(A, f'[data-act=free_seat][data-id="{nova_id}"]'); A.wait_for_timeout(1200)
+    C.context.close()   # Nova's old phone was signed out by "New phone"
     N = phone(br, 'nova-new-phone'); ask(N, 'Nova'); tap(N, '[data-act=join_new]'); N.wait_for_selector('.waitroom', timeout=15000)
     A.wait_for_selector('[data-act=req_seat]', timeout=15000); shot(A, '23-parent-seat-claim')
     t0 = time.time(); tap(A, f'[data-act=req_seat][data-seat="{nova_id}"]')
     wait_sync('freed seat taken back only after parent approval', N, f"!!document.querySelector('nav.tabs') && CW_DEBUG.state().me==='{nova_id}'", t0)
+    N.context.close()
 
     # 6 wrong parent PINs -> locked out: the 5th wrong try locks for 15 min, even the right PIN
     P2 = phone(br, 'pin-guesser'); P2.goto(BASE + '?join=' + code); P2.wait_for_selector('[data-act=parent_mode]', timeout=15000)
@@ -159,7 +171,7 @@ with sync_playwright() as p:
     results.append((f'6 wrong PINs -> lockout {pin_res}, then right PIN={right}', 'PASS' if ok_lock else 'FAIL', 0))
     P2.fill('#f_pin', '9999'); tap(P2, '[data-act=parent_in]'); P2.wait_for_timeout(1200); shot(P2, '24-pin-locked')
 
-    for pg in (A, B, C): pg.wait_for_timeout(300)
+    A.wait_for_timeout(300)
     br.close()
 
 ok = all(r[1] == 'PASS' for r in results)
