@@ -13,7 +13,7 @@ A 3Shamrocks Studio game. **Staging only. Not public.**
 | `app/model.html` | One-page business model with sourced benchmarks |
 | `app/brand/` | Logo SVG + PNG exports, app icons, icon sprite |
 | `tools/` | Brand generator, PNG export, two-phone sync QA (`qa_sync.py`) |
-| root `index.html`, `royale/`, `preview/`, `wheel-concept/` | Earlier prototypes, kept for history (rejected by Dave, 4 Nov 2026) |
+| root `index.html` and the other top-level folders | Earlier prototypes, kept for history (rejected by Dave, 4 Nov 2026) |
 
 ## Core loop
 
