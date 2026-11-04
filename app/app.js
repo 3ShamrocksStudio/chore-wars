@@ -345,6 +345,18 @@
     else { o = ps[1]; var lead = m.pts - o.pts; txt = lead > 0 ? 'You lead ' + esc(o.name) + ' by ' + lead + '!' : 'Tied with ' + esc(o.name) + '!'; cls = lead > 0 ? 'ahead' : 'tied'; }
     return '<div class="rival ' + cls + '">' + avb(o, 40) + '<span class="rt">' + txt + '</span>' + ic(cls === 'ahead' ? 'crown' : 'trophy', 30) + '</div>';
   }
+  // a normal tile with no partner on its row (last one, or one just before a wide tile) is centred on its own row
+  function soloTiles(list) {
+    var wide = function (c) { var r = rarity(c); return c.status !== 'approved' && (r === 'bounty' || r === 'legend'); };
+    var col = 0;
+    return list.map(function (c, i) {
+      var t = choreTile(c);
+      if (wide(c)) col = 0;
+      else if (col === 0 && (i === list.length - 1 || wide(list[i + 1]))) t = t.replace('class="tile ', 'class="tile solo ');
+      else col = 1 - col;
+      return t;
+    }).join('');
+  }
   function chores() {
     var d = S.d, order = { open: 1, claimed: 2, done: 3, approved: 4 };
     var list = d.chores.slice().sort(function (a, b) {
@@ -352,7 +364,7 @@
       return (am - bm) || (order[a.status] - order[b.status]) || (b.bounty - a.bounty) || ((b.pts + b.bounty) - (a.pts + a.bounty));
     });
     var open = d.chores.filter(function (c) { return c.status === 'open'; }).length;
-    var h = (isParent() ? '' : rivalCall()) + '<div class="h">' + ic('broom', 30) + 'Chores' + (!isParent() && open ? '<span class="hint">' + open + ' up for grabs</span>' : '') + '</div><div class="grid">' + list.map(choreTile).join('') + '</div>';
+    var h = (isParent() ? '' : rivalCall()) + '<div class="h">' + ic('broom', 30) + 'Chores' + (!isParent() && open ? '<span class="hint">' + open + ' up for grabs</span>' : '') + '</div><div class="grid">' + soloTiles(list) + '</div>';
     if (isParent()) h += '<button class="btn big" data-act="add_sheet" style="margin-top:20px">' + ic('plus', 30) + 'Add chore</button>';
     return h;
   }
