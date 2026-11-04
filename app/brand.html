@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chore Wars Brand</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="brand/app-icon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=cw-2026-11-04a">
+<style>
+  #app{padding-bottom:40px}
+  .sec{margin:26px 0}
+  .sec>h2{font-family:var(--display);font-size:24px;color:#fff;text-shadow:0 3px 0 var(--ink);margin:0 4px 10px;font-weight:400}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .logo-box{border:3px solid var(--ink);border-radius:22px;box-shadow:0 6px 0 var(--ink);padding:18px;display:grid;place-items:center}
+  .logo-box img{max-width:100%;height:auto}
+  .sw{border:3px solid var(--ink);border-radius:20px;box-shadow:0 5px 0 var(--ink);overflow:hidden;background:#fff}
+  .sw i{display:block;height:74px}
+  .sw div{padding:8px 10px;font-size:14px;line-height:1.3}
+  .sw b{font-family:var(--display);font-weight:400;font-size:15px;display:block}
+  .colors{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .icons{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  .icons div{background:#fff;border-radius:14px;display:grid;place-items:center;padding:6px;aspect-ratio:1}
+  .avs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .avs div{background:#fff;border-radius:16px;display:grid;place-items:center;padding:6px}
+  .typeA{font-family:var(--display);font-size:46px;line-height:1;margin:0}
+  .typeB{font-family:var(--ui);font-weight:800;font-size:20px;margin:6px 0 0}
+  .meta{font-size:14px;opacity:.7;margin-top:6px}
+  .dl{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .dl a{font-size:13px;background:#fff;border:2px solid var(--ink);border-radius:99px;padding:4px 10px;color:var(--ink);text-decoration:none}
+  .motion{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .motion .panel{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;font-size:14px;min-height:150px;justify-content:center}
+  .rules li{margin:6px 0;font-size:16px}
+  .rules{padding-left:20px;margin:0}
+  .loop{animation:loopDrop 2.6s var(--pop) infinite}
+  @keyframes loopDrop{0%{transform:translateY(-40px) rotate(-50deg) scale(.4);opacity:0}35%{transform:none;opacity:1}85%{transform:none;opacity:1}100%{opacity:0}}
+  .loopgain{font-family:var(--display);font-size:40px;color:var(--zap);-webkit-text-stroke:2px var(--ink);text-shadow:0 5px 0 var(--ink);animation:loopGain 2.2s var(--pop) infinite}
+  @keyframes loopGain{0%{transform:scale(.2);opacity:0}25%{transform:scale(1.15);opacity:1}60%{transform:scale(1)}100%{transform:translateY(-40px);opacity:0}}
+  .shakeloop{animation:shake .45s 1s infinite}
+  @media (max-width:420px){.icons{grid-template-columns:repeat(5,1fr)}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="hero-logo"><img src="brand/lockup-stacked.svg" alt="Chore Wars"></div>
+  <p style="text-align:center;color:#fff;font-size:18px;margin:4px 0 0">Brand sheet v1. Staging, <span class="eyes">NEEDS YOUR EYES</span></p>
+
+  <section class="sec"><h2>Logo</h2>
+    <div class="row2">
+      <div class="logo-box" style="background:#fff"><img src="brand/mark.svg" alt="Mark: spray blaster on a yellow burst" width="150"></div>
+      <div class="logo-box" style="background:var(--grape)"><img src="brand/app-icon.svg" alt="App icon" width="150"></div>
+    </div>
+    <div class="logo-box" style="background:var(--ink);margin-top:12px"><img src="brand/lockup.svg" alt="Horizontal lockup"></div>
+    <div class="panel" style="font-size:16px">The mark: a spray-bottle blaster bursting out of a star. Chores are the ammo, the house is the arena. Always on purple or white, never stretched, never recoloured.
+      <div class="dl"><a href="brand/mark.svg" download>mark.svg</a><a href="brand/mark.png" download>mark.png</a><a href="brand/lockup.svg" download>lockup.svg</a><a href="brand/lockup.png" download>lockup.png</a><a href="brand/lockup-stacked.png" download>stacked.png</a><a href="brand/wordmark.png" download>wordmark.png</a><a href="brand/icon-512.png" download>icon-512.png</a><a href="brand/icons.svg" download>icons.svg</a></div>
+    </div>
+  </section>
+
+  <section class="sec"><h2>Colour</h2>
+    <div class="colors">
+      <div class="sw"><i style="background:#4B23D9"></i><div><b>Grape</b>#4B23D9<br>Arena floor</div></div>
+      <div class="sw"><i style="background:#1A0E5C"></i><div><b>Ink</b>#1A0E5C<br>Outlines, text</div></div>
+      <div class="sw"><i style="background:#FFD12E"></i><div><b>Zap</b>#FFD12E<br>Points, go</div></div>
+      <div class="sw"><i style="background:#22D3EE"></i><div><b>Splash</b>#22D3EE<br>Yours, defend</div></div>
+      <div class="sw"><i style="background:#FF3B7F"></i><div><b>Rival</b>#FF3B7F<br>Steal, attack</div></div>
+      <div class="sw"><i style="background:#F5F2FF"></i><div><b>Suds</b>#F5F2FF<br>Cards, panels</div></div>
+    </div>
+  </section>
+
+  <section class="sec"><h2>Type</h2>
+    <div class="panel"><p class="typeA">Bungee 1234</p><div class="meta">Display: titles, numbers, buttons. Free, Google Fonts.</div>
+      <p class="typeB">Nunito ExtraBold. Short labels, never paragraphs.</p><div class="meta">UI: names and labels, 15 to 20 px.</div></div>
+  </section>
+
+  <section class="sec"><h2>Icons</h2>
+    <div class="panel"><div class="icons" id="icons"></div><div class="meta" style="margin-top:10px">48 px grid, 3 px ink outline, flat brand fills, rounded joins.</div></div>
+  </section>
+
+  <section class="sec"><h2>Ranks</h2>
+    <div class="panel" style="display:flex;justify-content:space-around;text-align:center;font-size:14px" id="ranks"></div>
+  </section>
+
+  <section class="sec"><h2>Players</h2>
+    <div class="panel"><div class="avs" id="avs"></div></div>
+  </section>
+
+  <section class="sec"><h2>Motion</h2>
+    <div class="motion">
+      <div class="panel"><div class="loop" id="m1"></div>Crown drops, bounces</div>
+      <div class="panel"><div class="loopgain">+15</div>Points pop</div>
+      <div class="panel"><button class="btn">Grab</button>Buttons press down 4 px</div>
+      <div class="panel"><div class="shakeloop" id="m2"></div>Steal: shake + pink flash + buzz</div>
+    </div>
+    <div class="panel" style="font-size:15px">Springy overshoot on rewards (cubic-bezier .34,1.56,.64,1). Quick and snappy everywhere else. Every big moment has a sound and a haptic. Reduced-motion is respected.</div>
+  </section>
+
+  <section class="sec"><h2>Voice</h2>
+    <div class="panel"><ul class="rules">
+      <li>Max 6 words per label</li><li>Icon first, word second</li><li>Verbs: Grab, Steal, Swap, Fight</li><li>One idea per screen</li><li>Hard, chunky shadows. No soft blur.</li>
+    </ul></div>
+  </section>
+</div>
+<script src="icons.js?v=cw-2026-11-04a"></script>
+<script>
+(function () {
+  var I = CWIcons, h = '';
+  Object.keys(I.ICONS).filter(function (k) { return k.indexOf('rank') !== 0; }).forEach(function (k) { h += '<div title="' + k + '">' + I.icon(k, 44) + '</div>'; });
+  document.getElementById('icons').innerHTML = h;
+  document.getElementById('ranks').innerHTML = [['rank1', 'Rookie', 0], ['rank2', 'Brawler', 100], ['rank3', 'Hero', 300], ['rank4', 'Legend', 700]].map(function (r) { return '<div>' + I.icon(r[0], 56) + '<b>' + r[1] + '</b><br>' + r[2] + ' XP</div>'; }).join('');
+  document.getElementById('avs').innerHTML = Object.keys(I.AVATARS).map(function (k) { return '<div>' + I.avatar(k, 64) + '</div>'; }).join('');
+  document.getElementById('m1').innerHTML = I.icon('crown', 72);
+  document.getElementById('m2').innerHTML = I.icon('steal', 64);
+})();
+</script>
+</body>
+</html>

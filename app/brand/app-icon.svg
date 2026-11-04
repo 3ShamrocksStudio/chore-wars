@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-label="Chore Wars app icon"><title>Chore Wars app icon</title><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6A3BFF"/><stop offset="1" stop-color="#4B23D9"/></linearGradient></defs><rect width="240" height="240" rx="54" fill="url(#g)"/><g transform="translate(22 22) scale(.82)"><g transform="translate(14 16) scale(.87)"><polygon points="120.0,8.0 143.3,35.1 177.0,23.3 183.6,58.4 218.7,65.0 206.9,98.7 234.0,122.0 206.9,145.3 218.7,179.0 183.6,185.6 177.0,220.7 143.3,208.9 120.0,236.0 96.7,208.9 63.0,220.7 56.4,185.6 21.3,179.0 33.1,145.3 6.0,122.0 33.1,98.7 21.3,65.0 56.4,58.4 63.0,23.3 96.7,35.1" fill="#FFD12E" stroke="#1A0E5C" stroke-width="8" stroke-linejoin="round"/>
+<g transform="rotate(-14 120 134)" stroke="#1A0E5C" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+  <path d="M150 92 Q176 104 166 140 Q156 132 148 112 Z" fill="#FF3B7F"/>
+  <rect x="76" y="118" width="88" height="104" rx="24" fill="#22D3EE"/>
+  <rect x="92" y="134" width="14" height="60" rx="7" fill="#FFFFFF" stroke="none" opacity=".75"/>
+  <path d="M132 134 L112 170 H126 L118 204 L150 160 H134 L144 134 Z" fill="#FFD12E" stroke-width="6"/>
+  <rect x="94" y="100" width="52" height="24" rx="7" fill="#4B23D9"/>
+  <path d="M86 56 H170 L194 64 V86 L170 94 H92 Q84 94 84 86 V62 Q84 56 90 56 Z" fill="#FF3B7F"/>
+  <path d="M100 66 H150" stroke="#FFFFFF" stroke-width="6" opacity=".7"/>
+  <path d="M206 58 L226 48 M210 75 H236 M206 92 L226 102" stroke-width="8"/>
+</g></g></g></svg>
