@@ -1,4 +1,4 @@
--- cw_act: every in-game move. Changes 2026-11-04b: join approval, bcrypt set_pin, 720px photo limit.
+-- cw_act: every in-game move. Changes 2026-11-04b: join approval, bcrypt set_pin, 720px photo limit (2026-11-04c: 250 KB cap, see 05_guard.sql).
 create or replace function public.cw_act(p_player uuid, p_secret text, p_action text, p_args jsonb default '{}'::jsonb)
 returns jsonb language plpgsql security definer set search_path = public as $function$
 declare me public.cw_players; hh uuid; ch public.cw_chores; o public.cw_players; t public.cw_trades; cl public.cw_challenges; rq public.cw_requests;
@@ -43,7 +43,7 @@ begin
       shield_on = shield_on or p_action = 'shield', double_armed = double_armed or p_action = 'double' where id = me.id;
   elsif p_action = 'done' then
     if ch.owner_id <> me.id or ch.status <> 'claimed' then raise exception 'not_yours'; end if;
-    if length(coalesce(a->>'proof','')) > 400000 then raise exception 'photo_too_big'; end if;
+    if length(coalesce(a->>'proof','')) > 256000 then raise exception 'photo_too_big'; end if;
     if coalesce(a->>'proof','') <> '' and a->>'proof' not like 'data:image/jpeg;base64,%' then raise exception 'photo_too_big'; end if;
     update public.cw_chores set status = 'done', done_at = now(), proof = nullif(a->>'proof','') where id = ch.id;
     update public.cw_trades set status = 'void' where status = 'open' and (give_chore = ch.id or take_chore = ch.id);
