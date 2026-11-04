@@ -1,0 +1,3 @@
+-- one-off data cleanup run 2026-11-04 (execute_sql): removed the QA/test households
+-- 56XTCH (verifier VQA), 2HEYFN, 5U22M7, 6SEWVR and all their players, chores, trades, duels and feed rows.
+-- The founder's private household keeps its data; its join code was rotated and is not stored in this repo.
