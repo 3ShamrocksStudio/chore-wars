@@ -1,5 +1,5 @@
 /* Chore Wars service worker: network first, cached copy only when offline. Scoped to this folder. */
-var CACHE = 'cw-app-2026-11-04c';
+var CACHE = 'cw-app-2026-11-04d';
 self.addEventListener('install', function (e) { self.skipWaiting(); });
 self.addEventListener('activate', function (e) {
   e.waitUntil(caches.keys().then(function (ks) { return Promise.all(ks.filter(function (k) { return k.indexOf('cw-app-') === 0 && k !== CACHE; }).map(function (k) { return caches.delete(k); })); }).then(function () { return self.clients.claim(); }));
