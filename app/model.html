@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="brand/app-icon.svg" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=cw-2026-11-04a">
+<link rel="stylesheet" href="styles.css?v=cw-2026-11-04b">
 <style>
   #app{padding-bottom:40px}
   h1{font-family:var(--display);font-weight:400;color:#fff;text-shadow:0 4px 0 var(--ink);font-size:30px;margin:24px 4px 4px}
@@ -30,7 +30,7 @@
   <div class="panel"><h2><span id="i1"></span>How it earns</h2>
     <ul>
       <li><b>Free to play.</b> Every player, every phone, no family fee.</li>
-      <li><b>Rewarded ads, opt-in only.</b> Watch a short ad, win a power card. Capped at 3 a day per player. Never forced, never mid-game. Today it is a labelled placeholder: no ad SDK, no ad account.</li>
+      <li><b>Rewarded ads, opt-in only.</b> Watch a short ad, win a power card. Capped at 3 a day per player. Never forced, never mid-game. Today the slot is a branded reward moment labelled "Ad": no ad SDK, no ad account yet.</li>
       <li><b>Paid extras per player:</b> avatar skins, a season pass (more card drops, season crown), card packs. Cosmetic or convenience only. Points still come only from parent-approved chores. Prices: TBD.</li>
     </ul>
     <p>Why not a family subscription: one parent decides once and usually says no. Per-player extras let each kid or teen ask for a small item, the way they already do in other games.</p>
@@ -72,6 +72,23 @@
     </ul>
   </div>
 
+  <div class="panel"><h2><span id="i6"></span>Privacy law: Israel</h2>
+    <ul>
+      <li><b>Protection of Privacy Law, 5741-1981, Amendment 13</b> took effect on <b>14 August 2025</b>. It widens what counts as personal data, defines "information of special sensitivity", requires a Data Protection Officer for some controllers, and lets courts award damages of up to NIS 10,000 without proof of harm. The Privacy Protection Authority started enforcing it (DPO grace period ran to 31 Oct 2025).</li>
+      <li><b>What it means for Chore Wars:</b> we keep only a nickname, avatar, badge and game scores. No email, phone, location or account. Proof photos are small (720 px), deleted on approval and auto-deleted after 7 days if never reviewed. Parents approve every new phone before it sees any family data. Join codes and PIN tries are rate-limited; PINs are stored with bcrypt.</li>
+      <li>Before launch: a Hebrew + English privacy notice, a named contact for data requests, and a check whether a DPO is needed at our scale (likely not: no sensitive data, no large-scale monitoring).</li>
+    </ul>
+  </div>
+
+  <div class="panel"><h2><span id="i7"></span>Ads to minors: COPPA, GDPR-K</h2>
+    <ul>
+      <li><b>Contextual or non-personalised ads only.</b> No behavioural targeting, no ad IDs, no cross-app tracking, no retargeting. The ad sees the game, never the child.</li>
+      <li><b>COPPA (US, under 13):</b> a persistent identifier used for targeted ads is personal information and needs verifiable parental consent. The amended COPPA Rule (in force 23 June 2025, compliance by 22 April 2026) also requires separate parental consent before sharing kids' data with third parties for advertising. We avoid this by never doing targeted ads.</li>
+      <li><b>GDPR-K (EU/UK, Article 8):</b> under 13–16 (by country) a parent must consent for data-based services; profiling kids for marketing is discouraged (Recital 38, UK Children's Code). Same answer: no profiling, data minimised, high-privacy defaults.</li>
+      <li>Only ad SDKs certified for Google Play Families / Apple Kids rules, with child-directed flags set on every request.</li>
+    </ul>
+  </div>
+
   <div class="panel"><h2><span id="i5"></span>Needs your eyes</h2>
     <ul>
       <li>Prices for skins, season pass and card packs</li>
@@ -85,12 +102,15 @@
     <a href="https://revenueflex.com/blog/rewarded-video-ads-mobile-game-monetization" rel="noopener">RevenueFlex</a>,
     <a href="https://www.playwire.com/blog/admob-ecpm-benchmarks-what-publishers-should-expect" rel="noopener">Playwire</a>,
     <a href="https://tracker.my.com/blog/paying-user-and-rolling-retention-rate-benchmarks-across-game-genres-a-study" rel="noopener">MyTracker</a>,
-    <a href="https://gamedevreports.substack.com/p/gameanalytics-mobile-gaming-benchmarks" rel="noopener">GameAnalytics via GameDev Reports</a>
+    <a href="https://gamedevreports.substack.com/p/gameanalytics-mobile-gaming-benchmarks" rel="noopener">GameAnalytics via GameDev Reports</a>,
+    <a href="https://www.loc.gov/item/global-legal-monitor/2025-11-17/israel-amendment-to-privacy-protection-law-goes-into-effect/" rel="noopener">Library of Congress: Amendment 13 in effect 14 Aug 2025</a>,
+    <a href="https://www.pearlcohen.com/israel-significant-amendment-to-the-privacy-law-takes-effect/" rel="noopener">Pearl Cohen: Amendment 13 takes effect</a>,
+    <a href="https://www.jonesday.com/en/insights/2025/05/ftc-finalizes-amendments-to-coppa--rule" rel="noopener">Jones Day: FTC finalizes COPPA Rule amendments</a>
   </div>
 </div>
-<script src="icons.js?v=cw-2026-11-04a"></script>
+<script src="icons.js?v=cw-2026-11-04b"></script>
 <script>
-  [['i1', 'pts'], ['i2', 'trophy'], ['i3', 'spark'], ['i4', 'shield'], ['i5', 'lock']].forEach(function (x) { document.getElementById(x[0]).innerHTML = CWIcons.icon(x[1], 30); });
+  [['i1', 'pts'], ['i2', 'trophy'], ['i3', 'spark'], ['i4', 'shield'], ['i6', 'lock'], ['i7', 'ad'], ['i5', 'lock']].forEach(function (x) { document.getElementById(x[0]).innerHTML = CWIcons.icon(x[1], 30); });
 </script>
 </body>
 </html>

@@ -45,6 +45,12 @@
     mute: '<path d="M7 18 H15 L25 9 V39 L15 30 H7 Z" ' + f(P) + '/><path d="M32 18 L42 30 M42 18 L32 30" ' + line + '/>',
     vs: '<path d="M6 8 L42 40" stroke="' + I + '" stroke-width="9" stroke-linecap="round"/><path d="M42 8 L6 40" stroke="' + I + '" stroke-width="9" stroke-linecap="round"/><path d="M6 8 L42 40" stroke="' + S + '" stroke-width="4" stroke-linecap="round"/><path d="M42 8 L6 40" stroke="' + R + '" stroke-width="4" stroke-linecap="round"/>',
     lock: '<path d="M15 21 V15 A9 9 0 0 1 33 15 V21" ' + line + '/><rect x="9" y="20" width="30" height="23" rx="5" ' + f(G) + '/><circle cx="24" cy="31" r="3.5" fill="' + Z + '"/>',
+    /* badges (picked at join) */
+    bolt: '<circle cx="24" cy="24" r="20" ' + f(G) + '/><path d="M27 8 L14 27 H23 L20 40 L34 20 H25 Z" ' + f(Z) + '/>',
+    star: '<path d="M24 4 L30 17 L44 18 L33 28 L37 43 L24 35 L11 43 L15 28 L4 18 L18 17 Z" ' + f(Z) + '/><circle cx="24" cy="25" r="4" ' + f(R) + '/>',
+    gem: '<path d="M8 18 L16 7 H32 L40 18 L24 43 Z" ' + f(S) + '/><path d="M8 18 H40 M16 7 L20 18 L24 43 L28 18 L32 7" ' + line + '/>',
+    rocket: '<path d="M24 4 C33 11 34 24 30 34 H18 C14 24 15 11 24 4 Z" ' + f(W) + '/><circle cx="24" cy="18" r="4" ' + f(S) + '/><path d="M18 26 L10 34 L18 34 Z M30 26 L38 34 L30 34 Z" ' + f(R) + '/><path d="M20 35 L24 44 L28 35 Z" ' + f(Z) + '/>',
+    ghost: '<path d="M10 42 V22 C10 12 16 6 24 6 C32 6 38 12 38 22 V42 L33 38 L29 42 L24 38 L19 42 L15 38 Z" ' + f(W) + '/><circle cx="19" cy="21" r="3" fill="' + I + '"/><circle cx="29" cy="21" r="3" fill="' + I + '"/><path d="M20 29 Q24 32 28 29" ' + line + '/>',
     /* ranks */
     rank1: '<path d="' + hex + '" ' + f(S) + '/>' + chev(29),
     rank2: '<path d="' + hex + '" ' + f(R) + '/>' + chev(24) + chev(33),
