@@ -133,6 +133,21 @@
     save(key, f.id); var p = d.players.find(function (x) { return x.id === f.actor; });
     if (p) setTimeout(function () { ceremony(p, 'Won last week'); }, 400);
   }
+  /* victory screen when the referee approves my chore: confetti, points, and a rank-up if XP crossed a rank */
+  function victory(c, gain, xpOld, xpNew) {
+    var old = document.querySelector('.victory'); if (old) old.remove();
+    var r0 = rankOf(xpOld || 0), r1 = rankOf(xpNew || 0), up = xpOld != null && r1.n !== r0.n;
+    var el = document.createElement('div'); el.className = 'victory'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Chore approved');
+    var h = '<div class="rays"></div><div class="stage"><div class="vic-art">' + ic((c && c.icon) || 'check', 120) + '</div><div class="ttl">Approved!</div>' +
+      '<div class="vic-gain">+' + gain + ic('pts', 56) + '</div>' +
+      (up ? '<div class="rankup"><span class="r0">' + ic(r0.ic, 52) + '</span><span class="arr">' + ic('spark', 30) + '</span><span class="r1">' + ic(r1.ic, 72) + '</span><b>Rank up: ' + r1.n + '</b></div>' : '') +
+      '<div class="sub">Tap to keep going</div></div>';
+    var cols = ['#FFD12E', '#22D3EE', '#FF3B7F', '#fff'];
+    for (var i = 0; i < 40; i++) { var a = Math.random() * Math.PI * 2, d = 150 + Math.random() * 230; h += '<i class="confetti" style="animation-delay:.25s;background:' + cols[i % 4] + ';--x:' + Math.cos(a) * d + 'px;--y:' + Math.sin(a) * d + 'px;--r:' + (Math.random() * 720) + 'deg"></i>'; }
+    el.innerHTML = h; document.body.appendChild(el); fx('win'); if (up) setTimeout(function () { fx('crown'); }, 900);
+    var close = function () { if (!el.parentNode) return; el.classList.add('out'); setTimeout(function () { el.remove(); }, 300); };
+    el.addEventListener('click', close); setTimeout(close, up ? 4200 : 3000);
+  }
   function flash() { var el = document.createElement('div'); el.className = 'fx'; el.innerHTML = '<div class="flash"></div>'; document.body.appendChild(el); app.classList.add('shake'); setTimeout(function () { el.remove(); app.classList.remove('shake'); }, 650); }
 
   /* ---------- server ---------- */
@@ -182,7 +197,7 @@
       var c = f.info && f.info.chore ? (d.chores.find(function (x) { return x.id === f.info.chore; }) || {}) : {};
       if (f.kind === 'steal' && f.target === d.me) { flash(); fx('steal'); toast(av(a.avatar, 32) + esc(a.name) + ' stole ' + esc(c.title || 'a chore'), 'bad'); }
       else if (f.kind === 'blocked' && f.actor === d.me) { fx('card'); toast(ic('shield', 28) + 'Shield blocked a steal!', 'good'); }
-      else if (f.kind === 'approved' && f.actor === d.me) { fx('win'); burst(f.info.gain || 0); if (f.info.card) setTimeout(function () { toast(ic(f.info.card, 28) + 'New card!', 'good'); }, 900); }
+      else if (f.kind === 'approved' && f.actor === d.me) { victory(c, f.info.gain || 0, (oldD.players.find(function (p) { return p.id === d.me; }) || {}).xp, (d.players.find(function (p) { return p.id === d.me; }) || {}).xp); if (f.info.card) setTimeout(function () { toast(ic(f.info.card, 28) + 'New card!', 'good'); }, 1800); }
       else if (f.kind === 'rejected' && f.actor === d.me) { fx('bad'); toast(ic('cross', 28) + esc(c.title || 'Chore') + ': redo it', 'bad'); }
       else if (f.kind === 'offer' && f.target === d.me) { fx('card'); toast(ic('swap', 28) + esc(a.name) + ' wants a swap'); }
       else if (f.kind === 'counter' && f.target === d.me) { fx('card'); toast(ic('swap', 28) + esc(a.name) + ' countered'); }
@@ -220,7 +235,8 @@
     var right = m.role === 'parent'
       ? '<span class="chip">' + ic('check', 24) + S.d.chores.filter(function (c) { return c.status === 'done'; }).length + '</span>'
       : '<span class="chip streak' + (m.streak > 0 ? ' hot' : '') + '" title="Streak">' + ic('flame', 24) + m.streak + '</span><span class="chip" title="Cards">' + ic('cards', 24) + cardCount(m) + '</span>';
-    return '<header class="top"><button class="me" data-act="profile" aria-label="Profile">' + avb(m, 52) +
+    var flame = m.role === 'player' && m.streak > 0 ? '<span class="avflame" title="' + m.streak + '-day streak">' + ic('flame', 26) + '<b>' + m.streak + '</b></span>' : '';
+    return '<header class="top"><button class="me" data-act="profile" aria-label="Profile"><span class="mewrap">' + avb(m, 52) + flame + '</span>' +
       '<div style="min-width:0"><div class="me-name">' + esc(m.name) + '</div>' +
       (m.role === 'parent' ? '<div style="color:#fff;opacity:.8;font-size:13px">Referee</div>' :
         '<div class="tier">' + ic(r.ic, 22) + '<span>' + r.n + '</span><div class="xpbar"><i style="width:' + pct + '%"></i></div></div>') +
@@ -320,6 +336,15 @@
     }
     return h + '</div></div>';
   }
+  /* who to beat: the player just above me this week, or the one right behind me if I lead */
+  function rivalCall() {
+    var d = S.d, ps = d.players.filter(function (p) { return p.role === 'player'; }).sort(function (a, b) { return b.pts - a.pts || b.xp - a.xp; });
+    var i = ps.findIndex(function (p) { return p.id === d.me; }); if (i < 0 || ps.length < 2) return '';
+    var m = ps[i], o, txt, cls;
+    if (i > 0) { o = ps[i - 1]; var gap = o.pts - m.pts; txt = gap > 0 ? esc(o.name) + ' is ' + gap + ' pts ahead!' : 'Tied with ' + esc(o.name) + '!'; cls = gap > 0 ? 'behind' : 'tied'; }
+    else { o = ps[1]; var lead = m.pts - o.pts; txt = lead > 0 ? 'You lead ' + esc(o.name) + ' by ' + lead + '!' : 'Tied with ' + esc(o.name) + '!'; cls = lead > 0 ? 'ahead' : 'tied'; }
+    return '<div class="rival ' + cls + '">' + avb(o, 40) + '<span class="rt">' + txt + '</span>' + ic(cls === 'ahead' ? 'crown' : 'trophy', 30) + '</div>';
+  }
   function chores() {
     var d = S.d, order = { open: 1, claimed: 2, done: 3, approved: 4 };
     var list = d.chores.slice().sort(function (a, b) {
@@ -327,7 +352,7 @@
       return (am - bm) || (order[a.status] - order[b.status]) || (b.bounty - a.bounty) || ((b.pts + b.bounty) - (a.pts + a.bounty));
     });
     var open = d.chores.filter(function (c) { return c.status === 'open'; }).length;
-    var h = '<div class="h">' + ic('broom', 30) + 'Chores' + (!isParent() && open ? '<span class="hint">' + open + ' up for grabs</span>' : '') + '</div><div class="grid">' + list.map(choreTile).join('') + '</div>';
+    var h = (isParent() ? '' : rivalCall()) + '<div class="h">' + ic('broom', 30) + 'Chores' + (!isParent() && open ? '<span class="hint">' + open + ' up for grabs</span>' : '') + '</div><div class="grid">' + list.map(choreTile).join('') + '</div>';
     if (isParent()) h += '<button class="btn big" data-act="add_sheet" style="margin-top:20px">' + ic('plus', 30) + 'Add chore</button>';
     return h;
   }
@@ -790,5 +815,5 @@
   else if (S.pend) startWaiting();
   else if (S.joinCode) findHouse(S.joinCode);
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(function () { /* optional */ });
-  window.CW_DEBUG = { state: function () { return S.d; }, crown: function () { var ps = S.d.players.filter(function (p) { return p.role === 'player'; }).sort(function (a, b) { return b.pts - a.pts; }); ceremony(ps[0], 'Champion of the week'); } };
+  window.CW_DEBUG = { state: function () { return S.d; }, victory: function (a, b) { victory({ icon: 'dishes' }, b - a, a, b); }, crown: function () { var ps = S.d.players.filter(function (p) { return p.role === 'player'; }).sort(function (a, b) { return b.pts - a.pts; }); ceremony(ps[0], 'Champion of the week'); } };
 })();
