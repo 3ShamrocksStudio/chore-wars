@@ -6,3 +6,4 @@ node_modules/
 *.tmp
 Thumbs.db
 .claude/
+tools/__pycache__/
