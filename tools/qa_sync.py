@@ -2,10 +2,11 @@
 Proves realtime sync, parent-approved joins, stranger isolation, PIN lockout; captures every main screen.
 Usage: python3 tools/qa_sync.py BASE_URL OUT_DIR
 """
-import sys, os, time, json, base64, struct, zlib
+import sys, os, time, json, base64, struct, zlib, random, urllib.request, urllib.error
 from playwright.sync_api import sync_playwright
 
 BASE, OUT = sys.argv[1].rstrip('/') + '/', sys.argv[2]
+ATTACK = '--attack' in sys.argv   # spends the shared code budget: closes code checks for everyone for ~10 min
 os.makedirs(OUT, exist_ok=True)
 errors, shots = [], []
 class Results(list):
@@ -62,9 +63,18 @@ with sync_playwright() as p:
     tap(A, '#onbNext'); A.wait_for_timeout(500); tap(A, '#onbNext'); A.wait_for_timeout(500); tap(A, '#onbNext')
     A.wait_for_selector('[data-act=go_create]'); shot(A, '03-start')
     tap(A, '[data-act=go_create]')
-    A.fill('#f_house', 'QA House'); A.fill('#f_name', 'Captain'); A.fill('#f_pin', '4321'); shot(A, '04-create')
+    A.fill('#f_house', 'QA House'); A.fill('#f_name', 'Captain')
+    A.click('#f_pin'); A.keyboard.type('432', delay=60); A.wait_for_timeout(80); A.screenshot(path=os.path.join(OUT, '04a-pin-masked-peek.png'))
+    pin_ui = A.evaluate("[...document.querySelectorAll('.pindots i')].map(i=>i.className+':'+i.textContent)")
+    results.append((f'PIN masked, only last digit peeks {pin_ui}', 'PASS' if pin_ui == ['on:', 'on:', 'on peek:2', ':'] and '432' not in A.evaluate("document.body.innerText") else 'FAIL', 0))
+    A.keyboard.type('1'); A.wait_for_timeout(900)
+    pin_ui = A.evaluate("[...document.querySelectorAll('.pindots i')].map(i=>i.className+':'+i.textContent)")
+    results.append((f'PIN peek clears after 0.7 s {pin_ui}', 'PASS' if pin_ui == ['on:'] * 4 else 'FAIL', 0))
+    shot(A, '04-create')
     tap(A, '[data-act=create]'); A.wait_for_selector('.bigcode', timeout=15000)
-    code = A.inner_text('.bigcode').strip(); shot(A, '05-parent-invite-qr')
+    code = A.get_attribute('.bigcode', 'aria-label').strip(); shot(A, '05-parent-invite-qr')
+    import re as _re
+    results.append((f'new family code is 8 chars, no 0/O/1/I (len {len(code)})', 'PASS' if _re.fullmatch(r'[A-HJ-NP-Z2-9]{8}', code) else 'FAIL', 0))
 
     # Kids ask to join on their own phones; the parent approves each one
     def ask(pg, name, avatar=None, badge=None):
@@ -133,10 +143,30 @@ with sync_playwright() as p:
     A.wait_for_timeout(400); shot(A, '12-parent-verify-photo')
     sz = A.evaluate("CW_DEBUG.state().chores.find(c=>c.status==='done').proof.length")
     dims = A.evaluate("(()=>{const i=document.querySelector('.ver img.ph');return [i.naturalWidth,i.naturalHeight]})()")
-    results.append((f'proof photo <=720px JPEG ({dims[0]}x{dims[1]}, {sz} chars)', 'PASS' if max(dims) <= 720 and sz < 400000 else 'FAIL', 0))
+    results.append((f'proof photo <=720px JPEG ({dims[0]}x{dims[1]}, {sz} chars)', 'PASS' if max(dims) <= 720 and sz <= 256000 else 'FAIL', 0))
+    sess = json.loads(C.evaluate("localStorage.cw_session")); mine = C.evaluate("CW_DEBUG.state().chores.find(c=>c.owner===CW_DEBUG.state().me&&c.status==='claimed').id")
+    try:
+        rq = urllib.request.Request(C.evaluate('CW_CONFIG.url') + '/rest/v1/rpc/cw_act', method='POST', headers={'apikey': C.evaluate('CW_CONFIG.key'), 'Content-Type': 'application/json'},
+            data=json.dumps({'p_player': sess['player'], 'p_secret': sess['secret'], 'p_action': 'done', 'p_args': {'chore': mine, 'proof': 'data:image/jpeg;base64,' + 'A' * 260000}}).encode())
+        urllib.request.urlopen(rq); big = 'accepted'
+    except urllib.error.HTTPError as e: big = json.loads(e.read()).get('message')
+    results.append((f'server refuses a 260 KB photo ({big})', 'PASS' if big == 'photo_too_big' else 'FAIL', 0))
     t0 = time.time(); tap(A, '[data-act=approve]')
     wait_sync('Parent approves -> Zap gets points', B, "CW_DEBUG.state().players.find(p=>p.id===CW_DEBUG.state().me).pts>0", t0)
-    B.wait_for_timeout(200); shot(B, '13-points-burst')
+    B.wait_for_selector('.victory', timeout=5000); B.wait_for_timeout(1500); B.screenshot(path=os.path.join(OUT, '13-victory-approved.png'))
+    vt = B.evaluate("document.querySelector('.victory').innerText")
+    results.append((f'victory screen with confetti on approval: {vt.splitlines()[:2]}', 'PASS' if 'Approved' in vt and B.evaluate("document.querySelectorAll('.victory .confetti').length") >= 30 else 'FAIL', 0))
+    tap(B, '.victory'); B.wait_for_timeout(500)
+    B.evaluate("CW_DEBUG.victory(90, 115)"); B.wait_for_timeout(2300); B.screenshot(path=os.path.join(OUT, '13a-victory-rank-up.png'))
+    vt = B.evaluate("document.querySelector('.victory').innerText")
+    results.append((f'rank-up animation when XP crosses a rank ({vt.splitlines()[-2:]})', 'PASS' if 'Rank up: Brawler' in vt else 'FAIL', 0))
+    tap(B, '.victory'); B.wait_for_timeout(500)
+    tap(C, '[data-act=tab][data-id=chores]'); C.wait_for_timeout(800)
+    rv = C.evaluate("(document.querySelector('.rival')||{}).innerText||''")
+    results.append((f'rival callout on Chores: {rv!r}', 'PASS' if 'Zap is' in rv and 'ahead' in rv else 'FAIL', 0))
+    shot(C, '13b-rival-callout')
+    fl = B.evaluate("(document.querySelector('.avflame')||{}).innerText||''")
+    results.append((f'streak flame on avatar ({fl})', 'PASS' if fl.strip() == '1' else 'FAIL', 0))
     # 6. bounty
     tap(A, '[data-act=tab][data-id=chores]'); t0 = time.time(); tap(A, f'[data-act=bounty][data-id="{ch_bed}"]')
     wait_sync('Parent bounty -> Nova sees bounty', C, f"CW_DEBUG.state().chores.find(c=>c.id==='{ch_bed}').bounty===10", t0)
@@ -144,7 +174,11 @@ with sync_playwright() as p:
     tap(B, '[data-act=tab][data-id=arena]'); B.wait_for_timeout(1600); shot(B, '15-arena-leaderboard')
     tap(C, '[data-act=tab][data-id=chores]'); shot(C, '16-chores-bounty')
     tap(B, '[data-act=tab][data-id=cards]'); shot(B, '17-cards-shop')
+    shop = B.evaluate("document.querySelector('main').innerText")
+    results.append(('shop: no internal tag, no TBD, Coming soon', 'PASS' if 'NEEDS YOUR EYES' not in shop.upper() and 'TBD' not in shop.upper() and shop.upper().count('COMING SOON') == 3 else 'FAIL', 0))
     tap(B, '[data-act=ad]'); B.wait_for_selector('#adn'); B.wait_for_timeout(1500); shot(B, '18-ad-countdown')
+    adok = B.evaluate("!!document.querySelector('.admoment .adtag') && document.querySelector('.admoment .adtag').innerText.trim()==='Ad' && !!document.querySelector('.flipcard.spin') && !!document.querySelector('.adrow .ring') && document.getElementById('adname').innerText.length>0")
+    results.append(('ad countdown: Ad tag, spinning card, name, ring', 'PASS' if adok else 'FAIL', 0))
     B.wait_for_timeout(4300); shot(B, '19-ad-card-reveal'); B.wait_for_timeout(2500)
     tap(B, '[data-act=profile]'); B.wait_for_selector('#sheet'); shot(B, '20-profile-rank')
     tap(A, '[data-act=tab][data-id=arena]'); shot(A, '21-parent-arena')
@@ -169,7 +203,22 @@ with sync_playwright() as p:
     right = P2.evaluate(PIN_JS, '4321')
     ok_lock = pin_res[:4] == ['bad_pin'] * 4 and pin_res[4:] == ['locked', 'locked'] and right == 'locked'
     results.append((f'6 wrong PINs -> lockout {pin_res}, then right PIN={right}', 'PASS' if ok_lock else 'FAIL', 0))
-    P2.fill('#f_pin', '9999'); tap(P2, '[data-act=parent_in]'); P2.wait_for_timeout(1200); shot(P2, '24-pin-locked')
+    P2.fill('#f_pin', '9999'); tap(P2, '[data-act=parent_in]'); P2.wait_for_selector('.toast', timeout=5000); P2.wait_for_timeout(300); shot(P2, '24-pin-locked')
+    tb = P2.evaluate("document.querySelector('.toast').getBoundingClientRect().top"); hb = P2.evaluate("document.querySelector('.hero-logo').getBoundingClientRect().bottom")
+    results.append((f'error toast below the header (toast top {round(tb)} > logo bottom {round(hb)})', 'PASS' if tb > hb else 'FAIL', 0))
+
+    if ATTACK:
+        # 40 wrong codes, a brand-new device ID every time: the shared budget must close code checks
+        def rpc(fn, args):
+            rq = urllib.request.Request(P2.evaluate('CW_CONFIG.url') + '/rest/v1/rpc/' + fn, data=json.dumps(args).encode(), method='POST',
+                                        headers={'apikey': P2.evaluate('CW_CONFIG.key'), 'Content-Type': 'application/json'})
+            return json.loads(urllib.request.urlopen(rq).read())
+        AL = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+        out = [rpc('cw_seats', {'p_code': ''.join(random.choice(AL) for _ in range(8)), 'p_device': 'qa-rotate-%016x' % random.getrandbits(64)}).get('err') for _ in range(40)]
+        real = rpc('cw_seats', {'p_code': code, 'p_device': 'qa-rotate-%016x' % random.getrandbits(64)})
+        first_busy = out.index('busy') + 1 if 'busy' in out else None
+        results.append((f'40 bad codes, new device ID each: {dict((k, out.count(k)) for k in set(out))}, global limit from try {first_busy}, real code then -> {real.get("err") or "ok"}',
+                        'PASS' if first_busy and first_busy <= 31 and all(o in ('bad_code', 'locked', 'busy') for o in out) and real.get('err') == 'busy' else 'FAIL', 0))
 
     A.wait_for_timeout(300)
     br.close()
