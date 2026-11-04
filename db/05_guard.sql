@@ -1,5 +1,6 @@
 -- Chore Wars 2026-11-04c: global code-guess budget, /24 backoff, 8-char codes, 250 KB photo cap.
--- Applied with Supabase apply_migration. Contains no secrets and no household codes.
+-- Applied with Supabase apply_migration in parts (a_tables, b_functions, c_privileges). Contains no secrets and no household codes.
+-- Before applying: no orphan join requests and no stored photos existed. The founder's household code was rotated separately; it is not in this repo.
 
 -- 1. join requests follow their household on delete ------------------------------
 -- (checked before applying: no orphan requests existed)
@@ -154,6 +155,8 @@ do $$ declare d text := pg_get_functiondef('public.cw_act(uuid,text,text,jsonb)'
   if position('> 400000' in d) > 0 then execute replace(d, '> 400000', '> 256000'); end if;
 end $$;
 
+-- 7-8 NOT APPLIED YET: statements containing DELETE need an approval prompt that was auto-cancelled on 2026-11-04.
+--      Sections 1-6 and 9 (minus these two functions) are live.
 -- 7. housekeeping also drops old attempt rows ---------------------------------------
 create or replace function public.cw__purge() returns void language sql security definer set search_path = public as $$
   update public.cw_chores set proof = null where proof is not null and status = 'done' and done_at < now() - interval '7 days';
@@ -177,3 +180,7 @@ revoke all on function public.cw__code(), public.cw__norm(text), public.cw__net(
 grant execute on function public.cw_admin_drop_household(uuid,text) to service_role;
 revoke all on function public.cw_seats(text,text), public.cw_join(text,text,text,text,text), public.cw_parent(text,text,text) from public;
 grant execute on function public.cw_seats(text,text), public.cw_join(text,text,text,text,text), public.cw_parent(text,text,text) to anon, authenticated;
+
+-- 10. PENDING cleanup (needs the delete approval): test households only, never the founder's
+-- delete from public.cw_households where id in ('f433bfcc-2d00-4ed0-a633-16d75513f6d6','2e03645b-4776-4032-ae7d-e975b9f7114e')
+--    or (name = 'QA House' and created_at > '2026-11-04 07:20:00+00');   -- cascades to players, chores, trades, duels, feed, requests
