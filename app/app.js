@@ -14,7 +14,7 @@
     house_full: 'Family is full (8)', not_enough: 'Not enough points', trade_stale: 'Trade expired', ads_maxed: 'Back tomorrow',
     bounty_max: 'Bounty maxed', need_name: 'Add a name', photo_too_big: 'Photo too big', not_allowed: 'Signed out', no_trade: 'Trade gone',
     no_chal: 'Challenge gone', bad_target: 'Pick a rival', players_only: 'Players only', parent_only: 'Parent only',
-    locked: 'Too many tries. Wait 15 min', too_many: 'Too many waiting. Try later', no_req: 'Request gone',
+    locked: 'Too many tries. Wait 15 min', busy: 'Too many tries. Wait 5 min', too_many: 'Too many waiting. Try later', no_req: 'Request gone',
     update_app: 'Reload the app', demo: 'Demo only. Start a family!'
   };
   /* rarity by total points: drives tile size, colour and glow */
@@ -398,7 +398,7 @@
   }
   function invite() {
     var d = S.d, url = location.origin + location.pathname + '?join=' + d.house.code;
-    var h = reqBlock() + '<div class="h">' + ic('qr', 30) + 'Invite</div><div class="panel"><div class="qr">' + qrSvg(url) + '</div><div class="bigcode">' + esc(d.house.code) + '</div>' +
+    var h = reqBlock() + '<div class="h">' + ic('qr', 30) + 'Invite</div><div class="panel"><div class="qr">' + qrSvg(url) + '</div><div class="bigcode" aria-label="' + esc(d.house.code) + '">' + esc(d.house.code.slice(0, 4)) + '<span class="gap"></span>' + esc(d.house.code.slice(4)) + '</div>' +
       '<div style="text-align:center;opacity:.7;font-size:15px">Scan on their phone. You approve.</div>' +
       '<div style="display:flex;justify-content:center;margin-top:12px"><button class="btn cyan" data-act="share">Share link</button></div></div>';
     h += '<div class="h">' + av('fox', 30) + 'Players</div><div class="panel">';
@@ -467,7 +467,7 @@
     }
     if (!dr.code) {
       return '<div class="hero-logo" style="padding-top:20px"><img src="brand/mark.svg" alt="" style="width:110px"></div><div class="panel stack">' +
-        '<label class="field"><span>Family code</span><input id="f_code" class="code-in" maxlength="6" autocomplete="off" autocapitalize="characters" value="' + esc(S.joinCode || '') + '"></label>' +
+        '<label class="field"><span>Family code</span><input id="f_code" class="code-in" maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false" value="' + esc(S.joinCode || '') + '"></label>' +
         '<button class="btn big" data-act="find">Join</button></div><button class="btn ghost" data-act="parent_mode">I\'m the parent</button><button class="btn ghost" data-act="home">Back</button>';
     }
     dr.av = dr.av || 'fox'; dr.bd = dr.bd || 'bolt';
@@ -527,7 +527,7 @@
       '<button class="btn ghost" style="color:var(--ink)" data-sheet="noproof">No photo</button></div>');
     s.querySelector('#proofIn').addEventListener('change', function (e) {
       var file = e.target.files[0]; if (!file) return;
-      shrink(file).then(function (url) { closeSheet(); return act('done', { chore: id, proof: url }); }).then(function () { fx('grab'); toast(ic('lock', 28) + 'Sent to the referee', 'good'); }).catch(function () { /* toast shown */ });
+      shrink(file).then(function (url) { closeSheet(); return act('done', { chore: id, proof: url }); }).then(function () { fx('grab'); toast(ic('lock', 28) + 'Sent to the referee', 'good'); }).catch(function (er) { if (er && er.local) fail(er); /* server errors already shown */ });
     });
     s.querySelector('[data-sheet="noproof"]').addEventListener('click', function () { closeSheet(); act('done', { chore: id }).then(function () { fx('grab'); toast(ic('lock', 28) + 'Sent to the referee', 'good'); }).catch(function () { /* shown */ }); });
   }
@@ -539,9 +539,14 @@
         var k = Math.min(1, 720 / Math.max(img.width, img.height)), cv = document.createElement('canvas');
         cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
         cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height); URL.revokeObjectURL(u);
-        var out = cv.toDataURL('image/jpeg', 0.7);
-        if (out.length > 300000) out = cv.toDataURL('image/jpeg', 0.5);
-        res(out);
+        /* the server refuses anything over 250 KB: step quality down, then size, until it fits */
+        var out = '', qs = [0.7, 0.55, 0.4];
+        for (var tries = 0; tries < 4; tries++) {
+          for (var j = 0; j < qs.length; j++) { out = cv.toDataURL('image/jpeg', qs[j]); if (out.length <= 240000) return res(out); }
+          var c2 = document.createElement('canvas'); c2.width = Math.round(cv.width * 0.75); c2.height = Math.round(cv.height * 0.75);
+          c2.getContext('2d').drawImage(cv, 0, 0, c2.width, c2.height); cv = c2;
+        }
+        var er = new Error('photo_too_big'); er.local = true; rej(er);
       };
       img.onerror = rej; img.src = u;
     });
@@ -688,7 +693,7 @@
         document.querySelectorAll('.bdpick button').forEach(function (x) { x.classList.toggle('on', x.dataset.id === id); }); fx('card'); break;
       case 'parent_mode': S.draft.parent = true; S.joinCode = v('#f_code').toUpperCase() || S.joinCode; render(); break;
       case 'parent_in': {
-        var pc = v('#f_code').toUpperCase(), pp = v('#f_pin');
+        var pc = v('#f_code').toUpperCase().replace(/[^A-Z0-9]/g, ''), pp = v('#f_pin');
         if (!/^\d{4}$/.test(pp)) { toast(ic('lock', 28) + 'PIN: 4 digits', 'bad'); return; }
         rpcj('cw_parent', { p_code: pc, p_pin: pp, p_device: DEV }).then(function (r) { fx('win'); return startSession(r); }).catch(fail);
         break;
@@ -753,8 +758,8 @@
     }
   });
   function findHouse(code) {
-    code = (code || '').toUpperCase();
-    if (code.length !== 6) { toast(ic('cross', 28) + 'Code is 6 letters', 'bad'); return; }
+    code = (code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (code.length !== 8) { toast(ic('cross', 28) + 'Code is 8 characters', 'bad'); return; }
     rpcj('cw_seats', { p_code: code, p_device: DEV }).then(function (r) {
       S.draft.code = r.code; S.view = 'join'; fx('grab'); render();
     }).catch(fail);
@@ -762,7 +767,7 @@
 
   /* ---------- boot ---------- */
   var q = new URLSearchParams(location.search);
-  if (q.get('join')) { S.joinCode = q.get('join').toUpperCase().slice(0, 6); S.view = 'join'; save('cw_onb', true); }
+  if (q.get('join')) { S.joinCode = q.get('join').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8); S.view = 'join'; save('cw_onb', true); }
   if (q.get('demo') !== null && !S.sess) { S.demo = true; S.d = demoState(); S.tab = 'chores'; S.seenFeed = 3; }
   render();
   if (S.sess) { connect(); refresh(); }

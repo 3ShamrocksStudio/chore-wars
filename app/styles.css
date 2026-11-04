@@ -161,14 +161,15 @@ nav.tabs .badge{position:absolute;top:2px;right:calc(50% - 26px);min-width:22px;
 .field{display:flex;flex-direction:column;gap:6px}
 .field span{font-size:15px;color:var(--ink);opacity:.75;padding-left:4px}
 .field input{height:56px;border-radius:16px;border:3px solid var(--ink);padding:0 16px;font-size:20px;font-weight:800;background:#fff;color:var(--ink);width:100%}
-.code-in{font-family:var(--display)!important;letter-spacing:.3em;text-align:center;text-transform:uppercase;font-size:28px!important}
+.code-in{font-family:var(--display)!important;letter-spacing:.16em;text-align:center;text-transform:uppercase;font-size:28px!important}
 .avpick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .avpick button{border:3px solid transparent;border-radius:18px;padding:4px;display:grid;place-items:center;background:#fff}
 .avpick button.on{border-color:var(--ink);background:var(--zap);box-shadow:0 4px 0 var(--ink)}
 .seats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .seat{background:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;box-shadow:0 4px 0 var(--ink);font-size:15px}
 .seat[disabled]{opacity:.4;box-shadow:none}
-.bigcode{font-family:var(--display);font-size:44px;letter-spacing:.12em;text-align:center;color:var(--ink)}
+.bigcode{font-family:var(--display);font-size:34px;letter-spacing:.1em;text-align:center;color:var(--ink);white-space:nowrap}
+.bigcode .gap{display:inline-block;width:.45em}
 .qr{display:grid;place-items:center;padding:8px}
 .qr svg{width:220px;height:220px;border-radius:12px;background:#fff}
 
