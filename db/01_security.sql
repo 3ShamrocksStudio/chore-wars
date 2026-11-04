@@ -184,7 +184,8 @@ create or replace function public.cw_join(p_code text, p_name text, p_avatar tex
 returns jsonb language plpgsql security definer set search_path = public, extensions as $function$
 declare h public.cw_households; ks text[] := public.cw__keys(p_device); sec text := encode(extensions.gen_random_bytes(24),'hex'); rid uuid;
 begin
-  if public.cw__locked('code', ks) or public.cw__locked('req', ks) then return jsonb_build_object('err','locked'); end if;
+  -- 5 bad codes per 15 min; 8 join requests per 15 min (a whole family on one home Wi-Fi fits)
+  if public.cw__locked('code', ks) or public.cw__locked('req', ks, 8) then return jsonb_build_object('err','locked'); end if;
   select * into h from public.cw_households where code = upper(trim(coalesce(p_code,'')));
   if h.id is null then perform public.cw__count('code', ks); return jsonb_build_object('err','bad_code'); end if;
   if coalesce(trim(p_name),'') = '' then return jsonb_build_object('err','need_name'); end if;
