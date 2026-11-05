@@ -44,49 +44,17 @@
   function pts(n, size) { return '<span class="num" style="display:inline-flex;align-items:center;gap:1px">' + ic('pts', size || 22) + n + '</span>'; }
 
   /* ---------- sound + haptics ----------
-     Web Audio synth only (no samples). Audio and vibration start only after the player has tapped. */
-  var ctx = null, noiseBuf = null;
-  function tapped() { return navigator.userActivation ? navigator.userActivation.hasBeenActive : !!S.touched; }
-  document.addEventListener('pointerdown', function () { S.touched = true; }, { capture: true, passive: true });
-  function ac() {
-    if (!S.sound || !tapped()) return null;
-    try {
-      ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
-      if (ctx.state === 'suspended') ctx.resume();
-      if (!noiseBuf) { noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 0.4, ctx.sampleRate); var ch = noiseBuf.getChannelData(0); for (var i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1; }
-      return ctx;
-    } catch (e) { return null; }
-  }
-  /* one voice: [startHz, endHz, dur, type, delay, vol] */
-  function voice(c, v) {
-    var t = c.currentTime + (v[4] || 0), o = c.createOscillator(), g = c.createGain();
-    o.type = v[3] || 'square'; o.frequency.setValueAtTime(v[0], t); o.frequency.exponentialRampToValueAtTime(Math.max(30, v[1]), t + v[2]);
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v[5] || 0.14, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + v[2]);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + v[2] + 0.03);
-  }
-  /* noise hit: [dur, filterHz, delay, vol] */
-  function hit(c, n) {
-    var t = c.currentTime + (n[2] || 0), src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
-    src.buffer = noiseBuf; f.type = 'bandpass'; f.frequency.value = n[1]; f.Q.value = 0.8;
-    g.gain.setValueAtTime(n[3] || 0.25, t); g.gain.exponentialRampToValueAtTime(0.0001, t + n[0]);
-    src.connect(f); f.connect(g); g.connect(c.destination); src.start(t); src.stop(t + n[0] + 0.02);
-  }
-  var SFX = {
-    tap: { v: [[900, 600, 0.05, 'triangle']] },
-    grab: { v: [[300, 900, 0.12, 'square'], [900, 1400, 0.1, 'triangle', 0.1]], n: [[0.06, 3000, 0, 0.18]] },
-    win: { v: [[523, 523, 0.1, 'square'], [659, 659, 0.1, 'square', 0.09], [784, 784, 0.1, 'square', 0.18], [1046, 1568, 0.35, 'triangle', 0.27]], n: [[0.3, 6000, 0.27, 0.12]] },
-    steal: { v: [[700, 120, 0.35, 'sawtooth', 0, 0.12]], n: [[0.25, 900, 0, 0.3]] },
-    card: { v: [[1200, 1800, 0.08, 'triangle', 0.05]], n: [[0.12, 2500, 0, 0.22]] },
-    bad: { v: [[200, 90, 0.28, 'sawtooth', 0, 0.12]] },
-    tick: { v: [[1500, 1500, 0.04, 'square', 0, 0.08]] },
-    crown: { v: [[392, 392, 0.14, 'square'], [523, 523, 0.14, 'square', 0.14], [659, 659, 0.14, 'square', 0.28], [784, 784, 0.5, 'square', 0.42], [1568, 2093, 0.5, 'triangle', 0.42, 0.08]], n: [[0.5, 7000, 0.42, 0.14], [0.2, 200, 0, 0.35]] }
-  };
-  function tone(kind) {
-    var c = ac(); if (!c) return; var x = SFX[kind] || SFX.tap;
-    try { (x.v || []).forEach(function (v) { voice(c, v); }); (x.n || []).forEach(function (n) { hit(c, n); }); } catch (e) { /* no audio */ }
-  }
-  function buzz(p) { if (!tapped()) return; try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) { /* none */ } }
-  function fx(kind) { tone(kind); buzz(kind === 'steal' ? [60, 40, 120] : kind === 'win' || kind === 'crown' ? [30, 30, 30, 30, 80] : 15); }
+     Original studio score and SFX (audio/, rendered offline). One AudioContext, created only after the first tap.
+     Sound only on the moments that matter; music is off until the player turns it on. Haptics only on wins, rank-up and errors. */
+  S.music = load('cw_music') === true;
+  var AUD = window.S3Audio ? S3Audio.create({
+    base: 'audio/', name: 'cr', lead: 0.1, loopLen: 72, musicGain: 0.5, sfxGain: 0.7, sfxDefault: S.sound, musicDefault: S.music,
+    sprite: {'click': [0.1, 0.0468], 'reward': [0.3968, 0.4479], 'approve': [1.0947, 0.4165], 'win': [1.7613, 0.7461], 'rankup': [2.7574, 0.9473], 'crown': [3.9547, 2.0959], 'duel_win': [6.3006, 0.4968], 'duel_lose': [7.0474, 0.5461], 'error': [7.8436, 0.2374]},
+    haptics: { win: [30, 30, 30, 30, 80], rankup: [40, 40, 90], crown: [30, 30, 30, 30, 80, 40, 120], duel_win: [30, 30, 60], error: [50] }
+  }) : null;
+  function fx(kind) { if (AUD) AUD.play(kind); }
+  function setSound(on) { S.sound = on; save('cw_sound', on); if (AUD) { AUD.setSfx(on); if (on) AUD.play('click'); } }
+  function setMusic(on) { S.music = on; save('cw_music', on); if (AUD) AUD.setMusic(on); }
 
   /* ---------- toasts + effects ---------- */
   var toastsEl = document.createElement('div'); toastsEl.className = 'toasts'; toastsEl.setAttribute('aria-live', 'polite'); document.body.appendChild(toastsEl);
@@ -144,7 +112,7 @@
       '<div class="sub">Tap to keep going</div></div>';
     var cols = ['#FFD12E', '#22D3EE', '#FF3B7F', '#fff'];
     for (var i = 0; i < 40; i++) { var a = Math.random() * Math.PI * 2, d = 150 + Math.random() * 230; h += '<i class="confetti" style="animation-delay:.25s;background:' + cols[i % 4] + ';--x:' + Math.cos(a) * d + 'px;--y:' + Math.sin(a) * d + 'px;--r:' + (Math.random() * 720) + 'deg"></i>'; }
-    el.innerHTML = h; document.body.appendChild(el); fx('win'); if (up) setTimeout(function () { fx('crown'); }, 900);
+    el.innerHTML = h; document.body.appendChild(el); fx('win'); if (up) setTimeout(function () { fx('rankup'); }, 900);
     var close = function () { if (!el.parentNode) return; el.classList.add('out'); setTimeout(function () { el.remove(); }, 300); };
     el.addEventListener('click', close); setTimeout(close, up ? 4200 : 3000);
   }
@@ -160,7 +128,7 @@
   /* entry functions return {err} instead of raising, so the server can keep count of failed tries */
   function rpcj(fn, args) { return rpc(fn, args).then(function (d) { if (d && d.err) throw new Error(d.err); return d; }); }
   function fail(e) {
-    var m = e && e.message; fx('bad'); toast(ic('cross', 28) + esc(ERR[m] || 'Try again'), 'bad');
+    var m = e && e.message; fx('error'); toast(ic('cross', 28) + esc(ERR[m] || 'Try again'), 'bad');
     if (m === 'not_allowed') { save('cw_session', null); S.sess = null; S.d = null; render(); }
   }
   function act(action, args) {
@@ -195,21 +163,21 @@
       if (f.actor === d.me && ['claim', 'done', 'card'].indexOf(f.kind) >= 0) return;
       var a = d.players.find(function (p) { return p.id === f.actor; }) || {};
       var c = f.info && f.info.chore ? (d.chores.find(function (x) { return x.id === f.info.chore; }) || {}) : {};
-      if (f.kind === 'steal' && f.target === d.me) { flash(); fx('steal'); toast(av(a.avatar, 32) + esc(a.name) + ' stole ' + esc(c.title || 'a chore'), 'bad'); }
-      else if (f.kind === 'blocked' && f.actor === d.me) { fx('card'); toast(ic('shield', 28) + 'Shield blocked a steal!', 'good'); }
+      if (f.kind === 'steal' && f.target === d.me) { flash(); toast(av(a.avatar, 32) + esc(a.name) + ' stole ' + esc(c.title || 'a chore'), 'bad'); }
+      else if (f.kind === 'blocked' && f.actor === d.me) { toast(ic('shield', 28) + 'Shield blocked a steal!', 'good'); }
       else if (f.kind === 'approved' && f.actor === d.me) { victory(c, f.info.gain || 0, (oldD.players.find(function (p) { return p.id === d.me; }) || {}).xp, (d.players.find(function (p) { return p.id === d.me; }) || {}).xp); if (f.info.card) setTimeout(function () { toast(ic(f.info.card, 28) + 'New card!', 'good'); }, 1800); }
-      else if (f.kind === 'rejected' && f.actor === d.me) { fx('bad'); toast(ic('cross', 28) + esc(c.title || 'Chore') + ': redo it', 'bad'); }
-      else if (f.kind === 'offer' && f.target === d.me) { fx('card'); toast(ic('swap', 28) + esc(a.name) + ' wants a swap'); }
-      else if (f.kind === 'counter' && f.target === d.me) { fx('card'); toast(ic('swap', 28) + esc(a.name) + ' countered'); }
-      else if (f.kind === 'trade_ok' && f.target === d.me) { fx('grab'); toast(ic('check', 28) + esc(a.name) + ' took the swap', 'good'); }
-      else if (f.kind === 'chal' && f.target === d.me) { fx('card'); toast(ic('vs', 28) + esc(a.name) + ' challenged you!'); }
-      else if (f.kind === 'claim' && f.actor !== d.me) { fx('tap'); }
-      else if (f.kind === 'done' && d.players.find(function (p) { return p.id === d.me && p.role === 'parent'; })) { fx('card'); toast(ic('camera', 28) + esc(a.name) + ': check it'); }
-      else if (f.kind === 'bounty') { fx('card'); toast(ic('bounty', 28) + 'Bounty on ' + esc(c.title || 'a chore')); }
-      else if (f.kind === 'champion') { fx('win'); toast(ic('crown', 28) + esc(a.name) + ' is champion!', 'good'); }
+      else if (f.kind === 'rejected' && f.actor === d.me) { toast(ic('cross', 28) + esc(c.title || 'Chore') + ': redo it', 'bad'); }
+      else if (f.kind === 'offer' && f.target === d.me) { toast(ic('swap', 28) + esc(a.name) + ' wants a swap'); }
+      else if (f.kind === 'counter' && f.target === d.me) { toast(ic('swap', 28) + esc(a.name) + ' countered'); }
+      else if (f.kind === 'trade_ok' && f.target === d.me) { toast(ic('check', 28) + esc(a.name) + ' took the swap', 'good'); }
+      else if (f.kind === 'chal' && f.target === d.me) { toast(ic('vs', 28) + esc(a.name) + ' challenged you!'); }
+      else if (f.kind === 'chal_win' && (f.actor === d.me || f.target === d.me)) { fx(f.actor === d.me ? 'duel_win' : 'duel_lose'); }
+      else if (f.kind === 'done' && d.players.find(function (p) { return p.id === d.me && p.role === 'parent'; })) { toast(ic('camera', 28) + esc(a.name) + ': check it'); }
+      else if (f.kind === 'bounty') { toast(ic('bounty', 28) + 'Bounty on ' + esc(c.title || 'a chore')); }
+      else if (f.kind === 'champion') { toast(ic('crown', 28) + esc(a.name) + ' is champion!', 'good'); }
     });
     var oldReq = (oldD.requests || []).map(function (r) { return r.id; });
-    (d.requests || []).forEach(function (r) { if (oldReq.indexOf(r.id) < 0) { fx('card'); toast(av(r.avatar, 32) + esc(r.name) + ' wants in'); } });
+    (d.requests || []).forEach(function (r) { if (oldReq.indexOf(r.id) < 0) { toast(av(r.avatar, 32) + esc(r.name) + ' wants in'); } });
   }
   function apply(d) {
     var old = S.d; S.d = d;
@@ -549,7 +517,7 @@
     if (allowed.indexOf(S.tab) < 0) { S.tab = 'arena'; body = arena; }
     app.innerHTML = (S.demo ? demoBar() : '') + topBar() + '<main>' + body() + '</main>' + nav() + '<div class="stagebar">' + (S.demo ? 'demo' : 'staging') + '</div>';
     window.scrollTo(0, y);
-    if (S.anim) { var an = S.anim; S.anim = null; if (an.kind === 'flip') { fx('grab'); tileBurst(an.id, an.n); } }
+    if (S.anim) { var an = S.anim; S.anim = null; if (an.kind === 'flip') { tileBurst(an.id, an.n); } }
     var g = app.querySelector('.grab'); if (g && S.tab === 'chores') g.classList.add('first');
   }
   function bindSlides() {
@@ -578,9 +546,9 @@
       '<button class="btn ghost" style="color:var(--ink)" data-sheet="noproof">No photo</button></div>');
     s.querySelector('#proofIn').addEventListener('change', function (e) {
       var file = e.target.files[0]; if (!file) return;
-      shrink(file).then(function (url) { closeSheet(); return act('done', { chore: id, proof: url }); }).then(function () { fx('grab'); toast(ic('lock', 28) + 'Sent to the referee', 'good'); }).catch(function (er) { if (er && er.local) fail(er); /* server errors already shown */ });
+      shrink(file).then(function (url) { closeSheet(); return act('done', { chore: id, proof: url }); }).then(function () { toast(ic('lock', 28) + 'Sent to the referee', 'good'); }).catch(function (er) { if (er && er.local) fail(er); /* server errors already shown */ });
     });
-    s.querySelector('[data-sheet="noproof"]').addEventListener('click', function () { closeSheet(); act('done', { chore: id }).then(function () { fx('grab'); toast(ic('lock', 28) + 'Sent to the referee', 'good'); }).catch(function () { /* shown */ }); });
+    s.querySelector('[data-sheet="noproof"]').addEventListener('click', function () { closeSheet(); act('done', { chore: id }).then(function () { toast(ic('lock', 28) + 'Sent to the referee', 'good'); }).catch(function () { /* shown */ }); });
   }
   function shrink(file) {
     return new Promise(function (res, rej) {
@@ -613,16 +581,16 @@
       '<button class="btn big" style="margin-top:18px" data-sheet="send">' + ic('swap', 30) + 'Send offer</button>');
     s.querySelector('#gives').addEventListener('click', function (e) { var b = e.target.closest('[data-g]'); if (!b) return; sel.give = b.dataset.g; s.querySelectorAll('#gives button').forEach(function (x) { x.classList.toggle('on', x === b); }); });
     s.querySelector('#sweets').addEventListener('click', function (e) { var b = e.target.closest('[data-s]'); if (!b) return; sel.sweet = +b.dataset.s; s.querySelectorAll('#sweets button').forEach(function (x) { x.classList.toggle('on', x === b); }); });
-    s.querySelector('[data-sheet="send"]').addEventListener('click', function () { closeSheet(); act('offer', { give: sel.give, take: takeId, sweet: sel.sweet }).then(function () { fx('card'); toast(ic('swap', 28) + 'Offer sent', 'good'); }).catch(function () { /* shown */ }); });
+    s.querySelector('[data-sheet="send"]').addEventListener('click', function () { closeSheet(); act('offer', { give: sel.give, take: takeId, sweet: sel.sweet }).then(function () { toast(ic('swap', 28) + 'Offer sent', 'good'); }).catch(function () { /* shown */ }); });
   }
   function counterSheet(id) {
     var s = sheet('<div class="ttl">Counter: they add</div><div class="seg" id="cs">' + [5, 10, 20].map(function (n) { return '<button data-s="' + n + '">' + ic('pts', 20) + '+' + n + '</button>'; }).join('') + '</div>');
-    s.querySelector('#cs').addEventListener('click', function (e) { var b = e.target.closest('[data-s]'); if (!b) return; closeSheet(); act('counter', { trade: id, sweet: +b.dataset.s }).then(function () { fx('card'); toast(ic('swap', 28) + 'Counter sent', 'good'); }).catch(function () { /* shown */ }); });
+    s.querySelector('#cs').addEventListener('click', function (e) { var b = e.target.closest('[data-s]'); if (!b) return; closeSheet(); act('counter', { trade: id, sweet: +b.dataset.s }).then(function () { toast(ic('swap', 28) + 'Counter sent', 'good'); }).catch(function () { /* shown */ }); });
   }
   function challengeSheet() {
     var d = S.d, rivals = d.players.filter(function (p) { return p.role === 'player' && p.id !== d.me; });
     var s = sheet('<div class="ttl">Pick a rival</div><div class="pick">' + rivals.map(function (p) { return '<button data-r="' + p.id + '">' + av(p.avatar, 60) + esc(p.name) + '</button>'; }).join('') + '</div><div style="text-align:center;margin-top:12px;font-size:14px;opacity:.7">Most points this week wins +25 XP</div>');
-    s.querySelector('.pick').addEventListener('click', function (e) { var b = e.target.closest('[data-r]'); if (!b) return; closeSheet(); act('challenge', { target: b.dataset.r }).then(function () { fx('card'); toast(ic('vs', 28) + 'Challenge sent', 'good'); }).catch(function () { /* shown */ }); });
+    s.querySelector('.pick').addEventListener('click', function (e) { var b = e.target.closest('[data-r]'); if (!b) return; closeSheet(); act('challenge', { target: b.dataset.r }).then(function () { toast(ic('vs', 28) + 'Challenge sent', 'good'); }).catch(function () { /* shown */ }); });
   }
   function addSheet() {
     var sel = { icon: 'spark', pts: 10 };
@@ -645,8 +613,10 @@
       (m.role === 'player' ? '<div style="display:flex;justify-content:center;align-items:center;gap:10px;margin:10px 0">' + ic(r.ic, 44) + '<div><div class="num" style="font-size:22px">' + r.n + '</div><div style="font-size:14px">' + m.xp + ' XP' + (nx ? ' / ' + nx.at : '') + '</div></div></div>' +
         '<div style="display:flex;justify-content:center;gap:8px;margin-bottom:10px">' + RANKS.map(function (k) { return '<span style="opacity:' + (m.xp >= k.at ? 1 : .35) + '">' + ic(k.ic, 40) + '</span>'; }).join('') + '</div>' : '') +
       '<div class="stack"><button class="btn white big" data-sheet="snd">' + ic(S.sound ? 'sound' : 'mute', 30) + (S.sound ? 'Sound on' : 'Sound off') + '</button>' +
+      '<button class="btn white big" data-sheet="mus" aria-pressed="' + S.music + '">' + ic(S.music ? 'sound' : 'mute', 30) + (S.music ? 'Music on' : 'Music off') + '</button>' +
       '<button class="btn ghost" style="color:var(--ink)" data-sheet="out">Leave on this phone</button></div>');
-    s.querySelector('[data-sheet="snd"]').addEventListener('click', function () { S.sound = !S.sound; save('cw_sound', S.sound); closeSheet(); fx('tap'); });
+    s.querySelector('[data-sheet="snd"]').addEventListener('click', function () { setSound(!S.sound); closeSheet(); });
+    s.querySelector('[data-sheet="mus"]').addEventListener('click', function () { setMusic(!S.music); closeSheet(); });
     s.querySelector('[data-sheet="out"]').addEventListener('click', function () { closeSheet(); save('cw_session', null); S.sess = null; S.d = null; if (chan) { sb.removeChannel(chan); chan = null; } S.view = null; S.draft = {}; render(); });
   }
   /* rewarded moment: labelled Ad, 5-second countdown, then a card flips to show the prize.
@@ -660,7 +630,7 @@
     var t = setInterval(function () {
       if (!document.body.contains(s)) { clearInterval(t); return; }
       n -= 1; ring.style.setProperty('--p', (5 - n) / 5);
-      if (n > 0) { s.querySelector('#adn').textContent = n; fx('tick'); return; }
+      if (n > 0) { s.querySelector('#adn').textContent = n; return; }
       clearInterval(t); s.querySelector('#adn').innerHTML = ic('check', 40);
       ring.classList.add('done'); s.querySelector('#adsub').textContent = 'Unlocking…';
       act('ad_reward').then(function (got) {
@@ -668,8 +638,8 @@
         s.querySelector('#revf').innerHTML = ic(k, 84) + '<b>' + nm + '</b>';
         s.querySelector('#adname').textContent = nm + ' card!'; s.querySelector('#adsub').textContent = 'Added to your deck';
         var fc = s.querySelector('.flipcard'); fc.classList.remove('spin');
-        setTimeout(function () { fc.classList.add('flip'); fx('card'); }, 250);
-        setTimeout(function () { burst(1); fx('win'); }, 900);
+        setTimeout(function () { fc.classList.add('flip'); }, 250);
+        setTimeout(function () { burst(1); fx('reward'); }, 900);
         setTimeout(closeSheet, 2600);
       }).catch(function () { closeSheet(); });
     }, 1000);
@@ -681,8 +651,8 @@
     if (!S.pend) return Promise.resolve();
     return rpc('cw_join_status', { p_request: S.pend.request, p_secret: S.pend.secret }).then(function (r) {
       if (!S.pend) return;
-      if (r.status === 'ok') { var sec = S.pend.secret; clearInterval(pendT); fx('win'); toast(ic('check', 28) + "You're in!", 'good'); return startSession({ player: r.player, secret: sec, household: r.household, code: r.code }); }
-      if (r.status !== 'pending') { clearInterval(pendT); save('cw_pending', null); S.pend = null; S.draft = {}; S.view = null; if (chan) { sb.removeChannel(chan); chan = null; } fx('bad'); toast(ic('cross', 28) + 'Not let in', 'bad'); render(); }
+      if (r.status === 'ok') { var sec = S.pend.secret; clearInterval(pendT); toast(ic('check', 28) + "You're in!", 'good'); return startSession({ player: r.player, secret: sec, household: r.household, code: r.code }); }
+      if (r.status !== 'pending') { clearInterval(pendT); save('cw_pending', null); S.pend = null; S.draft = {}; S.view = null; if (chan) { sb.removeChannel(chan); chan = null; } toast(ic('cross', 28) + 'Not let in', 'bad'); render(); }
     }).catch(function () { /* retry on next tick */ });
   }
   function startWaiting() { connect(); clearInterval(pendT); pendT = setInterval(function () { if (!document.hidden) pollJoin(); }, 4000); render(); }
@@ -717,7 +687,7 @@
       else { c.status = 'claimed'; c.proof = null; }
     } else if (action === 'bounty' && c) { c.bounty = Math.min(30, c.bounty + 10); }
     else if (action === 'ad_reward') { m.cards.steal += 1; render(); return Promise.resolve('steal'); }
-    else { fx('bad'); toast(ic('lock', 28) + ERR.demo, 'bad'); return Promise.reject(new Error('demo')); }
+    else { fx('error'); toast(ic('lock', 28) + ERR.demo, 'bad'); return Promise.reject(new Error('demo')); }
     render(); return Promise.resolve(null);
   }
 
@@ -729,39 +699,39 @@
     switch (a) {
       case 'onb_next': {
         var el = document.getElementById('slides'), i = Math.round(el.scrollLeft / el.clientWidth);
-        if (i >= 2) { save('cw_onb', true); fx('grab'); render(); } else { fx('tap'); el.scrollTo({ left: (i + 1) * el.clientWidth, behavior: 'smooth' }); }
+        if (i >= 2) { save('cw_onb', true); render(); } else { el.scrollTo({ left: (i + 1) * el.clientWidth, behavior: 'smooth' }); }
         break;
       }
       case 'home': S.view = null; S.draft = {}; S.joinCode = null; render(); break;
       case 'go_create': S.view = 'create'; render(); break;
       case 'go_join': S.view = 'join'; render(); break;
-      case 'go_demo': fx('grab'); startDemo(); break;
-      case 'demo_view': S.d.me = isParent() ? 'nova' : 'cap'; S.tab = isParent() ? 'verify' : 'chores'; fx('tap'); render(); break;
-      case 'demo_exit': S.demo = false; S.d = null; S.tab = null; S.view = null; fx('tap'); render(); break;
+      case 'go_demo': startDemo(); break;
+      case 'demo_view': S.d.me = isParent() ? 'nova' : 'cap'; S.tab = isParent() ? 'verify' : 'chores'; render(); break;
+      case 'demo_exit': S.demo = false; S.d = null; S.tab = null; S.view = null; render(); break;
       case 'pick_av':
         S.draft.av = id; keepDraft();
-        document.querySelectorAll('.avpick button').forEach(function (x) { x.classList.toggle('on', x.dataset.id === id); }); fx('tap'); break;
+        document.querySelectorAll('.avpick button').forEach(function (x) { x.classList.toggle('on', x.dataset.id === id); }); break;
       case 'pick_bd':
         S.draft.bd = id; keepDraft();
-        document.querySelectorAll('.bdpick button').forEach(function (x) { x.classList.toggle('on', x.dataset.id === id); }); fx('card'); break;
+        document.querySelectorAll('.bdpick button').forEach(function (x) { x.classList.toggle('on', x.dataset.id === id); }); break;
       case 'parent_mode': S.draft.parent = true; S.joinCode = v('#f_code').toUpperCase() || S.joinCode; render(); break;
       case 'parent_in': {
         var pc = v('#f_code').toUpperCase().replace(/[^A-Z0-9]/g, ''), pp = v('#f_pin');
         if (!/^\d{4}$/.test(pp)) { toast(ic('lock', 28) + 'PIN: 4 digits', 'bad'); return; }
-        rpcj('cw_parent', { p_code: pc, p_pin: pp, p_device: DEV }).then(function (r) { fx('win'); return startSession(r); }).catch(fail);
+        rpcj('cw_parent', { p_code: pc, p_pin: pp, p_device: DEV }).then(function (r) { return startSession(r); }).catch(fail);
         break;
       }
       case 'cancel_pend': clearInterval(pendT); save('cw_pending', null); S.pend = null; S.draft = {}; S.view = null; if (chan) { sb.removeChannel(chan); chan = null; } render(); break;
-      case 'sound': S.sound = !S.sound; save('cw_sound', S.sound); fx('tap'); render(); break;
+      case 'sound': setSound(!S.sound); render(); break;
       case 'crown_replay': { var cp = player(id); if (cp) ceremony(cp, 'Top of the week'); break; }
-      case 'req_ok': act('approve_join', { req: id }).then(function () { fx('win'); toast(ic('check', 28) + 'Let in', 'good'); }).catch(function () { /* shown */ }); break;
-      case 'req_seat': act('approve_join', { req: id, seat: b.dataset.seat }).then(function () { fx('win'); toast(ic('check', 28) + 'Seat taken back', 'good'); }).catch(function () { /* shown */ }); break;
+      case 'req_ok': act('approve_join', { req: id }).then(function () { toast(ic('check', 28) + 'Let in', 'good'); }).catch(function () { /* shown */ }); break;
+      case 'req_seat': act('approve_join', { req: id, seat: b.dataset.seat }).then(function () { toast(ic('check', 28) + 'Seat taken back', 'good'); }).catch(function () { /* shown */ }); break;
       case 'req_no': act('deny_join', { req: id }).catch(function () { /* shown */ }); break;
       case 'create': {
         var house = v('#f_house'), name = v('#f_name'), pin = v('#f_pin');
         if (!house || !name) { toast(ic('cross', 28) + 'Add both names', 'bad'); return; }
         if (!/^\d{4}$/.test(pin)) { toast(ic('lock', 28) + 'PIN: 4 digits', 'bad'); return; }
-        rpcj('cw_create', { p_house: house, p_name: name, p_avatar: S.draft.av || 'owl', p_pin: pin, p_badge: 'crown', p_device: DEV }).then(function (r) { fx('win'); return startSession(r).then(function () { S.tab = 'invite'; render(); }); }).catch(fail);
+        rpcj('cw_create', { p_house: house, p_name: name, p_avatar: S.draft.av || 'owl', p_pin: pin, p_badge: 'crown', p_device: DEV }).then(function (r) { return startSession(r).then(function () { S.tab = 'invite'; render(); }); }).catch(fail);
         break;
       }
       case 'find': findHouse(v('#f_code')); break;
@@ -770,34 +740,34 @@
         var jav = S.draft.av || 'fox', jbd = S.draft.bd || 'bolt';
         rpcj('cw_join', { p_code: S.draft.code, p_name: nm, p_avatar: jav, p_badge: jbd, p_device: DEV }).then(function (r) {
           S.pend = { request: r.request, secret: r.secret, household: r.household, name: nm, avatar: jav, badge: jbd };
-          save('cw_pending', S.pend); fx('card'); startWaiting(); setTimeout(ping, 800);
+          save('cw_pending', S.pend); startWaiting(); setTimeout(ping, 800);
         }).catch(fail);
         break;
       }
-      case 'tab': S.tab = id; fx('tap'); window.scrollTo(0, 0); render(); break;
+      case 'tab': S.tab = id; window.scrollTo(0, 0); render(); break;
       case 'claim': {
         var cc = chore(id), gn = cc ? cc.pts + cc.bounty : 0;
         S.anim = { id: id, kind: 'flip', n: gn };
         act('claim', { chore: id }).catch(function () { S.anim = null; /* shown */ });
         break;
       }
-      case 'steal': act('steal', { chore: id }).then(function (got) { if (got === 'blocked') { fx('bad'); toast(ic('shield', 28) + 'Blocked by a shield!', 'bad'); } else { fx('steal'); toast(ic('steal', 28) + 'Stolen!', 'good'); } }).catch(function () { /* shown */ }); break;
+      case 'steal': act('steal', { chore: id }).then(function (got) { if (got === 'blocked') { toast(ic('shield', 28) + 'Blocked by a shield!', 'bad'); } else { toast(ic('steal', 28) + 'Stolen!', 'good'); } }).catch(function () { /* shown */ }); break;
       case 'done_sheet': doneSheet(id); break;
       case 'swap_sheet': swapSheet(id); break;
       case 'counter_sheet': counterSheet(id); break;
-      case 'accept': act('accept', { trade: id }).then(function () { fx('grab'); }).catch(function () { /* shown */ }); break;
+      case 'accept': act('accept', { trade: id }).catch(function () { /* shown */ }); break;
       case 'decline': act('decline', { trade: id }).catch(function () { /* shown */ }); break;
       case 'challenge_pick': challengeSheet(); break;
-      case 'chal_yes': act('chal_yes', { chal: id }).then(function () { fx('win'); }).catch(function () { /* shown */ }); break;
+      case 'chal_yes': act('chal_yes', { chal: id }).catch(function () { /* shown */ }); break;
       case 'chal_no': act('chal_no', { chal: id }).catch(function () { /* shown */ }); break;
       case 'card':
         if (id === 'steal') { toast(ic('steal', 28) + 'Use it on a chore'); S.tab = 'chores'; render(); break; }
-        act(id).then(function () { fx('card'); toast(ic(id, 28) + (id === 'shield' ? 'Shield up' : '2X armed'), 'good'); }).catch(function () { /* shown */ });
+        act(id).then(function () { toast(ic(id, 28) + (id === 'shield' ? 'Shield up' : '2X armed'), 'good'); }).catch(function () { /* shown */ });
         break;
       case 'ad': adSheet(); break;
-      case 'approve': act('approve', { chore: id }).then(function () { fx('win'); }).catch(function () { /* shown */ }); break;
+      case 'approve': act('approve', { chore: id }).then(function () { fx('approve'); }).catch(function () { /* shown */ }); break;
       case 'reject': act('reject', { chore: id }).catch(function () { /* shown */ }); break;
-      case 'bounty': act('bounty', { chore: id }).then(function () { fx('card'); }).catch(function () { /* shown */ }); break;
+      case 'bounty': act('bounty', { chore: id }).catch(function () { /* shown */ }); break;
       case 'add_sheet': addSheet(); break;
       case 'free_seat': act('free_seat', { player: id }).then(function () { toast(ic('qr', 28) + 'Seat open', 'good'); }).catch(function () { /* shown */ }); break;
       case 'pin_sheet': pinSheet(function (p) { act('set_pin', { pin: p }).then(function () { toast(ic('lock', 28) + 'PIN saved', 'good'); }).catch(function () { /* shown */ }); }); break;
@@ -814,7 +784,7 @@
     code = (code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
     if (code.length !== 8) { toast(ic('cross', 28) + 'Code is 8 characters', 'bad'); return; }
     rpcj('cw_seats', { p_code: code, p_device: DEV }).then(function (r) {
-      S.draft.code = r.code; S.view = 'join'; fx('grab'); render();
+      S.draft.code = r.code; S.view = 'join'; render();
     }).catch(fail);
   }
 
